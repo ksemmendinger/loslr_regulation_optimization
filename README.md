@@ -9,3 +9,5 @@ Once you have compiled Borg, you can introduce new simulation and evaluation pro
 In this example, the plan2014_wrapper.py script talks to Borg. In the wrapper script, you can specify the number of decision variables and their ranges, the number of objectives, the epsilon of significance for each objective value, and other parameters of the Borg MOEA.
 
 The wrapper script points to an external simulation-evaluation function, in this case plan2014_optim.py. The simulation function takes in an array of decision variables, simulates the time series of water levels and flows over a given supply sequence, calculates objective performance over the time series, and returns an array of length n, where n is the number of objectives, to Borg.
+
+You'll need to move the borg.c, borg.py, and libborg.so to the directory with your wrapper script.
