@@ -11,7 +11,7 @@ from functools import partial
 
 trace = "historic"
 args = sys.argv
-# args = ["", "mac_loc", "historic", "12month", "0", "5", "50000", "100", "100", "0.75", "12"]
+# args = ["", "mac_loc", "historic", "12month", "0", "5", "50000", "100", "100", "0.75", "17"]
 # [1]: location to run [mac_loc, mac_ext, linux, hopper]
 # [2]: version [historic, stochastic]
 # [3]: forecast lead time [12month, 6month, 3month, 1month]
@@ -49,7 +49,7 @@ perDifDV = float(args[9])
 nvars = int(args[10])
 
 # set number of objectives and decision variables
-nobjs = 6
+nobjs = 7
 nconstrs = 0
 
 # decision variable starting values
@@ -68,6 +68,9 @@ dvs = [
     6859.0,  # lfDryThreshold
     50.0,  # lf50Conf
     189.0,  # lf99Conf
+    74.80,  # limSepThreshold
+    32,  # limSepThresholdQM1
+    0,  # limSepThresholdQM2
 ]
 
 # dvs = dvs[:nvars]
@@ -85,8 +88,8 @@ path.mkdir(parents=True, exist_ok=True)
 perDif = perDifDV
 
 # lower and upper bounds
-lowerb = [x - perDif * x for x in dvs]
-upperb = [x + perDif * x for x in dvs]
+lowerb = [x - perDif * x for x in dvs[:-2]] + [1, 1]
+upperb = [x + perDif * x for x in dvs[:-2]] + [48, 48]
 
 # -----------------------------------------------------------------------------
 # run borg
@@ -107,12 +110,13 @@ borg.setBounds(*[list(x) for x in list(zip(lowerb, upperb))])
 # up ci (#), down ci (#), comm nav ($) [0.1% of 4M], hydro ($) [1% of 40M], mm (ha), rb ($)
 borg.setEpsilons(
     *[
-        54423.005638655464 * (5 / 100),
-        2908.2436974789916 * (5 / 100),
-        193243206.05042017 * (0.5 / 100),
-        2239512900.2167616 * (15 / 100),
-        8768.159925000002 * (7.5 / 100),
-        22373818.834033597 * (10 / 100),
+        61159.141361344526 * (5 / 100),
+        2823.126050420168 * (5 / 100),
+        193066983.99159664 * (0.5 / 100),
+        2242916365.175907 * (10 / 100),
+        9211.199907142856 * (7.5 / 100),
+        0.15604516924270675 * (7.5 / 100),  # include new muskrat PI
+        16712952.096386557 * (10 / 100),
     ]
 )
 

@@ -2,14 +2,16 @@
 
 # import libraries
 import os
+import math
 import numpy as np
 import pandas as pd
 
-# os.chdir("/Users/kylasemmendinger/Box/Plan_2014/optimization")
+# os.chdir("/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization")
 
 # # import test data
 # data = pd.read_csv("/Users/kylasemmendinger/Documents/github/Plan-2014-Python/simulation_model/output/historic/full/sq/historic/S1.txt", sep = "\t")
-# data = data.dropna().reset_index(drop=True)
+# data = data.drop(labels = ["confidence", "indicator"], axis = 1)
+# data = data.dropna(axis = 0).reset_index(drop=True)
 # data = {x: data[x].values for x in data}
 
 # -----------------------------------------------------------------------------
@@ -1646,6 +1648,145 @@ def meadowMarsh(levels, nts, contours):
 
 
 # -----------------------------------------------------------------------------
+# mukrat house density (%)
+# -----------------------------------------------------------------------------
+
+mmElevZones = pd.read_csv("objectiveFunctions/mmElevZones.csv")
+mmAirTemps = pd.read_csv("objectiveFunctions/mmAirTemps.csv")
+
+
+def muskratDensity(levels, temps, elevZones):
+
+    # levels: dataframe of water level time series over the full simulation period
+    #   ["Sim", "Year", "QM", "alexbayLevel"]
+    # temps: dataframe of winter quarter-monthly freezing differentials (F) time series over the full simulation period
+    #   ["Sim", "Year", "QM", "airTemp", "freezingDiff"]
+    # elevZones: dataframe of areas associated with elevation zones for muskrat habitat zones
+
+    muskrat = pd.DataFrame(levels["Year"].unique(), columns=["Year"])
+
+    for i in range(muskrat.shape[0]):
+
+        y = muskrat["Year"][i]
+
+        if i == 0:
+            muskratResult = np.nan
+
+        else:
+
+            # fall (sep - nov (previous year)) quarter-monthly water levels
+            fallLevels = np.array(
+                levels.loc[
+                    (levels["Year"] == (y - 1))
+                    & (levels["QM"] >= 33)
+                    & (levels["QM"] <= 44),
+                    "alexbayLevel",
+                ]
+            )
+
+            # winter (dec (previous year) - feb (current year)) quarter-monthly water levels
+            winterLevels = np.array(
+                pd.concat(
+                    [
+                        levels.loc[
+                            (levels["Year"] == (y - 1)) & (levels["QM"] >= 45),
+                            "alexbayLevel",
+                        ],
+                        levels.loc[
+                            (levels["Year"] == y) & (levels["QM"] <= 8),
+                            "alexbayLevel",
+                        ],
+                    ]
+                )
+            )
+
+            # cumulative winter temperature freezing differentials
+            t = np.array(
+                pd.concat(
+                    [
+                        temps.loc[
+                            (temps["Year"] == (y - 1)) & (temps["QM"] >= 45),
+                            "freezingDiff",
+                        ],
+                        temps.loc[
+                            (temps["Year"] == y) & (temps["QM"] <= 8),
+                            "freezingDiff",
+                        ],
+                    ]
+                )
+            )
+
+            t = sum(t)
+
+            # elevation ranges ranges are hard-coded based on John Farrell's suggestion (March 2011)
+            elevMin = 74.3
+            elevMax = 75.15
+
+            # muskrat house density calculation (DRM wetland type, cattail-dominated DEF classifications)
+            if elevMin > 0:
+
+                # average quarter-monthly fall water level
+                avgFallLevel = fallLevels.mean()
+
+                # average quarter-monthly winter water level
+                avgWinterLevel = winterLevels.mean()
+
+                # initialize arrays for results
+                muskratDensityTotal = []
+                totalArea = []
+
+                for z in range(elevZones.shape[0]):
+
+                    # get max elevation and area of wetland classification of interest
+                    zoneMaxElev = elevZones.loc[z, "maxElevation"]
+                    zoneMinElev = elevZones.loc[z, "minElevation"]
+                    zoneArea = elevZones.loc[z, "areaFraction"]
+
+                    if (zoneMinElev >= elevMin) and (zoneMaxElev <= elevMax):
+
+                        # calculate fall and winter depths for current elevation
+                        fallDepth = avgFallLevel - zoneMaxElev
+                        if fallDepth < 0:
+                            fallDepth = 0
+                        winterDepth = avgWinterLevel - zoneMaxElev
+                        if winterDepth < 0:
+                            winterDepth = 0
+
+                        # calculate muskrat probability for current elevation
+                        muskratProb = 1 / (1 + math.exp(1.6692 - 11.9129 * winterDepth))
+
+                        # calculate muskrat density for current elevation
+                        if muskratProb >= 0.35:
+                            muskratDensity = (
+                                2.05276 + (2.7395 * fallDepth) + (0.0091 * t)
+                            )
+                        else:
+                            muskratDensity = 0
+
+                        # area weighting
+                        totalArea.append(zoneArea)
+                        muskratDensityTotal.append(zoneArea * muskratDensity)
+
+                totalArea = sum(totalArea)
+                muskratDensityTotal = sum(muskratDensityTotal)
+
+                # complete area weighting
+                if totalArea > 0:
+                    muskratResult = muskratDensityTotal / totalArea
+                else:
+                    muskratResult = 0
+
+            # if negative minimum elevation
+            else:
+                muskratResult = np.nan
+
+        # save results
+        muskrat.loc[i, "houseDensity"] = muskratResult
+
+    return muskrat
+
+
+# -----------------------------------------------------------------------------
 # recreational boating costs ($)
 # -----------------------------------------------------------------------------
 
@@ -2172,6 +2313,16 @@ def objectiveEvaluation(
     mm = mm.loc[mm["lowSupplyYear"] == 1]
 
     # ---------------------------------
+    # muskrat house density
+    # ---------------------------------
+
+    # muskrat house density (returns data frame of annual muskrat house density)
+    keys = ["Sim", "Year", "Month", "QM", "alexbayLevel"]
+    mmLevels = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
+
+    muskrat = muskratDensity(mmLevels, mmAirTemps, mmElevZones)
+
+    # ---------------------------------
     # recreational boating
     # ---------------------------------
 
@@ -2248,6 +2399,7 @@ def objectiveEvaluation(
         cn.groupby("Year")["value"].sum().mean(),
         -hydro.groupby("Year")["value"].sum().mean(),
         -mm.groupby("Year")["Area"].sum().mean(),
+        -muskrat.groupby("Year")["houseDensity"].sum().mean(),
         rb.groupby("Year")["value"].sum().mean(),
     )
 
@@ -2676,6 +2828,16 @@ def objectiveEvaluationSimulation(data):  # dataframe of simulated output
     totalArea = meadowMarsh(mmLevels, mmNTS, mmAreaContours)
 
     # ---------------------------------
+    # muskrat house density
+    # ---------------------------------
+
+    # muskrat house density (returns data frame of annual muskrat house density)
+    keys = ["Sim", "Year", "Month", "QM", "alexbayLevel"]
+    mmLevels = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
+
+    muskrat = muskratDensity(mmLevels, mmAirTemps, mmElevZones)
+
+    # ---------------------------------
     # recreational boating
     # ---------------------------------
 
@@ -2807,6 +2969,9 @@ def objectiveEvaluationSimulation(data):  # dataframe of simulated output
     totalArea.columns = ["Year", "mmArea", "mmLowSupply"]
     totalArea["QM"] = [48] * totalArea.shape[0]
 
+    muskrat.columns = ["Year", "muskratHouseDensity"]
+    muskrat["QM"] = [48] * muskrat.shape[0]
+
     rb = rb[
         [
             "Sim",
@@ -2826,4 +2991,4 @@ def objectiveEvaluationSimulation(data):  # dataframe of simulated output
     ]
 
     # return
-    return ci, cn, hydro, totalArea, rb
+    return ci, cn, hydro, totalArea, muskrat, rb

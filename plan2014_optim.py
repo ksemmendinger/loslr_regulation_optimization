@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-# os.chdir("/Users/kylasemmendinger/Box/Plan_2014/optimization")
+# os.chdir("/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization")
 
 # import objective functions
 sys.path.insert(1, os.getcwd() + "/objectiveFunctions")
@@ -33,6 +33,9 @@ import objectiveFunctions
 #     6859.0,  # lfDryThreshold
 #     50.0,  # lf50Conf
 #     189.0,  # lf99Conf
+#     74.8, # limSepThreshold
+#     32, # limSepThresholdQM1
+#     0, # limSepThresholdQM2
 # ]
 
 # -----------------------------------------------------------------------------
@@ -245,8 +248,12 @@ def simulation(data, version, **vars):
     rcDryLevel = float(vars["rcDryLevel"])
     rcDryFlowAdj = float(vars["rcDryFlowAdj"])
 
-    # manually set and omit from optimization
-    limSepThreshold = 74.80
+    limSepThreshold = float(vars["limSepThreshold"])
+    limSepThresholdQM1 = int(vars["limSepThresholdQM1"])
+    limSepThresholdQM2 = int(vars["limSepThresholdQM2"])
+
+    # # manually set and omit from optimization
+    # limSepThreshold = 74.80
 
     # lake ontario 90% exceedence level using Planbv7_ml_10cm
     ontLowPctLevel = [
@@ -696,7 +703,7 @@ def simulation(data, version, **vars):
         # ---------------------------------------------------------------------------
 
         # only applies starting QM32
-        if qm >= 33:
+        if qm >= limSepThresholdQM1 or qm <= limSepThresholdQM2:
 
             # only applies if the QM32 level is greater than the September threshold
             if qm32Level > limSepThreshold:
@@ -2173,6 +2180,9 @@ def optimization(expName, v, *vars):
     vars["lfDryThreshold"] = dvs[11]
     vars["lf50Conf"] = dvs[12]
     vars["lf99Conf"] = dvs[13]
+    vars["limSepThreshold"] = dvs[14]
+    vars["limSepThresholdQM1"] = dvs[15]
+    vars["limSepThresholdQM2"] = dvs[16]
 
     # -----------------------------------------------------------------------------
     # plan 2014 simulation
@@ -2187,8 +2197,8 @@ def optimization(expName, v, *vars):
     # -----------------------------------------------------------------------------
 
     # run objective functions for upstream coastal, downstream coastal, commercial
-    # naviation, hydropower, meadow marsh, and recreational boating. returns annual
-    # average for each objective
+    # naviation, hydropower, meadow marsh, muskrat house density,and recreational
+    # boating. returns annual average for each objective
 
     # convert data frame to dictionary for faster computation
     startTimeObj = datetime.now()
@@ -2196,7 +2206,7 @@ def optimization(expName, v, *vars):
     data = {x: data[x].values for x in data}
 
     # initialize output
-    nobjs = 6
+    nobjs = 7
     objs = [0.0] * nobjs
 
     # run models
@@ -2207,6 +2217,7 @@ def optimization(expName, v, *vars):
         objs[3],
         objs[4],
         objs[5],
+        objs[6],
     ) = objectiveFunctions.objectiveEvaluation(data)
 
     endTimeObj = datetime.now()
