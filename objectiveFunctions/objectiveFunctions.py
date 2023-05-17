@@ -1648,11 +1648,11 @@ def meadowMarsh(levels, nts, contours):
 
 
 # -----------------------------------------------------------------------------
-# mukrat house density (%)
+# muskrat house density (%)
 # -----------------------------------------------------------------------------
 
 mmElevZones = pd.read_csv("objectiveFunctions/mmElevZones.csv")
-mmAirTemps = pd.read_csv("objectiveFunctions/mmAirTemps.csv")
+# mmAirTemps = pd.read_csv("objectiveFunctions/mmAirTemps.csv")
 
 
 def muskratDensity(levels, temps, elevZones):
@@ -2320,6 +2320,9 @@ def objectiveEvaluation(
     keys = ["Sim", "Year", "Month", "QM", "alexbayLevel"]
     mmLevels = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
 
+    keys = ["Sim", "Year", "QM", "airTemp", "freezingDiff"]
+    mmAirTemps = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
+
     muskrat = muskratDensity(mmLevels, mmAirTemps, mmElevZones)
 
     # ---------------------------------
@@ -2834,6 +2837,9 @@ def objectiveEvaluationSimulation(data):  # dataframe of simulated output
     # muskrat house density (returns data frame of annual muskrat house density)
     keys = ["Sim", "Year", "Month", "QM", "alexbayLevel"]
     mmLevels = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
+
+    keys = ["Sim", "Year", "QM", "airTemp", "freezingDiff"]
+    mmAirTemps = pd.DataFrame(dict((k, data[k]) for k in keys if k in data))
 
     muskrat = muskratDensity(mmLevels, mmAirTemps, mmElevZones)
 
