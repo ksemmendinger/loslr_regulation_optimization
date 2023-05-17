@@ -11,3 +11,5 @@ In this example, the plan2014_wrapper.py script talks to Borg. In the wrapper sc
 The wrapper script points to an external simulation-evaluation function, in this case plan2014_optim.py. The simulation function takes in an array of decision variables, simulates the time series of water levels and flows over a given supply sequence, calculates objective performance over the time series, and returns an array of length n, where n is the number of objectives, to Borg.
 
 You'll need to move the borg.c, borg.py, and libborg.so to the directory with your wrapper script.
+
+![workflow](resources/workflow.png)
