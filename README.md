@@ -35,7 +35,7 @@ The forecasted supply index, $NTS_{fcst}$, at any given quarter-month, $q$, is c
 $$ NTS_{prev} = \overline {NTS_{q - 49} : NTS_{q - 1}} $$
 $$ NTS_{fcst} = AR_{1}(NTS_{prev}) $$
 
-Confidence intervals, ${CI}_{50}$ and ${CI}_{99}$, are applied to the $NTS_{fcst}$ term to calculate upper and lower limits:
+Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ term to calculate upper and lower limits:
 
 $$
 NTS_{99} = NTS_{fcst} \pm {CI}_{99}
