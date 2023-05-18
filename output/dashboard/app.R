@@ -82,7 +82,7 @@ filelist <- data.frame(stringsAsFactors = FALSE,
 impactZonesContext <- read.csv("../postScripts/impactZones.csv", check.names = FALSE, stringsAsFactors = FALSE)
 
 # app descriptive text - blank for now
-description <- read_file("description.txt")
+# description <- read_file("description.txt")
 
 # -----------------------------------------------------------------------------
 # pi and variable setup
@@ -91,25 +91,37 @@ description <- read_file("description.txt")
 print("... setting pi names ...")
 
 # names of objectives
-pis <- c("Coastal Impacts: Upstream Buildings Impacted (#)", "Coastal Impacts: Downstream Buildings Impacted (#)", "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)", "Hydropower: Moses-Saunders + Niagara Energy Value ($)", "Meadow Marsh: Area (ha)", "Recreational Boating: Impact Costs ($)")
-piPlotNames <- c("Coastal Impacts (Upstream)", "Coastal Impacts (Downstream)", "Commercial Navigation", "Hydropower Production", "Wetland Health & Services", "Recreational Boating")
+pis <- c("Coastal Impacts: Upstream Buildings Impacted (#)", 
+         "Coastal Impacts: Downstream Buildings Impacted (#)", 
+         "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)", 
+         "Hydropower: Moses-Saunders + Niagara Energy Value ($)", 
+         "Meadow Marsh: Area (ha)", 
+         "Muskrat House Density (%)",
+         "Recreational Boating: Impact Costs ($)")
+piPlotNames <- c("Coastal Impacts (Upstream)", 
+                 "Coastal Impacts (Downstream)", 
+                 "Commercial Navigation", 
+                 "Hydropower Production", 
+                 "Wetland Health & Services", 
+                 "Muskrat House Density", 
+                 "Recreational Boating")
 names(piPlotNames) <- pis
-piAbbNames <- c("UC", "DC", "CN", "HP", "WH", "RB")
+piAbbNames <- c("UC", "DC", "CN", "HP", "WH", "MD", "RB")
 names(piAbbNames) <- pis
 
 # pis to maximize
-maxPIs <- c("Hydropower: Moses-Saunders + Niagara Energy Value ($)", "Meadow Marsh: Area (ha)")
+maxPIs <- c("Hydropower: Moses-Saunders + Niagara Energy Value ($)", "Meadow Marsh: Area (ha)", "Muskrat House Density (%)")
 
 # pis to minimize
 minPIs <- c("Coastal Impacts: Upstream Buildings Impacted (#)", "Coastal Impacts: Downstream Buildings Impacted (#)", "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)", "Recreational Boating: Impact Costs ($)")
 
 # pi levels
 piLevels <- data.frame(check.names = FALSE, stringsAsFactors = FALSE,
-                       "PI" = c("upstreamCoastal", "ontarioCoastal", "alexbayCoastal", "cardinalCoastal", "downstreamCoastal", "lerybeauharnoisCoastal", "ptclaireCoastal", "sorelCoastal", "lacstpierreCoastal", "maskinongeCoastal", "troisrivieresCoastal", "totalCommercialNavigation", "ontarioCommercialNavigation", "seawayCommercialNavigation", "montrealCommercialNavigation", "totalEnergyValue", "nypaMosesSaundersEnergyValue", "opgMosesSaundersEnergyValue", "peakingMosesSaundersValue", "nypaNiagaraEnergyValue", "opgNiagaraEnergyValue", "totalRecBoating", "ontarioRecBoating", "alexbayRecBoating", "brockvilleRecBoating", "ogdensburgRecBoating", "longsaultRecBoating", "ptclaireRecBoating", "varennesRecBoating", "sorelRecBoating", "mmArea", "mmLowSupply"),
-                       "PI Name" = c("Upstream Coastal Impacts", "Lake Ontario Coastal Impacts", "Alexandria Bay Coastal Impacts", "Cardinal Coastal Impacts", "Downstream Coastal Impacts", "Lery Beauharnois Coastal Impacts", "Pointe-Claire Coastal Impacts", "Sorel Coastal Impacts", "Lac St. Pierre Coastal Impacts", "Maskinonge Coastal Impacts", "Trois Rivieres Coastal Impacts", "Total Commercial Navigation", "Lake Ontario Commercial Navigation", "Seaway Commercial Navigation", "Montreal Commercial Navigation", "Total Energy Value", "NYPA @ Moses-Saunders Hydropower Energy Value", "OPG @ Moses-Saunders Hydropower Energy Value", "Moses-Saunders Hydropower Peaking Value", "NYPA @ Niagara Hydropower Energy Value", "OPG @ Niagara Hydropower Energy Value", "Total Recreational Boating", "Lake Ontario Recreational Boating", "Alexandria Bay Recreational Boating", "Brockville Recreational Boating", "Ogdensburg Recreational Boating", "Long Sault Recreational Boating", "Pointe-Claire Recreational Boating", "Varennes Recreational Boating", "Sorel Recreational Boating", "Meadow Marsh Acreage", "Meadow Marsh Low Supply Year"),
-                       "PI Location" = c("Aggregate", "Lake Ontario", "Alexandria Bay", "Cardinal", "Aggregate", "Lery Beauharnois", "Pointe-Claire", "Sorel", "Lac St. Pierre", "Maskinonge", "Trois Rivieres", "Aggregate", "Lake Ontario", "Seaway", "Montreal", "Aggregate", "NYPA @ Moses-Saunders Energy Value", "OPG @ Moses-Saunders Energy Value", "Moses-Saunders Peaking Value", "NYPA @ Niagara Energy Value", "OPG @ Niagara Energy Value", "Aggregate", "Lake Ontario", "Alexandria Bay", "Brockville", "Ogdensburg", "Long Sault", "Pointe-Claire", "Varennes", "Sorel", "Meadow Marsh Acreage", "Meadow Marsh Low Supply Year"),
-                       "PI Group" = c(rep("Coastal Impacts", 11), rep("Commercial Navigation", 4), rep("Hydropower", 6), rep("Recreational Boating", 9), rep("Wetland Health & Services", 2)),
-                       "Individual Group" = c(rep("Upstream Coastal Impacts", 4), rep("Downstream Coastal Impacts", 7), rep("Commercial Navigation", 4), rep("Hydropower", 6), rep("Recreational Boating", 9), rep("Wetland Health & Services", 2))) %>%
+                       "PI" = c("upstreamCoastal", "ontarioCoastal", "alexbayCoastal", "cardinalCoastal", "downstreamCoastal", "lerybeauharnoisCoastal", "ptclaireCoastal", "sorelCoastal", "lacstpierreCoastal", "maskinongeCoastal", "troisrivieresCoastal", "totalCommercialNavigation", "ontarioCommercialNavigation", "seawayCommercialNavigation", "montrealCommercialNavigation", "totalEnergyValue", "nypaMosesSaundersEnergyValue", "opgMosesSaundersEnergyValue", "peakingMosesSaundersValue", "nypaNiagaraEnergyValue", "opgNiagaraEnergyValue", "totalRecBoating", "ontarioRecBoating", "alexbayRecBoating", "brockvilleRecBoating", "ogdensburgRecBoating", "longsaultRecBoating", "ptclaireRecBoating", "varennesRecBoating", "sorelRecBoating", "mmArea", "mmLowSupply", "muskratHouseDensity"),
+                       "PI Name" = c("Upstream Coastal Impacts", "Lake Ontario Coastal Impacts", "Alexandria Bay Coastal Impacts", "Cardinal Coastal Impacts", "Downstream Coastal Impacts", "Lery Beauharnois Coastal Impacts", "Pointe-Claire Coastal Impacts", "Sorel Coastal Impacts", "Lac St. Pierre Coastal Impacts", "Maskinonge Coastal Impacts", "Trois Rivieres Coastal Impacts", "Total Commercial Navigation", "Lake Ontario Commercial Navigation", "Seaway Commercial Navigation", "Montreal Commercial Navigation", "Total Energy Value", "NYPA @ Moses-Saunders Hydropower Energy Value", "OPG @ Moses-Saunders Hydropower Energy Value", "Moses-Saunders Hydropower Peaking Value", "NYPA @ Niagara Hydropower Energy Value", "OPG @ Niagara Hydropower Energy Value", "Total Recreational Boating", "Lake Ontario Recreational Boating", "Alexandria Bay Recreational Boating", "Brockville Recreational Boating", "Ogdensburg Recreational Boating", "Long Sault Recreational Boating", "Pointe-Claire Recreational Boating", "Varennes Recreational Boating", "Sorel Recreational Boating", "Meadow Marsh Acreage", "Meadow Marsh Low Supply Year", "Muskrat House Density"),
+                       "PI Location" = c("Aggregate", "Lake Ontario", "Alexandria Bay", "Cardinal", "Aggregate", "Lery Beauharnois", "Pointe-Claire", "Sorel", "Lac St. Pierre", "Maskinonge", "Trois Rivieres", "Aggregate", "Lake Ontario", "Seaway", "Montreal", "Aggregate", "NYPA @ Moses-Saunders Energy Value", "OPG @ Moses-Saunders Energy Value", "Moses-Saunders Peaking Value", "NYPA @ Niagara Energy Value", "OPG @ Niagara Energy Value", "Aggregate", "Lake Ontario", "Alexandria Bay", "Brockville", "Ogdensburg", "Long Sault", "Pointe-Claire", "Varennes", "Sorel", "Meadow Marsh Acreage", "Meadow Marsh Low Supply Year", "Muskrat House Density"),
+                       "PI Group" = c(rep("Coastal Impacts", 11), rep("Commercial Navigation", 4), rep("Hydropower", 6), rep("Recreational Boating", 9), rep("Wetland Health & Services", 3)),
+                       "Individual Group" = c(rep("Upstream Coastal Impacts", 4), rep("Downstream Coastal Impacts", 7), rep("Commercial Navigation", 4), rep("Hydropower", 6), rep("Recreational Boating", 9), rep("Wetland Health & Services", 2), rep("Muskrat House Density", 1))) %>%
   mutate(`PI Name` = factor(`PI Name`, levels = c(unique(`PI Name`))),
          `PI Location` = factor(`PI Location`, levels = c(unique(`PI Location`))),# levels = c("Aggregate", "Lake Ontario", "Alexandria Bay", "Brockville", "Ogdensburg", "Cardinal", "Long Sault", "Lery Beauharnois", "Pointe-Claire", "Varennes", "Sorel", "Maskinonge", "Lac St. Pierre", "Trois Rivieres","Seaway", "Montreal", "NYPA @ Moses-Saunders Energy Value", "OPG @ Moses-Saunders Energy Value", "Moses-Saunders Peaking Value", "NYPA @ Niagara Energy Value", "OPG @ Niagara Energy Value", "Meadow Marsh Acreage", "Meadow Marsh Low Supply Year")),
          `PI Group` = factor(`PI Group`, levels = c(unique(`PI Group`))),# levels = c("Coastal Impacts", "Commercial Navigation", "Hydropower", "Recreational Boating", "Wetland Health & Services")),
@@ -126,10 +138,10 @@ hydroLevels <- data.frame(
          Location = factor(Location, levels = c("Lake Ontario", "Kingston", "Alexandria Bay", "Brockville", "Ogdensburg", "Cardinal", "Iroquois Headwaters", "Iroquois Tailwaters", "Morrisburg", "Long Sault", "Saunders Headwaters", "Saunders Tailwaters", "Cornwall", "Summerstown", "Lery Beauharnois", "Lac St. Louis", "Pointe-Claire", "Jetty1", "St. Lambert", "Varennes", "Sorel", "Lac St. Pierre", "Maskinonge", "Trois Rivieres", "Batiscan")))
 
 # satisficing criteria agreed upon by glam and the board 
-piFilter <- data.frame("Group" = c("Upstream Coastal Impacts", "Downstream Coastal Impacts", "Commercial Navigation", "Hydropower", "Wetland Health & Services", "Recreational Boating"),
+piFilter <- data.frame("Group" = c("Upstream Coastal Impacts", "Downstream Coastal Impacts", "Commercial Navigation", "Hydropower", "Wetland Health & Services", "Muskrat House Density", "Recreational Boating"),
                        "PI" = pis,
-                       "lowerBounds" = c(0, 0, 0, -0.5, -5, -20),
-                       "roundDecimal" = c(0, 0, 2, 2, 0, 0))
+                       "lowerBounds" = c(0, 0, 0, -0.5, 0, 0, -10),
+                       "roundDecimal" = c(0, 0, 2, 2, 0, 2, 0))
 
 forecastLevels <- c("Plan 2014 Baseline", "12-month Perfect", "12-month Status Quo", "6-month Perfect", "6-month Status Quo", "3-month Perfect", "3-month Status Quo", "1-month Perfect", "1-month Status Quo") 
 
@@ -141,7 +153,8 @@ print("... loading pareto front data ...")
 
 # load in baseline objective performance
 paretoBaseline <- read.csv("../data/baseline/NonDominatedPolicies.txt", sep = "\t", header = TRUE, check.names = FALSE, stringsAsFactors = FALSE) %>%
-  dplyr::select(Experiment, `Lead-Time`, Skill, Policy, all_of(pis))
+  dplyr::select(Experiment, `Lead-Time`, Skill, Policy, all_of(pis)) %>%
+  mutate_at(vars(all_of(pis)), as.numeric)
 
 # create levels for the baseline performance and optimized seeds
 baselinePolicies <- paretoBaseline$Policy
@@ -158,82 +171,51 @@ runInfo <- data.frame("fn" = grep("_", list.files("../data"), value = TRUE)) %>%
          sk_pretty = case_when(sk == "sqAR" ~ "Status Quo (AR)", sk == "sqLM" ~ "Status Quo (LM)", sk == "0" ~ "Perfect", TRUE ~ as.character(sk)), 
          Policy = paste(lt_pretty, sk_pretty))
 
+# ADD FOR NOW TEMP
+runInfo <- runInfo %>% filter(fn == "12month_sqAR_75000nfe_17dvs")
+
 # load pareto front for each experiment
 paretoByForecast <- list()
 
 for (j in 1:nrow(runInfo)) {
   
   tmp <- data.table::fread(paste0("../data/", runInfo[j, "fn"], "/NonDominatedPolicies.txt")) %>%
-    mutate(Policy = paste0("Seed", Policy, "_Policy", ID)) %>%
-    dplyr::select(Experiment, `Lead-Time`, Skill, Policy, all_of(pis))
+    mutate(fn = runInfo[j, "fn"],
+           Policy = paste0("Seed", Policy, "_Policy", ID)) %>%
+    dplyr::select(fn, Experiment, `Lead-Time`, Skill, Policy, all_of(pis))
   
   paretoByForecast[[runInfo[j, "fn"]]] <- tmp
   
 }
 
 paretoByForecast <- bind_rows(paretoByForecast) %>%
-  mutate(.before = 1, searchID = 1:nrow(.))
+  mutate(.before = 1, searchID = 1:nrow(.)) %>%
+  mutate_at(vars(all_of(pis)), as.numeric)
 
-# load overall pareto front across all experiments=
-paretoOverall <- read.delim("../data/NonDominatedPolicies.txt", sep = "\t", header = TRUE, check.names = FALSE) %>%
+# load overall pareto front across all experiments
+paretoOverall <- data.table::fread("../data/NonDominatedPolicies.txt", sep = "\t", header = TRUE, check.names = FALSE) %>%
   mutate(Policy = paste0("Seed", Policy, "_Policy", ID)) %>%
   select(Experiment, `Lead-Time`, Skill, Policy, all_of(pis))
 
 # match identifier of individual pareto fronts to overall pareto front
 matchID <- paretoByForecast %>% 
-  select(searchID, Experiment, Policy)
+  select(searchID, fn, Experiment, Policy)
 
 paretoOverall <- paretoOverall %>%
   left_join(matchID, by = c("Experiment", "Policy")) %>%
-  select(searchID, everything())
+  select(searchID, fn, everything()) %>%
+  mutate_at(vars(all_of(pis)), as.numeric)
 
 # -----------------------------------------------------------------------------
 # post-processing results
 # -----------------------------------------------------------------------------
 
 print("... loading post-processing data ...")
-# print(runInfo)
 
 st <- Sys.time()
-loadFiles<-11:16
-for (i in loadFiles) {
-# for (i in 1:nrow(filelist)) {
-  
-  # output <- list()
-  # count <- 1
-  # 
-  # for (j in 1:nrow(runInfo)) {
-  #   
-  #   tmpFile <- paste0("../data/", runInfo[j, "fn"], "/postAnalysis/", filelist[i, "dirname"])
-  #   
-  #   if (file.exists(tmpFile)) {
-  #     
-  #     tmp <- data.table::fread(tmpFile) %>%
-  #       mutate(.before = 2, `Lead-Time` = runInfo[j, "lt_pretty"], Skill = runInfo[j, "sk_pretty"])
-  #     
-  #     if (filelist[i, "polCol"] == 1) {
-  #       
-  #       tmp <- tmp %>%
-  #         mutate(Policy = paste0("Seed", Policy, "_Policy", ID)) %>%
-  #         select(-Experiment, -ID)
-  #       
-  #     }
-  #     
-  #     output[[count]] <- tmp
-  #     count <- count + 1
-  #     
-  #   }
-  #   
-  # }
-  # 
-  # # join with baseline data
-  # tmp <- bind_rows(output) %>%
-  #   bind_rows(get(paste0(filelist[i, "varname"], "Baseline")))
-  # 
-  # assign(filelist[i, "varname"], tmp)
-  # print(paste(filelist[i, "varname"], "loaded"))
-  
-  # tmp <- readRDS(paste0("data", filelist[i, "dirname"]))
+
+for (i in 1:nrow(filelist)) {
+
   print(paste("... loading", filelist[i, "varname"]))
   tmp <- arrow::read_feather(paste0("data/", filelist[i, "dirname"]))
   assign(filelist[i, "varname"], tmp)
@@ -281,7 +263,7 @@ ui <- fluidPage(
         
         # side panel visuals
         h4("Policy Infomation"),
-        selectInput(inputId = "mode", label = "Analysis", choices = c("Forecast-Specific Pareto Front", "Pareto Front Across All Forecasts"), multiple = FALSE, selected = "Pareto Front Across All Forecasts"),
+        selectInput(inputId = "mode", label = "Analysis", choices = c("Forecast-Specific Pareto Front", "Pareto Front Across All Forecasts"), multiple = FALSE, selected = "Forecast-Specific Pareto Front"),
         conditionalPanel(
           "input.mode == 'Pareto Front Across All Forecasts'",
           selectInput(inputId = "basePol", label = "Policy for Normalization", multiple = FALSE, choices = baselinePolicies, selected = "Plan 2014 Baseline"),
@@ -301,8 +283,9 @@ ui <- fluidPage(
           numericRangeInput(inputId = "cdNumeric", label = h5("Coastal Impacts: Downstream Buildings Impacted (#)"), value = c(0, 100)),
           numericRangeInput(inputId = "cnNumeric", label = h5("Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)"), value = c(0, 100)),
           numericRangeInput(inputId = "hpNumeric", label = h5("Hydropower: Moses-Saunders + Niagara Energy Value ($)"), value = c(-0.5, 100)),
-          numericRangeInput(inputId = "mmNumeric", label = h5("Meadow Marsh: Area (ha)"), value = c(-5, 100)),
-          numericRangeInput(inputId = "rbNumeric", label = h5("Recreational Boating: Impact Costs ($)"), value = c(-20, 100))
+          numericRangeInput(inputId = "mmNumeric", label = h5("Meadow Marsh: Area (ha)"), value = c(0, 100)),
+          numericRangeInput(inputId = "mdNumeric", label = h5("Muskrat House Density (%)"), value = c(0, 100)),
+          numericRangeInput(inputId = "rbNumeric", label = h5("Recreational Boating: Impact Costs ($)"), value = c(-10, 100))
         ),
         conditionalPanel(
           "input.filterMethod == 'Manual Filtering'",
@@ -311,6 +294,7 @@ ui <- fluidPage(
           sliderInput("cnSlider", "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)", -100, 100, c(-100, 100), step = 0.1, dragRange = TRUE),
           sliderInput("hpSlider", "Hydropower: Moses-Saunders + Niagara Energy Value ($)", -100, 100, c(-100, 100), step = 0.1, dragRange = TRUE),
           sliderInput("mmSlider", "Meadow Marsh: Area (ha)", -100, 100, c(-100, 100), step = 1, dragRange = TRUE),
+          sliderInput("mdSlider", "Muskrat House Density (%)", -100, 100, c(-100, 100), step = 1, dragRange = TRUE),
           sliderInput("rbSlider", "Recreational Boating: Impact Costs ($)", -100, 100, c(-100, 100), step = 1, dragRange = TRUE)
         )
         
@@ -495,7 +479,7 @@ ui <- fluidPage(
                                   # display settings
                                   uiOutput("factorMapPlanSelector"),
                                   # selectInput(inputId = "factorMapPlanInput", label = "Plans to Display", multiple = TRUE, choices = "Plan 2014", selected = "Plan 2014"),
-                                  selectInput(inputId = "factorMapPIInput", label = "PIs to Display", multiple = TRUE, choices = pis, selected = pis),
+                                  selectInput(inputId = "factorMapPIInput", label = "PIs to Display", multiple = TRUE, choices = pis, selected = c()),
                                   # plot save settings
                                   h5("Save Settings"),
                                   textInput(inputId = "factorMapName", label = "Name", value = "factorMaps"),
@@ -718,6 +702,38 @@ ui <- fluidPage(
             br(),
             plotOutput("waterLevelStatsPlot", width = 1000, height = 1000) %>% withSpinner(color = blues[3], proxy.height = 200),
             br(),
+          ),
+          
+          # fifth panel in tabset
+          tabPanel(
+            "Time Series",
+            br(),
+            fluidRow(
+              column(12,
+                     column(11, h4("Time Series by Year and Location")),
+                     column(1, 
+                            dropdownButton(
+                              br(),
+                              # selectInput(inputId = "summaryStatistic", label = "Select Summary Statistic", choices = c("Monthly Mean", "Monthly Maximum", "Monthly Minimum"), multiple = FALSE, selected = "Mean"), # choices = c("Minimum", "Mean", "Median", "Maximum", "Variance"), multiple = FALSE, selected = "Mean"),
+                              selectInput(inputId = "tsDataInput", label = "Select Hydrologic Traces", multiple = TRUE, choices = c("Historic"), selected = c("Historic")),
+                              selectInput(inputId = "tsVarInput", label = "Select Hydrologic Variables", multiple = TRUE, choices = c("ontFlow", "ontLevel", "ptclaireLevel"), selected = c("ontFlow", "ontLevel", "ptclaireLevel")),
+                              # plot save settings
+                              h5("Save Settings"),
+                              textInput(inputId = "timeSeriesPlotName", label = "Name", value = "waterLevelStats"),
+                              textInput(inputId = "timeSeriesPlotType", label = "Kind", value = "png"),
+                              numericInput(inputId = "timeSeriesPlotWidth", label = "Width", value = 17),
+                              numericInput(inputId = "timeSeriesPlotHeight", label = "Height", value = 11),
+                              textInput(inputId = "timeSeriesPlotUnits", label = "Units", value = "in"),
+                              numericInput(inputId = "timeSeriesPlotRes", label = "Resolution", value = 330),
+                              downloadButton(outputId = "timeSeriesPlotDownload", label = "Save Plot"),
+                              br(),
+                              circle = TRUE, icon = icon("gear"), width = "300px", right = TRUE, margin = "20px",
+                              tooltip = tooltipOptions(title = "Click to See Display Options", placement = "left")))
+              )
+            ),
+            br(),
+            plotOutput("timeSeriesPlot", width = 1000, height = 1000) %>% withSpinner(color = blues[3], proxy.height = 200),
+            br(),
           )
           
         )
@@ -832,6 +848,18 @@ server <- function(input, output, session) {
     if (fm() == "Manual Filtering") return(input$mmSlider[1])
   })
   
+  mdUpper <- reactive({
+    if (fm() == "Improvements Across All PIs") return(input$mdNumeric[2])
+    if (fm() == "Satisficing Criteria") return(input$mdNumeric[2])
+    if (fm() == "Manual Filtering") return(input$mdSlider[2])
+  })
+  
+  mdLower <- reactive({
+    if (fm() == "Improvements Across All PIs") return(0)
+    if (fm() == "Satisficing Criteria") return(input$mdNumeric[1])
+    if (fm() == "Manual Filtering") return(input$mdSlider[1])
+  })
+  
   rbUpper <- reactive({
     if (fm() == "Improvements Across All PIs") return(input$rbNumeric[2])
     if (fm() == "Satisficing Criteria") return(input$rbNumeric[2])
@@ -859,9 +887,11 @@ server <- function(input, output, session) {
       maxValue <- max(pols$`Hydropower: Moses-Saunders + Niagara Energy Value ($)`)
       updateNumericRangeInput(session, "hpNumeric", value = c(-0.5, maxValue))
       maxValue <- max(pols$`Meadow Marsh: Area (ha)`)
-      updateNumericRangeInput(session, "mmNumeric", value = c(-5, maxValue))
+      updateNumericRangeInput(session, "mmNumeric", value = c(0, maxValue))
+      maxValue <- max(pols$`Muskrat House Density (%)`)
+      updateNumericRangeInput(session, "mdNumeric", value = c(0, maxValue))
       maxValue <- max(pols$`Recreational Boating: Impact Costs ($)`)
-      updateNumericRangeInput(session, "rbNumeric", value = c(-20, maxValue))
+      updateNumericRangeInput(session, "rbNumeric", value = c(-10, maxValue))
     } 
     
     if (fm() == 'Manual Filtering') {
@@ -884,7 +914,11 @@ server <- function(input, output, session) {
       minSlider <- floor(min(pols$`Meadow Marsh: Area (ha)`)/10) * 10
       maxSlider <- ceiling(max(pols$`Meadow Marsh: Area (ha)`)/10) * 10
       valueSlider <- c(minSlider, maxSlider)
-      updateSliderInput(session, "mmSlider", min = minSlider, max = maxSlider, value = valueSlider)
+      updateSliderInput(session, "mdSlider", min = minSlider, max = maxSlider, value = valueSlider)
+      minSlider <- floor(min(pols$`Muskrat House Density (%)`)/10) * 10
+      maxSlider <- ceiling(max(pols$`Muskrat House Density (%)`)/10) * 10
+      valueSlider <- c(minSlider, maxSlider)
+      updateSliderInput(session, "mdSlider", min = minSlider, max = maxSlider, value = valueSlider)
       minSlider <- floor(min(pols$`Recreational Boating: Impact Costs ($)`)/10) * 10
       maxSlider <- ceiling(max(pols$`Recreational Boating: Impact Costs ($)`)/10) * 10
       valueSlider <- c(minSlider, maxSlider)
@@ -972,6 +1006,7 @@ server <- function(input, output, session) {
     bline <- rbind(bline %>% slice(- baseInd), bline %>% slice(baseInd))
     
     data <- data %>%
+      select(-fn) %>%
       bind_rows(bline) %>%
       mutate(across(as.name(levelColumn), ~ factor(., levels = plottingLevels)))
     
@@ -1396,10 +1431,6 @@ server <- function(input, output, session) {
     
   })
   
-  # output$filterPlot <- renderPlot({
-  #   filterPlot()
-  # })
-
   output$filterPlot <- renderUI({
     output$plt <- renderPlot({
         filterPlot()
@@ -1410,7 +1441,6 @@ server <- function(input, output, session) {
       plotOutput("plt", height = "1200px", width = "1000px", brush = brushOpts(id = "plotBrush"))
     }
   })
-
 
   # download button
   output$filterPlotDownload <- downloadHandler(
@@ -1937,7 +1967,7 @@ server <- function(input, output, session) {
       guides(fill = guide_colorbar(order = 1, title.position = "top", ticks = FALSE, label.hjust = c(-0.05, 1.01)),
              color = guide_legend(label.position = "bottom", title.position = "top", override.aes = list(fill = blues[1]))) +
       scale_x_discrete(labels = "", breaks = "") +
-      scale_y_discrete(limits = rev(pis), labels = rev(c("UpCoast", "DownCoast", "CommNav", "Hydro", "EcoHealth", "RecBoat"))) +
+      scale_y_discrete(limits = rev(pis), labels = rev(c("UpCoast", "DownCoast", "CommNav", "Hydro", "EcoHealth", "Muskrat", "RecBoat"))) +
       theme(text = element_text(family = "Arial", color = "black", size = 18),
             # title = element_blank(),
             axis.title = element_text(size = 18),
@@ -1975,7 +2005,7 @@ server <- function(input, output, session) {
   output$factorMapPlanSelector <- renderUI({
     
     newPols <- filterCrit() %>% select(Lookup) %>% deframe()
-    selectInput(inputId = "factorMapPlanInput", label = "Plans to Display", multiple = TRUE, choices = newPols, selected = newPols)
+    selectInput(inputId = "factorMapPlanInput", label = "Plans to Display", multiple = TRUE, choices = newPols, selected = c())
     
   })
   
@@ -2849,7 +2879,7 @@ server <- function(input, output, session) {
     
     htab <- h7Data()
     reactable(htab, theme = hTableTheme, # columns = colDefs,
-              Ccompact = TRUE, 
+              Compact = TRUE, 
               pagination = FALSE, highlight = FALSE, striped = FALSE, sortable = FALSE, wrap = TRUE)
     
   })
@@ -3070,7 +3100,138 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+  
+  # ---
+  # time series
+  # ---
+  
+  tsDataInput <- reactive({
+    tolower(input$tsDataInput)
+  })
+  
+  tsVarInput <- reactive({
+    input$tsVarInput
+  })
+  
+  tsTimeInput <- reactive({
+    
+    tmp <- c(2017, 2019)
+    tmp
+    
+  })
+  
+  tsData <- reactive({
+    
+    filterCrit <- filterCrit()
+    tsDataInput <- tsDataInput()
 
+    fileLookup <- paretoOverall %>%
+      filter(searchID %in% filterCrit$searchID) %>%
+      select(searchID, fn, Policy)
+    
+    ts <- list()
+  
+    # load in individual time series to avoid bogging down load in time
+    for (i in 1:nrow(fileLookup)) {
+      
+      tmpDir <- as.character(fileLookup[i, "fn"])
+      tmpName <- as.character(fileLookup[i, "Policy"])
+      
+      tmpList <- list.files(paste0("../data/", tmpDir, "/simulation"), pattern = tmpName, recursive = TRUE)
+      tmpList <- tmpList[str_detect(tmpList, tsDataInput)]
+      
+      output <- list()
+      
+      for (j in 1:length(tmpList)) {
+      
+      tmp <- read_parquet(paste0("../data/", tmpDir, "/simulation/", tmpList[j])) %>%
+        mutate(sim = tmpList[j])
+      output[[j]] <- tmp
+      
+      }
+      
+      ts[[i]] <- bind_rows(output) %>%
+        mutate(fn = tmpDir, 
+               Policy = tmpName, 
+               searchID = as.integer(fileLookup[i, "searchID"]))
+    
+    }
+    
+    output <- bind_rows(ts)
+    
+    # read in baseline data
+    tmpList <- list.files(paste0("../data/baseline/simulation"), pattern = "Plan_2014", recursive = TRUE)
+    tmpList <- tmpList[str_detect(tmpList, tsDataInput)]
+    bs <- list()
+    for (j in 1:length(tmpList)) {
+      
+      tmp <- read_parquet(paste0("../data/baseline/simulation/", tmpList[j])) %>%
+        mutate(sim = tmpList[j])
+      bs[[j]] <- tmp
+      
+    }
+
+    bs <- bind_rows(bs) %>%
+      mutate(fn = "baseline", 
+             Policy = "Plan 2014 Baseline", 
+             searchID = 0)
+    
+    rbind(bs, output)
+    
+  })
+  
+  tsPlot <- reactive({
+    
+    filterCrit <- filterCrit()
+    polLevels <- polLevels()
+    tsData <- tsData()
+    tsVarInput <- tsVarInput()
+    tsTimeInput <- tsTimeInput()
+    
+    plt <- tsData %>%
+      left_join(., filterCrit, by = c("searchID", "Policy")) %>%
+      select(Lookup, searchID, Sim, Year, Month, QM, all_of(tsVarInput)) %>%
+      filter(Year >= min(tsTimeInput) & Year <= max(tsTimeInput)) %>%
+      pivot_longer(cols = -c(Lookup, searchID, Sim, Year, Month, QM), names_to = "Variable", values_to = "Value") %>%
+      mutate(Lookup = factor(Lookup, levels = polLevels))
+    
+    simBreak <- seq(min(plt$Sim), max(plt$Sim) + 48, by = 48)
+    yrBreak <-  seq(min(plt$Year), max(plt$Year) + 1, by = 1)
+    
+    ggplot(data = plt, aes(x = Sim, y = Value, color = Lookup)) +
+      facet_wrap(~ Variable, ncol = 1, scales = "free") +
+      geom_line() +
+      scale_color_manual(values = c(first(reds), getBluePal(length(unique(plt$Lookup)) - 1))) +
+      scale_x_continuous(breaks = simBreak, labels = yrBreak) +
+      theme_bw() +
+      theme(text = element_text(family = "Arial", color = "black", size = 18),
+            axis.title = element_blank(),
+            axis.text = element_text(size = 16),
+            legend.position = "top",
+            legend.title = element_blank(),
+            legend.box = "vertical", 
+            legend.margin = ggplot2::margin())
+    
+  })
+  
+  output$timeSeriesPlot <- renderPlot({
+    tsPlot()
+  })
+  
+  output$timeSeriesPlotDownload <- downloadHandler(
+    filename = function() { paste(input$timeSeriesPlotName, input$timeSeriesPlotType, sep = ".") },
+    content = function(file) {
+      if (input$timeSeriesPlotType == "pdf") {
+        args <- list(file, width = input$timeSeriesPlotWidth, height = input$timeSeriesPlotHeight)
+      } else {
+        args <- list(file, width = input$timeSeriesPlotWidth, height = input$timeSeriesPlotHeight, units = input$timeSeriesPlotUnits, res = input$timeSeriesPlotRes)
+      }
+      do.call(input$timeSeriesPlotType, args)
+      print(timeSeriesPlot())
+      dev.off()
+    }
+  )
+  
   session$onSessionEnded(function() {
     stopApp()
   })
