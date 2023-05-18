@@ -38,8 +38,8 @@ $$ NTS_{fcst} = AR_{1}(NTS_{prev}) $$
 Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ term to calculate upper and lower limits:
 
 $$
-NTS_{99} = NTS_{fcst} \pm {CI}_{99}
-NTS_{50} = NTS_{fcst} \pm {CI}_{50}
+NTS_{99} = NTS_{fcst} \pm CI_{99}
+NTS_{50} = NTS_{fcst} \pm CI_{50}
 $$
 
 $NTS_{fcst}$, $NTS_{99}$, and $NTS_{50}$  are compared to thresholds of wet and dry supplies, $T_{w}$ and $T_{d}$, to determine if future conditions are wet, average, or dry and confidence in those future conditions.
@@ -78,12 +78,12 @@ $$
 
 where $NTS_{max}$ is the historical maximum annual average NTS, $NTS_{min}$ is the historical minimum annual average NTS, $NTS_{avg}$ is the historical average annual average NTS the threshold that designates which regime to follow. The historical values in Plan 2014 were calculated from the period of record from 1900 through 2000. 
 
-The multipliers, $C_{1}$ and $C_{2}$, and exponents, $P_{1}$ and $P_{2}$, are sets of constants some of which are determined by comparing the forecasted supply to a threshold of wet conditions, $T_{w}$, and forecast confidence, ${CI}_{99}$. When there is high confidence in wet basin conditions, releases increase by setting $C_{1}$ to $C_{1w}$ from $C_{1m}$:
+The multipliers, $C_{1}$ and $C_{2}$, and exponents, $P_{1}$ and $P_{2}$, are sets of constants some of which are determined by comparing the forecasted supply to a threshold of wet conditions, $T_{w}$, and forecast confidence, $CI_{99}$. When there is high confidence in wet basin conditions, releases increase by setting $C_{1}$ to $C_{1w}$ from $C_{1m}$:
 
 $$ 
 C_{1} = \left\{
 \begin{array}{ll}
-C_{1w} & NTS_{fcst} - {CI}_{99} \ge T_{w} \\
+C_{1w} & NTS_{fcst} - CI_{99} \ge T_{w} \\
 \\
 C_{1m} & otherwise \\
 \end{array} 
@@ -129,7 +129,7 @@ The parameters of the AR1 forecast model (first-order autocorrelation coefficien
 Given legal and regulatory operating requirement, we optimize key decision variable in the rule curve function and leave the flow limits as is. The optimization currently includes 17 decision variables from the forecasting and rule cruve functions, including:
 
 - Forecast confidence intervals
-    - ${CI}_{50}$, ${CI}_{99}$
+    - $CI_{50}$, $CI_{99}$
 - Forecast wet and dry thresholds 
     - $T_{w}$, $T_{d}$
 - Rule curve coefficients and exponents
