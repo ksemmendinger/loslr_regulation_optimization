@@ -2,6 +2,8 @@
 
 This repo contains code to generate water supply forecasts, optimize flow regulation plans, assess policy robustness across plausible climate scenarios, and explore results in an interactive dashboard.
 
+<br>
+
 <mark>update workflow to better represent postScripts</mark>
 
 ![workflow](resources/workflow.png)
@@ -74,14 +76,27 @@ The $R_{rc}$ prescribed flow is then checked against a series of flow limits, wh
 ## Objective Functions
 There are 7 objective functions used to measure policy performance:
 
+<!-- <details>
+<summary><h2>Overview</h2></summary>
+</details> -->
+
+<!-- <ol>
+<li> <details> <summary> <h4> Upstream flooding impacts </h4> </summary>
+  <details><summary>World</summary><blockquote>
+    :smile:
+  </blockquote></details>
+</blockquote></details>
+</li>
+</ol> -->
+
 1) **Upstream flooding impacts**
     - *Unit:* Number of homes flooded
     - *Timestep:* Quarter-monthly
-    - *Location:* <mark>Lake Ontario, Alexandria Bay (NY), Cardinal (ON)</mark>
+    - *Location:* Lake Ontario, Alexandria Bay (NY), Cardinal (ON)
 2) **Downstream flooding impacts**
     - *Unit:* Number of homes flooded
     - *Timestep:* Quarter-monthly
-    - *Location:* <mark>###</mark>
+    - *Location:* Lery-Beauharnois (QC), Pointe-Claire (QC), Maskinonge (QC), Sorel (QC), Lac St. Pierre (QC), Trois-Rivieres (QC)
 3) **Commercial navigation costs**
     - *Unit:* USD
     - *Timestep:* Quarter-monthly
@@ -101,7 +116,7 @@ There are 7 objective functions used to measure policy performance:
 7) **Recreational boating costs**
     - *Unit:* USD
     - *Timestep:* Quarter-monthly
-    - *Location:* <mark>###</mark>
+    - *Location:* Lake Ontario, Alexandria Bay (NY), Brockville (ON), Ogdensburg (NY), Long Sault (ON), Pointe-Claire (QC), Varennes (QC), Sorel (QC)
 
 The **net annual average** values for each objective function are used as the metric to represent overall policy performance. More detail on the model input, output, and formulation is available [here](objectiveFunctions/README.md).
 
@@ -120,7 +135,7 @@ Data and code to simulate these additional performance indicators are located in
 
 ## Many-Objective Evolutionary Algorithm
 
-Before any runs, you will need to download and compile the many-objective evolutionary algorithm, Borg. A two-part tutorial on setup (with an example) is available [here](https://waterprogramming.wordpress.com/2015/06/25/basic-borg-moea-use-for-the-truly-newbies-part-12/) by the Reed Lab at Cornell University. Once you have compiled Borg, you can introduce new simulation and evaluation problems.
+Before any runs, you will need to download and compile the many-objective evolutionary algorithm, [Borg](https://doi.org/10.1162/EVCO_a_00075). A two-part tutorial on setup (with an example) is available [here](https://waterprogramming.wordpress.com/2015/06/25/basic-borg-moea-use-for-the-truly-newbies-part-12/) by the Reed Lab at Cornell University. Once you have compiled Borg, you can introduce new simulation and evaluation problems.
 
 <br>
 
