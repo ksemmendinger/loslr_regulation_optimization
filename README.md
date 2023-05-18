@@ -39,7 +39,7 @@ Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ t
 
 $$
 NTS_{99} = NTS_{fcst} \pm CI_{99}
-\:\:\:\:\:\:\:\:\:\:\:\:
+\ \ \ \ \ \ \ \ \ \ 
 NTS_{50} = NTS_{fcst} \pm CI_{50}
 $$
 
@@ -70,10 +70,13 @@ R_{pp} + A_{w} ^ {P_1} * C_1 & NTS_{fcst} \ge T_{rc} \\
 \\
 R_{pp} - A_{d} ^ {P_2} * C_2 & NTS_{fcst} \lt T_{rc} \\
 \end{array} 
-\right. 
-\\[15pt]
-A_{w} = \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right]
-A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right]
+\right.
+$$
+
+$$
+A_{w} = \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right] \\
+\ \ \ \ \ \ \ \ \ \ 
+A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right] \\
 $$
 
 
@@ -108,7 +111,7 @@ Between September 1st and December 31, releases are increased if lake levels are
 $$ 
 R_{rc} = \left\{
 \begin{array}{ll}
-R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - {L}_{r}) * 2970} {Q_{e} - q + 1} \right] & Q_{s} \le q \le Q_{e}, Level_{Ont} \gt {L}_{r} \\
+R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - L_{r}) * 2970} {Q_{e} - q + 1} \right] & Q_{s} \le q \le Q_{e}, Level_{Ont} \gt L_{r} \\
 \\
 R_{rc} & otherwise \\
 \end{array} 
@@ -140,7 +143,7 @@ Given legal and regulatory operating requirement, we optimize key decision varia
 - Rule curve dry period adjustments
     - $L_{d}$, $F_{d}$
 - Rule curve high level adjustments
-    - ${L}_{r}$, ${Q}_{s}$, and ${Q}_{e}$.
+    - $L_{r}$, $Q_{s}$, and $Q_{e}$.
 
 Upper and lower bounds of the decision variables are set to $\pm$ 75% of their current value in Plan 2014.
 
