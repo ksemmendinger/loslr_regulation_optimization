@@ -39,7 +39,6 @@ Confidence intervals, ${CI}_{50}$ and ${CI}_{99}$, are applied to the $NTS_{fcst
 
 $$
 NTS_{99} = NTS_{fcst} \pm {CI}_{99}
-\:\:\:\:\:\:\:\:\:\:
 NTS_{50} = NTS_{fcst} \pm {CI}_{50}
 $$
 
@@ -73,7 +72,6 @@ R_{pp} - A_{d} ^ {P_2} * C_2 & NTS_{fcst} \lt T_{rc} \\
 \right. 
 \\[15pt]
 A_{w} = \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right]
-\:\:\:\:\:\:\:\:\:\:
 A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right]
 $$
 
@@ -109,7 +107,7 @@ Between September 1st and December 31, releases are increased if lake levels are
 $$ 
 R_{rc} = \left\{
 \begin{array}{ll}
-R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - {L}_{r}) * 2970} {Q_{e} - q + 1} \right] & Q_{s} \le q \le Q_{e}, \:\: Level_{Ont} \gt {L}_{r} \\
+R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - {L}_{r}) * 2970} {Q_{e} - q + 1} \right] & Q_{s} \le q \le Q_{e}, Level_{Ont} \gt {L}_{r} \\
 \\
 R_{rc} & otherwise \\
 \end{array} 
