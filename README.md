@@ -39,6 +39,7 @@ Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ t
 
 $$
 NTS_{99} = NTS_{fcst} \pm CI_{99}
+\:\:\:\:\:\:\:\:\:\:\:\:
 NTS_{50} = NTS_{fcst} \pm CI_{50}
 $$
 
