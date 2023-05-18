@@ -6,12 +6,12 @@ import pandas as pd
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "12month", "sqAR", "50000", "14"]
+# args = ["", "mac_loc", "12month", "sqAR", "100", "17"]
 # args = ["", "mac_loc", "baseline"]
 
 # set working directory
 if args[1] == "mac_loc":
-    wd = "/Users/kylasemmendinger/Box/Plan_2014/optimization/output"
+    wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization/output"
 elif args[1] == "hopper":
     wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
 os.chdir(wd)
@@ -51,11 +51,14 @@ dvs = [
     "Rule Curve Wet Adjustment",
     "Rule Curve Dry Adjustment",
     "Rule Curve Low Level Threshold",
+    "Rule Curve Low Level Flow Adjustment",
     "Long Forecast Wet Threshold",
     "Long Forecast Dry Threshold",
-    "Rule Curve Low Level Flow Adjustment",
     "Long Forecast 50% Confidence Interval",
     "Long Forecast 99% Confidence Interval",
+    "R+ Threshold",
+    "R+ Starting Quarter-Month",
+    "R+ Ending Quarter-Month",
 ]
 
 # create folder for clean decision variable and objective files
@@ -112,10 +115,13 @@ for i in range(pop.shape[0]):
     rcDryAdjustment = pop.loc[i, "Rule Curve Dry Adjustment"]
     rcDryLevel = pop.loc[i, "Rule Curve Low Level Threshold"]
     rcDryFlowAdj = pop.loc[i, "Rule Curve Low Level Flow Adjustment"]
-    lfWetThreshold = pop.loc[i, "Long Forecast 50% Confidence Interval"]
-    lfDryThreshold = pop.loc[i, "Long Forecast 99% Confidence Interval"]
-    lf50Conf = pop.loc[i, "Long Forecast Wet Threshold"]
-    lf99Conf = pop.loc[i, "Long Forecast Dry Threshold"]
+    lfWetThreshold = pop.loc[i, "Long Forecast Wet Threshold"]
+    lfDryThreshold = pop.loc[i, "Long Forecast Dry Threshold"]
+    lf50Conf = pop.loc[i, "Long Forecast 50% Confidence Interval"]
+    lf99Conf = pop.loc[i, "Long Forecast 99% Confidence Interval"]
+    limSepThreshold = pop.loc[i, "R+ Threshold"]
+    limSepThresholdQM1 = pop.loc[i, "R+ Starting Quarter-Month"]
+    limSepThresholdQM2 = pop.loc[i, "R+ Ending Quarter-Month"]
 
     # manually set and omit from optimization
     limSepThreshold = 74.80
@@ -510,7 +516,7 @@ for i in range(pop.shape[0]):
         # ---------------------------------------------------------------------------
 
         # only applies starting QM32
-        if qm >= 33:
+        if qm >= limSepThresholdQM1 or qm <= limSepThresholdQM2:
 
             # only applies if the QM32 level is greater than the September threshold
             if qm32Level > limSepThreshold:

@@ -9,12 +9,12 @@ from concurrent.futures import ProcessPoolExecutor
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "12month", "sqAR", "50000", "14", "4"]
+# args = ["", "mac_loc", "12month", "sqAR", "100", "17", "4"]
 # args = ["", "mac_loc", "baseline", "4"]
 
 # set working directory
 if args[1] == "mac_loc":
-    wd = "/Users/kylasemmendinger/Box/Plan_2014/optimization/output"
+    wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization/output"
 elif args[1] == "hopper":
     wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
 os.chdir(wd)

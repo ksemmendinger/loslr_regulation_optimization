@@ -1,3 +1,5 @@
+satisficingCrit = [0, 0, 0, -0.5, 0, 0, -10]
+
 # import libraries
 import os
 import sys
@@ -15,7 +17,7 @@ args = sys.argv
 
 # set working directory
 if args[1] == "mac_loc":
-    wd = "/Users/kylasemmendinger/Box/Plan_2014/optimization/output"
+    wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization/output"
 elif args[1] == "hopper":
     wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
 os.chdir(wd)
@@ -57,6 +59,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
+    "Muskrat House Density (%)",
     "Recreational Boating: Impact Costs ($)",
 ]
 
@@ -64,9 +67,9 @@ pis = [
 dataFormat = pd.DataFrame(
     {
         "PI": pis,
-        "piMultiplier": [-1, -1, -1, 1, 1, -1],
-        "lowerBounds": [0, 0, 0, -0.5, 0, -10],
-        "roundDecimal": [0, 0, 2, 2, 0, 0],
+        "piMultiplier": [-1, -1, -1, 1, 1, 1, -1],
+        "lowerBounds": satisficingCrit,
+        "roundDecimal": [0, 0, 2, 2, 0, 2, 0],
     }
 )
 
@@ -96,6 +99,7 @@ def readData(pis, fn):
             "totalEnergyValue",
             "mmArea",
             "mmLowSupply",
+            "muskratHouseDensity",
             "totalRecBoating",
             "ontNTS",
             "stlouisontOut",
@@ -121,6 +125,7 @@ def readData(pis, fn):
             "totalEnergyValue",
             "mmArea",
             "mmLowSupply",
+            "muskratHouseDensity",
             "totalRecBoating",
         ],
         how="all",
@@ -138,6 +143,7 @@ def readData(pis, fn):
                 "downstreamCoastal",
                 "totalCommercialNavigation",
                 "totalEnergyValue",
+                "muskratHouseDensity",
                 "totalRecBoating",
             ],
         ]
@@ -147,6 +153,7 @@ def readData(pis, fn):
             downstreamCoastal=("downstreamCoastal", sum),
             totalCommercialNavigation=("totalCommercialNavigation", sum),
             totalEnergyValue=("totalEnergyValue", sum),
+            muskratHouseDensity=("muskratHouseDensity", sum),
             totalRecBoating=("totalRecBoating", sum),
         )
     )
@@ -185,6 +192,7 @@ def readData(pis, fn):
             "totalCommercialNavigation",
             "totalEnergyValue",
             "mmArea",
+            "muskratHouseDensity",
             "totalRecBoating",
         ],
     ]
@@ -196,6 +204,7 @@ def readData(pis, fn):
         totalCommercialNavigation=("totalCommercialNavigation", "mean"),
         totalEnergyValue=("totalEnergyValue", "mean"),
         mmArea=("mmArea", "mean"),
+        muskratHouseDensity=("muskratHouseDensity", "mean"),
         totalRecBoating=("totalRecBoating", "mean"),
     )
     objs.columns = ["SOW"] + pis

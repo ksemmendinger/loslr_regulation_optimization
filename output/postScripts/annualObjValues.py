@@ -9,12 +9,12 @@ from concurrent.futures import ProcessPoolExecutor
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "12month", "sqAR", "50000", "14", "4"]
+# args = ["", "mac_loc", "12month", "sqAR", "100", "17", "4"]
 # args = ["", "mac_loc", "baseline", "4"]
 
 # set working directory
 if args[1] == "mac_loc":
-    wd = "/Users/kylasemmendinger/Box/Plan_2014/optimization/output"
+    wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization/output"
 elif args[1] == "hopper":
     wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
 os.chdir(wd)
@@ -78,6 +78,7 @@ allPIs = [
     "peakingMosesSaundersValue",
     "mmArea",
     "mmLowSupply",
+    "muskratHouseDensity",
     "totalRecBoating",
     "ontarioRecBoating",
     "alexbayRecBoating",
@@ -122,10 +123,7 @@ qmPIs = [
     "sorelRecBoating",
 ]
 
-annualPIs = [
-    "mmArea",
-    "mmLowSupply",
-]
+annualPIs = ["mmArea", "muskratHouseDensity"]
 
 
 # -----------------------------------------------------------------------------
@@ -176,7 +174,7 @@ def readData(allPIs, qmPIs, annualPIs, fn):
 
     # data analysis on annual objective values
     annObjs = (
-        df.loc[:, ["Year"] + annualPIs]
+        df.loc[:, ["Year", "mmLowSupply"] + annualPIs]
         .dropna(
             subset=annualPIs,
             how="all",
@@ -184,16 +182,15 @@ def readData(allPIs, qmPIs, annualPIs, fn):
         .reset_index(drop=True)
     )
 
-    annObjs.insert(0, "PI", "mmArea")
-
     lowSup = (
-        annObjs.loc[annObjs["mmLowSupply"] == 1, :]
+        annObjs.loc[annObjs["mmLowSupply"] == 1, ["Year"] + annualPIs]
+        .melt(id_vars="Year", value_name="Value", var_name="PI")
         .groupby("PI")
         .agg(
-            annualAverageLowSupply=("mmArea", "mean"),
-            annualMinimumLowSupply=("mmArea", "min"),
-            annualMaximumLowSupply=("mmArea", "max"),
-            annualTotalLowSupply=("mmArea", "sum"),
+            annualAverage=("Value", "mean"),
+            annualMinimum=("Value", "max"),
+            annualMaximum=("Value", "min"),
+            annualTotal=("Value", "sum"),
         )
         .reset_index()
         .rename_axis(0, axis=1)
@@ -201,12 +198,14 @@ def readData(allPIs, qmPIs, annualPIs, fn):
     )
 
     allSup = (
-        annObjs.groupby("PI")
+        annObjs.loc[:, ["Year"] + annualPIs]
+        .melt(id_vars="Year", value_name="Value", var_name="PI")
+        .groupby("PI")
         .agg(
-            annualAverage=("mmArea", "mean"),
-            annualMinimum=("mmArea", "min"),
-            annualMaximum=("mmArea", "max"),
-            annualTotal=("mmArea", "sum"),
+            annualAverage=("Value", "mean"),
+            annualMinimum=("Value", "min"),
+            annualMaximum=("Value", "max"),
+            annualTotal=("Value", "sum"),
         )
         .reset_index()
         .rename_axis(0, axis=1)

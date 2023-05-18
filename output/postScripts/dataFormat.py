@@ -8,10 +8,10 @@ from os.path import exists
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "5", "12month", "sqAR", "50000", "14"]
+# args = ["", "mac_loc", "5", "12month", "sqAR", "75000", "17"]
 # args = [ "", "mac_loc", "rc12month", "5", "historic", "12month", "0", "50000", "6", "12"]
 
-nobjs = 6
+nobjs = 7
 
 # -----------------------------------------------------------------------------
 # experiment setup
@@ -40,7 +40,7 @@ folderName = leadtime + "_" + str(skill) + "_" + str(nfe) + "nfe_" + str(nvars) 
 
 # set working directory
 if args[1] == "mac_loc":
-    wd = "/Users/kylasemmendinger/Box/Plan_2014/optimization/output"
+    wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization/output"
 elif args[1] == "hopper":
     wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
 os.chdir(wd)
@@ -52,6 +52,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
+    "Muskrat House Density (%)",
     "Recreational Boating: Impact Costs ($)",
 ]
 
@@ -71,6 +72,9 @@ dvs = [
     "Long Forecast Dry Threshold",
     "Long Forecast 50% Confidence Interval",
     "Long Forecast 99% Confidence Interval",
+    "R+ Threshold",
+    "R+ Starting Quarter-Month",
+    "R+ Ending Quarter-Month",
 ]
 
 # dvs = [
