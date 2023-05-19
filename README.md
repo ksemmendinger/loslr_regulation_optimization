@@ -15,10 +15,13 @@ This repo contains code to generate water supply forecasts, optimize flow regula
     - [Forecast Generation](#forecast-generation)
     - [Control Policy Optimization](#control-policy-optimization)
     - [Objective Functions](#objective-functions)
+    - [*A Posteriori* Analysis](#a-posteriori-analysis)
 - [Getting Started](#getting-started) 
     - [Many-Objective Evolutionary Algorithm](#many-objective-evolutionary-algorithm)
     - [Demo](#demo)
-    - [Dashboard](#dashboard)
+      - [Run Optimization](#run-optimization)
+      - [*A Posteriori* Evaluation](#a-posteriori-evaluation)
+      - [Dashboard](#dashboard)
 
 <br>
 
@@ -63,10 +66,11 @@ $$
 
 $$
 A_{w} = \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right] \\
-\ \ \ \ \ \ \ \ \ \ 
-A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right] \\
 $$
 
+$$
+A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right] \\
+$$
 
 where $NTS_{max}$ is the historical maximum annual average NTS, $NTS_{min}$ is the historical minimum annual average NTS, $NTS_{avg}$ is the historical average annual average NTS the threshold that designates which regime to follow. The historical values in Plan 2014 were calculated from the period of record from 1900 through 2000. 
 
@@ -104,7 +108,7 @@ The $R_{rc}$ prescribed flow is then checked against a series of flow limits, wh
 <br>
 
 ## Forecast Generation
-The parameters of the AR1 forecast model (first-order autocorrelation coefficient and shift) in Plan 2014 were calibrated using the historical data from 1900 through 2000. Using the same trend-based forecast structure, we create new forecasts at the 1, 3, 6, and 12-month lead-times. For example, rather than averaging the previous 48 quarter-months of water supplies for the 12-month lead time, we average the previous 24 quarter-months of water supplies for the 6-month lead time. We refit the parameters in the AR1 forecast model for each lead-time using historic NTS data from 1900 through 2020. For each forecast lead-time, we create forecasts using the baseline trend-model skill as well as perfect skill (i.e., perfect insight into future conditions).
+The parameters of the $AR_{1}$ forecast model (first-order autocorrelation coefficient and shift) in Plan 2014 were calibrated using the historical data from 1900 through 2000. Using the same trend-based forecast structure, we create new forecasts at the 1, 3, 6, and 12-month lead-times. For example, rather than averaging the previous 48 quarter-months of water supplies for the 12-month lead time, we average the previous 24 quarter-months of water supplies for the 6-month lead time. We refit the parameters in the AR1 forecast model for each lead-time using historic NTS data from 1900 through 2020. For each forecast lead-time, we create forecasts using the baseline trend-model skill as well as perfect skill (i.e., perfect insight into future conditions).
 
 <br>
 
@@ -162,6 +166,8 @@ There are 7 objective functions used to measure policy performance:
 
 The **net annual average** values for each objective function are used as the metric to represent overall policy performance. More detail on the model input, output, and formulation is available [here](objectiveFunctions/README.md).
 
+<br>
+
 ## *A Posteriori* Analysis
 Given the computational constraints, only 7 objective functions can be used to optimize control policies. However, there are additional criteria a plan must meet in order to be considered a candidate plan, including:
 
@@ -191,17 +197,54 @@ In this example, the `plan2014_wrapper.py` script talks to Borg. In the wrapper 
 
 The wrapper script points to an external simulation-evaluation function, in this case `plan2014_optim.py`. The simulation function takes in an array of decision variables, simulates the time series of water levels and flows over a given supply sequence, calculates objective performance over the time series, and returns an array of length n, where n is the number of objectives, to Borg.
 
-You can run Borg on your local machine from the command line or on a HPC (see example SLURM script, [`runOptimization.sh`](./runOptimization.sh)).
 
-To optimize the 17 decision variables over historic trace using the status quo forecast model within Plan 2014, run the following command and point to a directory, `FN`, specify the number of seeds to run, :
+#### Run Optimization
+You can run Borg on your local machine from the command line or on a HPC (see example SLURM script, [`runOptimization.sh`](./runOptimization.sh)):
+
 ```
 python plan2014_wrapper.py {FN} {TRACE} {LEADTIME} {SKILL} {N_SEEDS} {NFE} {POPSIZE} {REPORT} {DVBOUNDS} {NDVS}
 ```
 
+You will need to specify the:
 
-<br>
+- `FN`: Directory
+- `TRACE`: Hydrologic trace to simulate for optimization
+- `LEADTIME`: Forecast lead-time (for Plan 2014 input `12month`)
+- `SKILL`: Forecast lead-time (for Plan 2014 input `12month`)
+- `N_SEEDS`: Forecast skill level (for Plan 2014 input `sqAR`)
+- `NFE`: Number of function evaluations (1 NFE = 1 trace simulation)
+- `POPSIZE`: Initial population size
+- `REPORT`: Frequency to report pareto front evolution
+- `DVBOUNDS`: Percent change to decision variables for upper and lower limits
+- `NDVS`: Number of decision variables
 
-## Dashboard
-Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). More detail on running the dashbord is available [here](output/dashboard/README.md).
+#### *A Posteriori* Evaluation
+After running the optimization, to assess the pareto front for the *a posteriori* criteria, run the following command:
+
+```
+python output/evaluate.sh {FN} {N_SEEDS} {LEADTIME} {SKILL} {NFE} {NOBJS} {NDVS} {NWORKERS}
+```
+Where the `FN`, `N_SEEDS`, `LEADTIME`, `SKILL`, `NFE`, and `NDVS` corresponds to the values used to run the optimization, and:
+
+- `NOBJS`: Number of objectives in the optimization
+- `NWORKERS`: Number of workers to run in parallel for resimulation
+
+
+#### Dashboard
+Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command:
+
+```
+python output/dashboard/dataRetrieval.py
+```
+
+You can then run the dashboard by navigating to the `dashboard/` directory, activating the conda environment, and launching r:
+
+```
+cd output/dashboard/
+r
+shiny::runApp()
+```
+
+More detail on running the dashboard is available [here](output/dashboard/README.md).
 
 <br>
