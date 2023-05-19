@@ -33,6 +33,7 @@ The current control policy, [Plan 2014](resources/Plan_2014_Report.pdf), takes i
 The forecasted supply index, $NTS_{fcst}$, at any given quarter-month, $q$, is calculated by inputing the rolling average annual net total supply calculated into an autoregressive time series model:
 
 $$ NTS_{prev} = \overline {NTS_{q - 49} : NTS_{q - 1}} $$
+
 $$ NTS_{fcst} = AR_{1}(NTS_{prev}) $$
 
 Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ term to calculate upper and lower limits:
@@ -53,24 +54,11 @@ $$
 
 The $R_{pp}$ flow amount is adjusted up or down, $A_{w}$ and $A_{d}$, based on recent supply conditions to get the rule curve release, $R_{rc}$, amount:
 
-<!-- $$ 
-R_{rc} = \left\{
-\begin{array}{ll}
-R_{pp} + \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right] ^ {P_1} * C_1 & NTS_{fcst} \ge T_{rc} \\
+$$
+R_{rc} = \cases{
+R_{pp} + A_{w} ^ {P_1} * C_1 & $NTS_{fcst} \ge T_{rc}$ \cr
 \\
-R_{pp} - \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right] ^ {P_2} * C_2 & NTS_{fcst} \lt T_{rc} \\
-\end{array} 
-\right. 
-$$ -->
-
-$$ 
-R_{rc} = \left\{
-\begin{array}{ll}
-R_{pp} + A_{w} ^ {P_1} * C_1 & NTS_{fcst} \ge T_{rc} \\
-\\
-R_{pp} - A_{d} ^ {P_2} * C_2 & NTS_{fcst} \lt T_{rc} \\
-\end{array} 
-\right.
+R_{pp} - A_{d} ^ {P_2} * C_2 & $NTS_{fcst} \lt T_{rc}$}
 $$
 
 $$
@@ -84,38 +72,29 @@ where $NTS_{max}$ is the historical maximum annual average NTS, $NTS_{min}$ is t
 
 The multipliers, $C_{1}$ and $C_{2}$, and exponents, $P_{1}$ and $P_{2}$, are sets of constants some of which are determined by comparing the forecasted supply to a threshold of wet conditions, $T_{w}$, and forecast confidence, $CI_{99}$. When there is high confidence in wet basin conditions, releases increase by setting $C_{1}$ to $C_{1w}$ from $C_{1m}$:
 
-$$ 
-C_{1} = \left\{
-\begin{array}{ll}
-C_{1w} & NTS_{fcst} - CI_{99} \ge T_{w} \\
+$$
+C_{1} = \cases{
+C_{1w} & $NTS_{fcst} - CI_{99} \ge T_{w}$ \cr
 \\
-C_{1m} & otherwise \\
-\end{array} 
-\right. 
+C_{1m} & $otherwise$}
 $$
 
 During extremely dry conditions (designated when water levels fall below some threshold, $L_{d}$), the rule curve release is further reduced by $F_{d}$:
 
-$$ 
-R_{rc} = \left\{
-\begin{array}{ll}
-R_{rc} - F_{d} & Level_{Ont} \lt L_{d} \\
+$$
+R_{rc} = \cases{
+R_{rc} - F_{d} & $Level_{Ont} \lt L_{d}$ \cr
 \\
-R_{rc} & otherwise \\
-\end{array} 
-\right. 
+R_{rc} & $otherwise$}
 $$
 
 Between September 1st and December 31, releases are increased if lake levels are dangerously high to reach target level, ${L}_{r}$:
 
-$$ 
-R_{rc} = \left\{
-\begin{array}{ll}
-R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - L_{r}) * 2970} {Q_{e} - q + 1} \right] & Q_{s} \le q \le Q_{e}, Level_{Ont} \gt L_{r} \\
+$$
+R_{rc} = \cases{
+R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - L_{r}) * 2970} {Q_{e} - q + 1} \right] & $Q_{s} \le q \le Q_{e}, \ Level_{Ont} \gt L_{r}$ \cr
 \\
-R_{rc} & otherwise \\
-\end{array} 
-\right.
+R_{rc} & $otherwise$}
 $$
 
 where $Q_{s}$ is the starting quarter-month, September 1 (QM32), and $Q_{e}$ is the ending quarter-month, December 31 (QM48).
