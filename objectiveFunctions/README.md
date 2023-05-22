@@ -105,7 +105,7 @@ Hydropower at the Moses-Saunders and Niagara Power Generation Station is generat
   - *Location:* Lake Ontario
   - *Inputs:* Lake Ontario level, Lake Ontario net total supply
 
-Meadow marsh presence is calculated following the methodology outlined in [Wilcox et al. 2005](../resources/Wetlands 2005.pdf). Net total supply is used to identify years of low supplies, which drive meadow marsh formation and persistence. During Plan 2014 evaluation, meadow marsh was identified as a fair proxy for overall wetland health.
+Meadow marsh presence is calculated following the methodology outlined in [Wilcox et al. 2005](../resources/Wetlands_2005.pdf). Net total supply is used to identify years of low supplies, which drive meadow marsh formation and persistence. During Plan 2014 evaluation, meadow marsh was identified as a fair proxy for overall wetland health.
 
 **Optimization**: The annual average over the simulation period is used as the reporting metric (float)
 
