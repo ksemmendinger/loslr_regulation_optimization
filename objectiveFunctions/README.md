@@ -122,7 +122,7 @@ Meadow marsh presence is calculated following the methodology outlined in [Wilco
   - *Location:* Thousand Islands Region in the Upper St. Lawrence River (Alexandria Bay, NY)
   - *Inputs:* Alexandria Bay level, Alexandria Bay air temperatures (F)
 
-Muskrat house density is used as a proxy for emergent marsh presence, which is a critical habitat zone for many species-at-risk. House density estimates are based on the original PI model used in Plan 2014 evaluation in the [IERM ecosystem assessment model](../resources/muskrat.pdf).
+Muskrat house density is used as a proxy for emergent marsh presence, which is a critical habitat zone for many species-at-risk. House density estimates are based on the original [PI model](../resources/muskrat_fact_sheet.pdf) used in Plan 2014 evaluation in the [IERM ecosystem assessment model](../resources/muskrat.pdf).
 
 **Optimization**: The annual average over the simulation period is used as the reporting metric (float)
 
@@ -139,7 +139,6 @@ Muskrat house density is used as a proxy for emergent marsh presence, which is a
   - *Inputs:* Quarter-month, Lake Ontario level, Alexandria Bay level, Ogdensburg level, Brockville level, Long Sault level, Pointe-Claire level, Varennes level, Sorel level
 
 Recreational boating is a key driver of local tourism in the region. Cost estimates are based on the original PI models used in Plan 2014 evaluation, which costs only accruing during boating season for extremely high and low water levels. The cost tables were updated during the the [2018 Review](../resources/2018_GLAM_Review.pdf). 
-
 **Optimization**: In a given time step, the impacts across the eight locations are summed, and the net annual average over the simulation period is used as the reporting metric (float)
 
 **Simulation**: Spatially disaggregated impacts over the simulation period (dataframe) with output:

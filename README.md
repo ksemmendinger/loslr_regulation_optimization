@@ -210,11 +210,11 @@ You will need to specify the:
 - `FN`: Directory
 - `TRACE`: Hydrologic trace to simulate for optimization
 - `LEADTIME`: Forecast lead-time (for Plan 2014 input `12month`)
-- `SKILL`: Forecast lead-time (for Plan 2014 input `12month`)
-- `N_SEEDS`: Forecast skill level (for Plan 2014 input `sqAR`)
+- `SKILL`: Forecast skill level (for Plan 2014 input `sqAR`)
+- `N_SEEDS`: Number of seeds to run in parallel
 - `NFE`: Number of function evaluations (1 NFE = 1 trace simulation)
-- `POPSIZE`: Initial population size
-- `REPORT`: Frequency to report pareto front evolution
+- `POPSIZE`: Initial population size (100 is a good default)
+- `REPORT`: Frequency to report pareto front evolution 
 - `DVBOUNDS`: Percent change to decision variables for upper and lower limits
 - `NDVS`: Number of decision variables
 
