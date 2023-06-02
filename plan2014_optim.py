@@ -2094,30 +2094,102 @@ def simulation(data, version, **vars):
 
         # lery beauharnois (uses pointe-claire level)
         lerybeauharnoisLevel = ptclaireLevel
+        
+        # tributary flows for downstream level
+        desprairiesOut = data['desprairiesOut'][t]
+        richelieuOut = data['richelieuOut'][t]
+        stfrancoisOut = data['stfrancoisOut'][t]
+        stmauriceOut = data['stmauriceOut'][t]
+        tidalInd = data['tidalInd'][t]
+        stlouisFlowcms = data["stlouisFlow"][t]*10
 
         # jetty 1 (montreal harbor)
-        jetty1Level = round((ptclaireLevel * 1.657) + (-28.782), 2)
+        lstl_flw_fctr = 0.001757*stlouisFlowcms
+        dpmi_flw_fctr = 0.000684*desprairiesOut
+        stfr_flw_fctr = 0.001161*stfrancoisOut
+        stmc_flw_fctr = 0.000483*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + stfr_flw_fctr + stmc_flw_fctr
+        jetty1R = data['jetty1R'][t]
+        jetty1Level = round(
+            ((flw_sum)*jetty1R)**0.6587 + 0.9392*tidalInd,
+            2
+        )
+        # jetty1Level = round((ptclaireLevel * 1.657) + (-28.782), 2)
 
         # st. lambert
         stlambertLevel = round((ptclaireLevel * 1.583) + (-27.471), 2)
 
         # varennes
-        varennesLevel = round((ptclaireLevel * 1.535) + (-26.943), 2)
+        lstl_flw_fctr = 0.001438*stlouisFlowcms
+        dpmi_flw_fctr = 0.001377*desprairiesOut
+        stfr_flw_fctr = 0.001442*stfrancoisOut
+        stmc_flw_fctr = 0.000698*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + stfr_flw_fctr + stmc_flw_fctr
+        varennesR = data['varennesR'][t]
+        varennesLevel = round(
+            ((flw_sum)*varennesR)**0.6373 + 1.0578*tidalInd, 
+            2
+        )
+        # varennesLevel = round((ptclaireLevel * 1.535) + (-26.943), 2)
 
         # sorel
-        sorelLevel = round((ptclaireLevel * 1.337) + (-23.616), 2)
+        lstl_flw_fctr = 0.001075*stlouisFlowcms
+        dpmi_flw_fctr = 0.001126*desprairiesOut
+        stfr_flw_fctr = 0.001854*stfrancoisOut
+        stmc_flw_fctr = 0.000882*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + stfr_flw_fctr + stmc_flw_fctr
+        sorelR = data['sorelR'][t]
+        sorelLevel = round(
+            ((flw_sum)*sorelR)**0.6331 + 1.277*tidalInd, 
+            2
+        )
+        # sorelLevel = round((ptclaireLevel * 1.337) + (-23.616), 2)
 
         # lac st. pierre
-        lacstpierreLevel = round((ptclaireLevel * 1.366) + (-24.620), 2)
+        lstl_flw_fctr = 0.000807*stlouisFlowcms
+        dpmi_flw_fctr = 0.001199*desprairiesOut
+        stfr_flw_fctr = 0.001954*stfrancoisOut
+        stmc_flw_fctr = 0.000976*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + stfr_flw_fctr + stmc_flw_fctr
+        stpierreR = data['stpierreR'][t]
+        lacstpierreLevel = round(
+            ((flw_sum)*stpierreR)**0.6529 + 1.4772*tidalInd, 
+            2
+        )
+        # lacstpierreLevel = round((ptclaireLevel * 1.366) + (-24.620), 2)
 
         # maskinonge (uses lac st pierre level)
         maskinongeLevel = lacstpierreLevel
 
         # troisrivieres
-        troisrivieresLevel = round((ptclaireLevel * 1.337) + (-24.425), 2)
+        lstl_flw_fctr = 0.000584*stlouisFlowcms
+        dpmi_flw_fctr = 0.000690*desprairiesOut
+        rich_flw_fctr = 0.000957*richelieuOut
+        stfr_flw_fctr = 0.001197*stfrancoisOut
+        stmc_flw_fctr = 0.000787*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + rich_flw_fctr + \
+                    stfr_flw_fctr + stmc_flw_fctr
+        troisrivieresR = data['threeriversR'][t]
+        troisrivieresLevel = round(
+            ((flw_sum)*troisrivieresR)**0.7042 + 1.5895*tidalInd, 
+            2
+        )
+        # troisrivieresLevel = round((ptclaireLevel * 1.337) + (-24.425), 2)
 
         # batiscan
-        batiscanLevel = round((ptclaireLevel * 1.105) + (-20.269), 2)
+        lstl_flw_fctr = 0.000422*stlouisFlowcms
+        dpmi_flw_fctr = 0.000553*desprairiesOut
+        rich_flw_fctr = 0.000903*richelieuOut
+        stfr_flw_fctr = 0.001023*stfrancoisOut
+        stmc_flw_fctr = 0.000682*stmauriceOut 
+        flw_sum = lstl_flw_fctr + dpmi_flw_fctr + rich_flw_fctr + \
+                    stfr_flw_fctr + stmc_flw_fctr
+        batiscanR = data['batiscanR'][t]
+        batiscanLevel = round(
+            ((flw_sum)*batiscanR)**0.6941 + 1.8303*tidalInd, 
+            2
+        )
+        # batiscanLevel = round((ptclaireLevel * 1.105) + (-20.269), 2)
 
         data["kingstonLevel"][t] = kingstonLevel
         data["alexbayLevel"][t] = alexbayLevel
