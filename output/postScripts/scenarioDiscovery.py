@@ -1,4 +1,4 @@
-satisficingCrit = [0, 0, 0, -0.5, 0, 0, -10]
+satisficingCrit = [0, 0, 0, -0.5, 0, -5, -10]
 
 # import libraries
 import os
@@ -12,7 +12,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "12month", "0", "100000", "14", "4"]
+# args = ["", "mac_loc", "12month", "sqAR", "50000", "17", "4"]
 # args = ["", "mac_loc", "baseline", 4]
 
 # set working directory
@@ -59,7 +59,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
-    "Muskrat House Density (%)",
+    "Muskrat House Density (#/ha)",
     "Recreational Boating: Impact Costs ($)",
 ]
 
@@ -112,7 +112,8 @@ def readData(pis, fn):
     if sup == "stochastic":
         data["SOW"] = "Stochastic Century " + fn.split("/")[4].split("_")[1]
     elif sup == "historic":
-        data["SOW"] = "Historic"
+        tmp = fn.split("/")[4]
+        data["SOW"] = tmp[0].upper() + tmp[1:]
     elif sup == "climate_scenarios":
         data["SOW"] = fn.split("/")[4]
 

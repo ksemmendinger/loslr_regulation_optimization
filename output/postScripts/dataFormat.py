@@ -8,7 +8,7 @@ from os.path import exists
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "5", "12month", "sqAR", "75000", "17"]
+# args = ["", "mac_loc", "5", "12month", "sqAR", "30000", "17"]
 # args = [ "", "mac_loc", "rc12month", "5", "historic", "12month", "0", "50000", "6", "12"]
 
 nobjs = 7
@@ -52,7 +52,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
-    "Muskrat House Density (%)",
+    "Muskrat House Density (#/ha)",
     "Recreational Boating: Impact Costs ($)",
 ]
 
@@ -77,20 +77,6 @@ dvs = [
     "R+ Ending Quarter-Month",
 ]
 
-# dvs = [
-#     "Above Average Rule Curve Multiplier",
-#     "Confident Above Average Rule Curve Multiplier",
-#     "Below Average Rule Curve Multiplier",
-#     "Above Average Rule Curve Power",
-#     "Below Average Rule Curve Power",
-#     "Long Forecast 50% Confidence Interval",
-#     "Long Forecast 99% Confidence Interval",
-#     "Rule Curve Threshold",
-#     "Above Average Adjustment",
-#     "Below Average Adjustment",
-#     "Wet Threshold",
-#     "Dry Threshold",
-# ]
 
 # create folder for clean decision variable and objective files
 newpath = "data/" + folderName + "/clean/"

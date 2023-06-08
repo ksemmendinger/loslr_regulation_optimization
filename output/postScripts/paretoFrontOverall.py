@@ -18,6 +18,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
+    "Muskrat House Density (#/ha)",
     "Recreational Boating: Impact Costs ($)",
 ]
 

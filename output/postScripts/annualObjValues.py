@@ -125,7 +125,6 @@ qmPIs = [
 
 annualPIs = ["mmArea", "muskratHouseDensity"]
 
-
 # -----------------------------------------------------------------------------
 # function to read time series data and get annual averages
 # -----------------------------------------------------------------------------
@@ -138,7 +137,8 @@ def readData(allPIs, qmPIs, annualPIs, fn):
     if sup == "stochastic":
         sow = "Stochastic Century " + fn.split("/")[4].split("_")[1]
     elif sup == "historic":
-        sow = "Historic"
+        tmp = fn.split("/")[4]
+        sow = tmp[0].upper() + tmp[1:]
     elif sup == "climate_scenarios":
         sow = fn.split("/")[4]
 
@@ -183,14 +183,14 @@ def readData(allPIs, qmPIs, annualPIs, fn):
     )
 
     lowSup = (
-        annObjs.loc[annObjs["mmLowSupply"] == 1, ["Year"] + annualPIs]
+        annObjs.loc[annObjs["mmLowSupply"] == 1, ["Year", "mmArea"]]
         .melt(id_vars="Year", value_name="Value", var_name="PI")
         .groupby("PI")
         .agg(
-            annualAverage=("Value", "mean"),
-            annualMinimum=("Value", "max"),
-            annualMaximum=("Value", "min"),
-            annualTotal=("Value", "sum"),
+            annualAverageLowSupply=("Value", "mean"),
+            annualMinimumLowSupply=("Value", "max"),
+            annualMaximumLowSupply=("Value", "min"),
+            annualTotalLowSupply=("Value", "sum"),
         )
         .reset_index()
         .rename_axis(0, axis=1)

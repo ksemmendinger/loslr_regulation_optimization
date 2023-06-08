@@ -7,7 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "historic", "off", "12month", "sqAR", "75000", "17", "4"]
+# args = ["", "mac_loc", "historic", "off", "12month", "sqAR", "50000", "17", "4"]
 # args = ["", "mac_loc", "stochastic", "on", "baseline", "4"]
 
 # operating system
@@ -17,10 +17,11 @@ loc = args[1]
 inputV = args[2]
 
 # SLON calculation on/off
-if args[3] == "on":
-    v = "stochastic"
-else:
-    v = "historic"
+# if args[3] == "on":
+#     v = "stochastic"
+# else:
+#     v = "historic"
+v = inputV
 
 if args[4] == "baseline":
 
@@ -53,7 +54,7 @@ else:
 if args[1] == "mac_loc":
     wd = "/Users/kylasemmendinger/Library/CloudStorage/Box-Box/Plan_2014/optimization"
 elif args[1] == "hopper":
-    wd = "/home/fs02/pmr82_0001/kts48/optimization/output"
+    wd = "/home/fs02/pmr82_0001/kts48/optimization"
 os.chdir(wd)
 
 # names of objectives
@@ -63,7 +64,7 @@ pis = [
     "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
     "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
     "Meadow Marsh: Area (ha)",
-    "Muskrat House Density (%)",
+    "Muskrat House Density (#/ha)",
     "Recreational Boating: Impact Costs ($)",
 ]
 
@@ -95,6 +96,8 @@ dvs = [
 # import simulation function
 sys.path.insert(1, os.getcwd())
 import plan2014_optim
+
+# import simulation function for BoC
 
 # import objective functions
 sys.path.insert(1, os.getcwd() + "/objectiveFunctions")
@@ -163,6 +166,7 @@ def policySimulationParallel(
 
 # load in policies that make up the pareto front
 pop = pd.read_csv("output/data/" + folderName + "/NonDominatedPolicies.txt", sep="\t")
+# pop = pop.loc[(pop["Policy"] == 1) & (pop["ID"] == 134), :].reset_index(drop=True)
 
 # create folder to save simulated output
 newpath = "output/data/" + folderName + "/simulation/" + inputV
@@ -174,8 +178,6 @@ with ProcessPoolExecutor(max_workers=nWorkers) as executor:
 
     for i in range(pop.shape[0]):
         # for i in range(2, pop.shape[0]):
-
-        print(pop.loc[i, "Policy"])
 
         if folderName == "baseline":
             leadtime = pop.loc[i, "Lead-Time"].split("-")[0] + "month"
@@ -222,7 +224,7 @@ with ProcessPoolExecutor(max_workers=nWorkers) as executor:
         vars["limSepThresholdQM1"] = pop.loc[i, "R+ Starting Quarter-Month"]
         vars["limSepThresholdQM2"] = pop.loc[i, "R+ Ending Quarter-Month"]
 
-        # get input dir list
+        # get input dir list - remove BoC simulation for now
         filelist = [f.path for f in os.scandir("input/" + inputV) if f.is_dir()]
 
         partialSim = partial(

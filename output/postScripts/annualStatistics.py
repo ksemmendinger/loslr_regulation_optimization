@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_loc", "12month", "sqAR", "50000", "14", 4]
+# args = ["", "mac_loc", "12month", "sqAR", "50000", "17", 4]
 # args = ["", "mac_loc", "baseline", 4]
 
 # set working directory
@@ -49,7 +49,7 @@ else:
     nWorkers = int(args[6])
 
 # create folder for clean decision variable and objective files
-newpath = "data/" + folderName + "/postAnalysis/hydroStatistics"
+newpath = "data/" + folderName + "/postAnalysis/annualStatistics"
 if not os.path.exists(newpath):
     os.makedirs(newpath)
 
@@ -73,33 +73,52 @@ def readData(fn):
     # read file and get relevant columns
     df = pd.read_parquet(fn).loc[
         :,
-        ["Sim", "Year", "Month", "QM", "ontFlow", "ontLevel", "ptclaireLevel"],
+        [
+            "Sim",
+            "Year",
+            "Month",
+            "QM",
+            "ontLevel",
+            "ptclaireLevel",
+            # "ontFlow",
+            "flowRegime",
+        ],
     ]
 
     # get monthly min, mean,
-    df = (
-        df.melt(
-            id_vars=["Sim", "Year", "Month", "QM"],
+    annStats = (
+        df.loc[:, ["Sim", "Year", "ontLevel", "ptclaireLevel"]]
+        .melt(
+            id_vars=["Sim", "Year"],
             var_name="Variable",
             value_name="Value",
         )
-        .groupby(["Month", "Variable"], as_index=False)
+        .groupby(["Year", "Variable"], as_index=False)
         .agg(
-            monthlyMin=("Value", "min"),
-            monthlyMean=("Value", "mean"),
-            monthlyMax=("Value", "max"),
+            annualMin=("Value", "min"),
+            annualMean=("Value", "mean"),
+            annualMax=("Value", "max"),
         )
         .melt(
-            id_vars=["Month", "Variable"],
+            id_vars=["Year", "Variable"],
             var_name="statType",
             value_name="Value",
         )
     )
 
-    df.insert(0, "Policy", fn.split("/")[-1].split(".parquet.gzip")[0])
-    df.insert(0, "SOW", sow)
+    annStats.insert(0, "Policy", fn.split("/")[-1].split(".parquet.gzip")[0])
+    annStats.insert(0, "SOW", sow)
 
-    return df
+    annRules = (
+        df.loc[:, ["Sim", "Year", "flowRegime"]]
+        .groupby(["Year", "flowRegime"], as_index=False)
+        .agg("count")
+    )
+
+    annRules.insert(0, "Policy", fn.split("/")[-1].split(".parquet.gzip")[0])
+    annRules.insert(0, "SOW", sow)
+
+    return annStats, annRules
 
 
 # -----------------------------------------------------------------------------
@@ -111,15 +130,25 @@ path = "data/" + folderName + "/simulation/**"
 filelist = [f for f in glob(path, recursive=True) if os.path.isfile(f)]
 
 hydroStats = []
+rules = []
 
 with ProcessPoolExecutor(max_workers=nWorkers) as executor:
-    for tmpHydro in executor.map(readData, filelist):
+    for tmpHydro, tmpRules in executor.map(readData, filelist):
         hydroStats.append(tmpHydro)
+        rules.append(tmpRules)
 
 hydroStats = pd.concat(hydroStats)
 
 hydroStats.to_csv(
-    "data/" + folderName + "/postAnalysis/hydroStatistics/hydroStatistics.txt",
+    "data/" + folderName + "/postAnalysis/annualStatistics/annualStatistics.txt",
+    sep="\t",
+    index=False,
+)
+
+rules = pd.concat(rules)
+
+rules.to_csv(
+    "data/" + folderName + "/postAnalysis/annualStatistics/regimeCounts.txt",
     sep="\t",
     index=False,
 )

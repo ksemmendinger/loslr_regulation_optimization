@@ -1781,7 +1781,8 @@ def muskratDensity(levels, temps, elevZones):
                 muskratResult = np.nan
 
         # save results
-        muskrat.loc[i, "houseDensity"] = muskratResult
+        muskrat.loc[i, "houseDensity"] = min(muskratResult, 3) 
+        # set max to 3 houses/ha for any given year based on max value from natural flow/pre-project conditions from SVM
 
     return muskrat
 

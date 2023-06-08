@@ -81,7 +81,8 @@ def readData(gageLocations, impactLocations, impactZones, fn):
     if sup == "stochastic":
         sow = "Stochastic Century " + fn.split("/")[4].split("_")[1]
     elif sup == "historic":
-        sow = "Historic"
+        tmp = fn.split("/")[4]
+        sow = tmp[0].upper() + tmp[1:]
     elif sup == "climate_scenarios":
         sow = fn.split("/")[4]
 
