@@ -33,9 +33,9 @@ import objectiveFunctions
 #     6859.0,  # lfDryThreshold
 #     50.0,  # lf50Conf
 #     189.0,  # lf99Conf
-#     74.8, # limSepThreshold
-#     32, # limSepThresholdQM1
-#     0, # limSepThresholdQM2
+#     74.8, # rplusTrigger
+#     32, # rplusStartQM
+#     1, # rplusDuration
 # ]
 
 # -----------------------------------------------------------------------------
@@ -247,10 +247,9 @@ def simulation(data, version, **vars):
     rcDryAdjustment = float(vars["rcDryAdjustment"])
     rcDryLevel = float(vars["rcDryLevel"])
     rcDryFlowAdj = float(vars["rcDryFlowAdj"])
-
-    limSepThreshold = float(vars["limSepThreshold"])
-    limSepThresholdQM1 = int(vars["limSepThresholdQM1"])
-    limSepThresholdQM2 = int(vars["limSepThresholdQM2"])
+    rplusTrigger = float(vars["rplusTrigger"])
+    rplusStartQM = int(vars["rplusStartQM"])
+    rplusDuration = int(vars["rplusDuration"])
 
     # # manually set and omit from optimization
     # limSepThreshold = 74.80
@@ -392,6 +391,9 @@ def simulation(data, version, **vars):
     data["freshetIndicator"] = np.nan
     data["confidence"] = np.nan
     data["indicator"] = np.nan
+    data["rplusIndicator"] = np.nan
+    data["rplusLevel"] = np.nan
+    data["rplusForecastLevel"] = np.nan
 
     # initialize columns for slon and other ottsplit flow calculations
     if version == "stochastic":
@@ -416,14 +418,16 @@ def simulation(data, version, **vars):
     # get number of time steps
     timesteps = len(data["forNTS"][s:][~np.isnan(data["forNTS"][s:])])
 
+    # start by setting the rplus indicator to off
+    rplusIndicator = 0
+    rplusLevel = 0
+    rplusForecastLevel = 0
+
     for t in range(s, timesteps):
 
         # quarter month and year
         qm = data["QM"][t]
         year = data["Year"][t]
-
-        # if qm == 1:
-        #     print(year)
 
         # -------------------------------------------------------------------------
         # starting state variables for time step, t
@@ -496,26 +500,26 @@ def simulation(data, version, **vars):
         # true nts
         obsontNTS = data["ontNTS"][t]
 
-        # flow, level, and flag if september levels are dangerously high
-        if qm <= 32:
+        # # flow, level, and flag if september levels are dangerously high
+        # if qm <= 32:
 
-            # take the flow and level from the previous year
-            # qm32Flow = data["ontFlow"][data["Year"] == year - 1][32 - 1]
-            # qm32Level = data["ontLevel"][data["Year"] == year - 1][32 - 1]
-            # flowflag = 0
-            qm32Flow = np.nan
-            qm32Level = np.nan
+        #     # take the flow and level from the previous year
+        #     # qm32Flow = data["ontFlow"][data["Year"] == year - 1][32 - 1]
+        #     # qm32Level = data["ontLevel"][data["Year"] == year - 1][32 - 1]
+        #     # flowflag = 0
+        #     qm32Flow = np.nan
+        #     qm32Level = np.nan
 
-        elif qm > 32:
+        # elif qm > 32:
 
-            # take the flow and level from the current year
-            qm32Flow = data["ontFlow"][data["Year"] == year][32 - 1]
-            qm32Level = data["ontLevel"][data["Year"] == year][32 - 1]
+        #     # take the flow and level from the current year
+        #     qm32Flow = data["ontFlow"][data["Year"] == year][32 - 1]
+        #     qm32Level = data["ontLevel"][data["Year"] == year][32 - 1]
 
-            # if qm32Level > limSepThreshold:
-            #     flowflag = 1
-            # else:
-            #     flowflag = 0
+        #     # if qm32Level > limSepThreshold:
+        #     #     flowflag = 1
+        #     # else:
+        #     #     flowflag = 0
 
         # -------------------------------------------------------------------------
         # long forecast generator [indicator and confidence]
@@ -702,29 +706,41 @@ def simulation(data, version, **vars):
         #
         # ---------------------------------------------------------------------------
 
+        # when you hit the QM that should start the R+ regime save the current level
+        if qm == rplusStartQM:
+            rplusLevel = ontLevelStart
+
+            # if the current level is higher than the trigger level, save the QM to
+            # stop R+ and an R+ flow indicator
+            if rplusLevel > rplusTrigger:
+                rplusEnd = rplusStartQM + rplusDuration
+                # if duration extends into the next year, reset QM count
+                if rplusEnd > 48:
+                    rplusEnd = rplusEnd - 48
+
+                # start applying R+ regime - reset to 0 once duration is exceeded
+                rplusIndicator = 1
+
         # only applies starting QM32
-        if qm >= limSepThresholdQM1 or qm <= limSepThresholdQM2:
+        if rplusIndicator == 1:
+
+            rplusForecastLevel = endLev[-1]
 
             # only applies if the QM32 level is greater than the September threshold
-            if qm32Level > limSepThreshold:
+            if rplusLevel > rplusTrigger:
 
-                # adjust if the starting ontario level is greater than the September threshold
-                if ontLevelStart > limSepThreshold:
+                # adjust based on level forecasted at the end of the short forecast loop
+                if rplusForecastLevel > rplusTrigger:
 
-                    if qm <= 46:
-                        flowadj = ((ontLevelStart - limSepThreshold) * conv) / (
-                            46 - qm + 1
-                        )
-                    else:
-                        flowadj = ((ontLevelStart - limSepThreshold) * conv) / (
-                            48 - qm + 1
-                        )
+                    flowadj = (
+                        (rplusForecastLevel - rplusTrigger) * conv
+                    ) / rplusDuration
 
                     # adjust rule curve flow
                     ontFlow = ontFlow + flowadj
 
-                    if qm == 33:
-                        ontFlow = min(ontFlow, qm32Flow)
+                    # if qm == 33:
+                    #     ontFlow = min(ontFlow, qm32Flow)
 
                     # adjust rule curve flow
                     ontFlow = round(ontFlow, 0)
@@ -735,6 +751,80 @@ def simulation(data, version, **vars):
 
                     # adjust rule curve flow regime
                     ontRegime = "R+"
+
+                # check to see if duration of rplus has been met, if so reset indicator and level
+                # if qm == rplusEnd:
+                #     rplusIndicator = 0
+                #     rplusLevel = np.nan
+
+        # R+ indicators
+        data["rplusIndicator"][t] = rplusIndicator
+        data["rplusLevel"][t] = rplusLevel
+        data["rplusForecastLevel"][t] = rplusForecastLevel
+
+        # check to see if duration of rplus has been met, if so reset indicator and level
+        if rplusIndicator == 1:
+
+            # only applies if the QM32 level is greater than the September threshold
+            if rplusLevel > rplusTrigger:
+                if qm == rplusEnd:
+                    rplusIndicator = 0
+                    rplusLevel = np.nan
+
+        # # flow, level, and flag if september levels are dangerously high
+        # if qm <= qmRplus:
+
+        #     # take the flow and level from the previous year
+        #     # qm32Flow = data["ontFlow"][data["Year"] == year - 1][32 - 1]
+        #     # qm32Level = data["ontLevel"][data["Year"] == year - 1][32 - 1]
+        #     # flowflag = 0
+        #     qm32Flow = np.nan
+        #     qm32Level = np.nan
+
+        # elif qm > 32:
+
+        #     # take the flow and level from the current year
+        #     qm32Flow = data["ontFlow"][data["Year"] == year][32 - 1]
+        #     qm32Level = data["ontLevel"][data["Year"] == year][32 - 1]
+
+        #     # if qm32Level > limSepThreshold:
+        #     #     flowflag = 1
+        #     # else:
+        #     #     flowflag = 0
+
+        # # only applies starting QM32
+        # if qm >= limSepThresholdQM1 or qm <= limSepThresholdQM2:
+
+        #     # only applies if the QM32 level is greater than the September threshold
+        #     if qm32Level > limSepThreshold:
+
+        #         # adjust if the starting ontario level is greater than the September threshold
+        #         if ontLevelStart > limSepThreshold:
+
+        #             if qm <= 46:
+        #                 flowadj = ((ontLevelStart - limSepThreshold) * conv) / (
+        #                     46 - qm + 1
+        #                 )
+        #             else:
+        #                 flowadj = ((ontLevelStart - limSepThreshold) * conv) / (
+        #                     48 - qm + 1
+        #                 )
+
+        #             # adjust rule curve flow
+        #             ontFlow = ontFlow + flowadj
+
+        #             if qm == 33:
+        #                 ontFlow = min(ontFlow, qm32Flow)
+
+        #             # adjust rule curve flow
+        #             ontFlow = round(ontFlow, 0)
+
+        #             # calculate resulting water level
+        #             dif1 = round((sfSupplyNTS[0] / 10 - ontFlow) / conv, 6)
+        #             ontLevel = round(ontLevel + dif1, 2)
+
+        #             # adjust rule curve flow regime
+        #             ontRegime = "R+"
 
         # -----------------------------------------------------------------------------
         #
@@ -2266,10 +2356,6 @@ def optimization(expName, v, *vars):
 
     # load data by experiment name
     data = pd.read_table("input/" + expName + ".txt")
-    # if v == "historic":
-    #   data = pd.read_table("input/" + expName + ".txt")
-    # elif v == "stochastic":
-    #     data = pd.read_table("input/" + expName + ".txt")
 
     # set number of objectives and decision variables
     dvs = vars
@@ -2289,9 +2375,9 @@ def optimization(expName, v, *vars):
     vars["lfDryThreshold"] = dvs[11]
     vars["lf50Conf"] = dvs[12]
     vars["lf99Conf"] = dvs[13]
-    vars["limSepThreshold"] = dvs[14]
-    vars["limSepThresholdQM1"] = dvs[15]
-    vars["limSepThresholdQM2"] = dvs[16]
+    vars["rplusTrigger"] = dvs[14]
+    vars["rplusStartQM"] = dvs[15]
+    vars["rplusDuration"] = dvs[16]
 
     # -----------------------------------------------------------------------------
     # plan 2014 simulation

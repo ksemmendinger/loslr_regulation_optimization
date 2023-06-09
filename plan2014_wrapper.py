@@ -68,9 +68,9 @@ dvs = [
     6859.0,  # lfDryThreshold
     50.0,  # lf50Conf
     189.0,  # lf99Conf
-    74.80,  # limSepThreshold
-    32,  # limSepThresholdQM1
-    0,  # limSepThresholdQM2
+    74.80,  # rplusTrigger
+    32,  # rplusStartQM
+    16,  # rplusDuration
 ]
 
 # dvs = dvs[:nvars]
@@ -89,7 +89,13 @@ perDif = perDifDV
 
 # lower and upper bounds
 lowerb = [x - perDif * x for x in dvs[:-2]] + [1, 1]
-upperb = [x + perDif * x for x in dvs[:-2]] + [48, 48]
+upperb = [x + perDif * x for x in dvs[:-2]] + [48, 47]
+
+# manually set lower and upper bounds of water levels to [60, 80]
+levVars = [8, 14]
+for i in range(len(levVars)):
+    lowerb[levVars[i]] = 60
+    upperb[levVars[i]] = 80
 
 # -----------------------------------------------------------------------------
 # run borg
