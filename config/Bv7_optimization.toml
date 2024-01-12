@@ -1,0 +1,102 @@
+[experimentalDesign]
+
+# release function: ANN flow adjustment [adjANN], ANN flow release [fANN], rule curve [RC]
+releaseFunction = "RC"
+
+# flow limits: Bv7 without deviations [Bv7], Plan 2014 with deviations [2014]
+limitType = "Bv7"
+
+# september rule: on, off
+septemberRule = "off"
+
+# forecast lead-time: 12month, 6month, 3month, 1month
+forecastLeadTime = "12month"
+
+# forecast skill: 12-month status quo AR(1) [sqAR], linear model [sqLM], perfect [0]
+forecastSkill = "sqAR"
+
+# number of decision variables
+numDV = 14
+
+# number of objectives
+numObj = 7
+
+# number of constraints
+numCon = 0
+
+# trace to simulate
+trace = "historic"
+
+# number of function evaluations
+nfe = 100000
+
+# initial population size
+popSize = 100
+
+# frequency of function evaluations to report metrics
+metFreq = 100
+
+[decisionVariables]
+dvName = [
+    "C1",
+    "addC1",
+    "C2",
+    "P1",
+    "P2",
+    "rcThreshold",
+    "wetDenominator",
+    "dryDenominator",
+    "adjLevel",
+    "adjFlow",
+    "lf50Conf",
+    "lf99Conf",
+    "lfDryThreshold",
+    "lfWetThreshold",
+]
+lowerBounds = [
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.5,
+    5500.0,
+    1.0,
+    1.0,
+    74.0,
+    -50.0,
+    0.0,
+    0.0,
+    5500.0,
+    5500.0,
+]
+upperBounds = [
+    1000.0,
+    250.0,
+    300.0,
+    2.0,
+    2.0,
+    9000.0,
+    2000.0,
+    2000.0,
+    77.0,
+    50.0,
+    250.0,
+    250.0,
+    9000.0,
+    9000.0,
+]
+normalizedRange = [0, 1]
+
+[performanceIndicators]
+metricWeighting = 'netAnnualAverage'
+piName = [
+    "Coastal Impacts: Upstream Buildings Impacted (#)",
+    "Coastal Impacts: Downstream Buildings Impacted (#)",
+    "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
+    "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
+    "Meadow Marsh: Area (ha)",
+    "Muskrat Lodge Viability (%)",
+    "Recreational Boating: Impact Costs ($)",
+]
+epsilonValue = [1650.0, 100.0, 1e6, 22.5e6, 500.0, 3.0, 900000.0]
+direction = ["min", "min", "min", "max", "max", "max", "min"]
