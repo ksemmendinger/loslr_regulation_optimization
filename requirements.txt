@@ -10,3 +10,4 @@ six
 sklearn
 torch
 zope
+toml
