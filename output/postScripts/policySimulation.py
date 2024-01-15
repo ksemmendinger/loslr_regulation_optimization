@@ -20,9 +20,15 @@
 # import libraries
 # -----------------------------------------------------------------------------
 
+import os
+import sys
+import toml
+import pandas as pd
+from pathlib import Path
+
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_ext", "RC_Bv7_offSepRule_12month_sqAR_14dv_7obj_historic_100000nfe"]
+# args = ["", "mac_ext", "RC_Bv7_offSepRule_percentDiff_12month_sqAR_14dv_7obj_historic_25000nfe"]
 
 # [1]: location to run [mac_loc, glhpc]
 loc = args[1]
@@ -37,14 +43,7 @@ os.chdir(wd)
 # [2]: folder name of experiment
 expName = args[2]
 
-import os
-import sys
-import toml
-import pandas as pd
-from pathlib import Path
-
 # import logging
-
 glrrmDir = "/Users/kylasemmendinger/Documents/github/GLRRM-Ontario"
 sys.path.append(glrrmDir)
 

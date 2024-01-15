@@ -10,7 +10,7 @@ from os.path import exists
 # set variables from command line input
 args = sys.argv
 # args = ["", "mac_ext", "adjANN", "Bv7", "12month", "sqAR", "61", "7", "0", "historic", "30000", "5"]
-# args = ["", "mac_ext", "adjANN_Bv7_offSepRule_1month_sqLM_61dv_7obj_historic_50000nfe", "5"]
+# args = ["", "mac_ext", "RC_Bv7_offSepRule_percentDiff_12month_sqAR_14dv_7obj_historic_25000nfe", "5"]
 
 # -----------------------------------------------------------------------------
 # experimental design from inputs

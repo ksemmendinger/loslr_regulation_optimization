@@ -44,8 +44,6 @@ python postScripts/glrrmOutputFormat.py ${loc} ${folderName}
 echo "... pi simulation ..."
 python postScripts/piSimulation.py ${loc} ${folderName}
 
-
-# OLD 
 # if [ $1 != "baseline" ]; then
 
 #     folderName="$1"
@@ -227,5 +225,4 @@ python postScripts/piSimulation.py ${loc} ${folderName}
 
 #     # wait
 #     # echo "... done with post processing ... "
-
 # fi

@@ -1,7 +1,9 @@
 # import libraries
 import os
 import sys
-import toml
+
+# import toml
+import pathlib
 import numpy as np
 import pandas as pd
 from glob import glob
@@ -49,6 +51,7 @@ filelist = [
 
 for i in range(len(filelist)):
     startTimeObj = datetime.now()
+    print(pathlib.PurePath(filelist[i]).parent.name)
 
     # load glrrm output
     fn = filelist[i]

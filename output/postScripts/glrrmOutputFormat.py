@@ -1,12 +1,13 @@
 # import libraries
 import os
 import sys
-import toml
+
+# import toml
 import numpy as np
 import pandas as pd
 from glob import glob
+import pathlib
 
-# from pathlib import Path
 # from os.path import exists
 
 # set variables from command line input
@@ -55,7 +56,7 @@ filelist = [
 ]
 
 for i in range(len(filelist)):
-    print(i)
+    print(pathlib.PurePath(filelist[i]).parent.name)
 
     # load glrrm output
     fn = filelist[i]
