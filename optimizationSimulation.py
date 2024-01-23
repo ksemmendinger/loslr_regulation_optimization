@@ -26,9 +26,8 @@ import objectiveFunctions
 #     expName = v + "/" + v + "/" + leadtime + "_" + skill
 #     vars = config["decisionVariables"]["normalizedValue"]
 
-
 # # for testing - OPTIMIZATION RUN
-# with open("/Volumes/ky_backup/dps/config/config_12_lm.toml", "r") as f:
+# with open("/Volumes/ky_backup/dps/output/data/RC_Bv7_offSepRule_percentDiff_12month_sqAR_14dv_7obj_historic_25000nfe/config.toml", "r") as f:
 #     import toml
 #     config = toml.load(f)
 #     dvInfo = config["decisionVariables"]
@@ -40,7 +39,11 @@ import objectiveFunctions
 #     skill = config["experimentalDesign"]["forecastSkill"]
 #     leadtime = config["experimentalDesign"]["forecastLeadTime"]
 #     expName = v + "/" + v + "/" + leadtime + "_" + skill
+#     piWeighting = config["performanceIndicators"]['metricWeighting']
 
+# vars = "71.85018177	249.9998463	96.43069415	0.5	0.938134332	6669.371192	630.5188176	792.9409806	74.85611909	-15.92548494	120.7690176	103.3261464	6782.307751	7530.557551"
+# vars = vars.split("\t")
+# vars = [float(x) for x in vars]
 # vars = [1] * len(dvInfo["dvName"])
 
 # -----------------------------------------------------------------------------
@@ -427,10 +430,14 @@ def simulation(data, version, plan, septemberRule, releaseFun, **pars):
     data["annOutput"] = np.nan
     data["ontLevelBOQ"] = np.nan
     data["ontLevelEOQ"] = np.nan
-    data["ontLevelMOQ"] = np.nan
+    data["ontFlow"] = np.nan
+    data["ontLevel"] = np.nan
+    # data["ontLevelMOQ"] = np.nan
 
-    # initialize first starting water level (note: 2 decimal rounded, not 6 decimal value)
-    data.loc[48, "ontLevelBOQ"] = data.loc[47, "ontLevel"]
+    # initialize previous QM's flow, EOQ level, and ice status
+    data.loc[48, "ontLevelBOQ"] = 74.55
+    data.loc[47, "ontFlow"] = 595
+    data.loc[47, "iceInd"] = 2
 
     # initialize columns for slon and other ottsplit flow calculations
     if version == "stochastic":
@@ -471,7 +478,7 @@ def simulation(data, version, plan, septemberRule, releaseFun, **pars):
         kingLevelStart = ontLevelStart - 0.03
 
         # average level of previous 48 quarter-months
-        annavgLevel = round(np.mean(data["ontLevel"][(t - 48) : (t)]), 2)
+        annavgLevel = round(np.mean(data["ontLevelMOQ"][(t - 48) : (t)]), 2)
 
         # moses-saunders release
         ontFlowPrev = data["ontFlow"][t - 1]
@@ -2450,7 +2457,7 @@ def optimization(
     # data = {x: data[x].values for x in data}
 
     na_counts = outSim.isna().sum(axis=1)
-    data = outSim.drop(na_counts[na_counts > 10].index, axis=0)
+    data = v.drop(na_counts[na_counts > 10].index, axis=0)
     data = {x: data[x].values for x in data}
 
     # initialize output
