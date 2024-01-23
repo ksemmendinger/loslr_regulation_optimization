@@ -1,0 +1,99 @@
+﻿varName,varDescription,varUnits
+Sim,Sim,
+Year,Year,
+Month,Month,
+QM,Quarter-Month,
+ontNTS,Lake Ontario Net Total Supply,cms
+erieOut,Lake Erie Outflows,cms
+ontNBS,Lake Ontario Net Basin Supply,cms
+stlouisontOut,Lac St. Louis - Lake Ontario Flows,cms
+iceInd,Ice Indicator,
+tidalInd,Tidal Signal,
+foreInd,Forecast Indicator,
+desprairiesOut,Des Prairies + Mille Iles River Flow,cms
+stfrancoisOut,St. Francois River Flow,cms
+stmauriceOut,St. Maurice River Flow,cms
+richelieuOut,Richelieu River Flow,cms
+longsaultR,Long Sault Roughness Factor,
+saundershwR,Saunders Headwater Roughness Factor,
+ptclaireR,Pointe Claire Roughness Factor,
+ogdensburgR,Ogdensburg Roughness Factor,
+cardinalR,Cardinal Roughness Factor,
+iroquoishwR,Iroquois Headwater Roughness Factor,
+iroquoistwR,Iroquois Tailwater Roughness Factor,
+morrisburgR,Morrisburg Roughness Factor,
+saunderstwR,International Tailwater Roughness Factor,
+cornwallR,Cornwall Roughness Factor,
+summerstownR,Summerstown Roughness Factor,
+jetty1R,Jetty1 Roughness Factor,
+varennesR,Varennes Roughness Factor,
+sorelR,Sorel Roughness Factor,
+stpierreR,Lac St. Pierre Roughness Factor,
+threeriversR,Trois Rivieres Roughness Factor,
+batiscanR,Batiscan Roughness Factor,
+flowRegime,Flow Regime (RC or Limit),
+forNTS,Forecasted Supply Index,cms
+alexbayLevel,Alexandria Bay Level,m
+brockvilleLevel,Brockville Level,m
+ogdensburgLevel,Ogdensburg Level,m
+cardinalLevel,Cardinal Level,m
+iroquoishwLevel,Iroquois Headwater Level,m
+iroquoistwLevel,Iroquois Tailwater Level,m
+morrisburgLevel,Morrisburg Level,m
+saunderstwLevel,International Tailwater Level,m
+cornwallLevel,Cornwall Level,m
+summerstownLevel,Summerstown Level,m
+longsaultLevel,Long Sault Level,m
+saundershwLevel,Saunders Headwater Level,m
+ptclaireLevel,Pointe Claire Level,m
+jetty1Level,Jetty1 Level,m
+varennesLevel,Varennes Level,m
+sorelLevel,Sorel Level,m
+lacstpierreLevel,Lac St. Pierre Level,m
+troisrivieresLevel,Trois Rivieres Level,m
+batiscanLevel,Batiscan Level,m
+ontLevelBOQ,Lake Ontario Beginning-of-Quarter Level,m
+ontLevelMOQ,Lake Ontario Mean-of-Quarter Level,m
+ontLevelEOQ,Lake Ontario End-of-Quarter Level,m
+ontFlow,Lake Ontario Outflow,10*cms
+maskinongeLevel,Maskinonge Level,m
+stlambertLevel,Saint-Lambert Level,m
+lerybeauharnoisLevel,Lery-Beauharnois Level,m
+rfFlow,Rule Curve Flow,10*cms
+stlouisFlow,Lac St. Louis Flow,cms
+freshetIndicator,Freshet Indicator,
+kingstonLevel,Kingston Level,m
+ontLevel,Lake Ontario Level (MOQ),m
+upstreamCoastal,Upstream Coastal Impacts,# of Houses
+downstreamCoastal,Downstream Coastal Impacts,# of Houses
+ontarioCoastal,Lake Ontario Coastal Impacts,# of Houses
+alexbayCoastal,Alexandria Bay Coastal Impacts,# of Houses
+cardinalCoastal,Cardinal Coastal Impacts,# of Houses
+lerybeauharnoisCoastal,Lery-Beauharnois Coastal Impacts,# of Houses
+ptclaireCoastal,Pointe Claire Coastal Impacts,# of Houses
+maskinongeCoastal,Maskinonge Coastal Impacts,# of Houses
+lacstpierreCoastal,Lac St. Pierre Coastal Impacts,# of Houses
+sorelCoastal,Sorel Coastal Impacts,# of Houses
+troisrivieresCoastal,Trois Rivieres Coastal Impacts,# of Houses
+totalCommercialNavigation,Commercial Navigation,$
+ontarioCommercialNavigation,Lake Ontario Commercial Navigation,$
+seawayCommercialNavigation,Seaway Commercial Navigation,$
+montrealCommercialNavigation,Montreal Commercial Navigation,$
+totalEnergyValue,Hydropower Production Value,$
+opgMosesSaundersEnergyValue,OPG Moses-Saunders Hydropower Production Value,$
+nypaMosesSaundersEnergyValue,NYPA Moses-Saunders Hydropower Production Value,$
+opgNiagaraEnergyValue,OPG Niagara Hydropower Production Value,$
+nypaNiagaraEnergyValue,NYPA Niagara Hydropower Production Value,$
+peakingMosesSaundersValue,Moses-Saunders Hydropower Production Value,$
+mmArea,Meadow Marsh Area,Hectares
+mmLowSupply,Low Supply Years,
+muskratProbLodgeViability,Muskrat Probability of Lodge Viability,%
+totalRecBoating,Recreational Boating,$
+ontarioRecBoating,Lake Ontario Recreational Boating,$
+alexbayRecBoating,Alexandria Bay Recreational Boating,$
+ogdensburgRecBoating,Ogdensburg Recreational Boating,$
+brockvilleRecBoating,Brockville Recreational Boating,$
+longsaultRecBoating,Long Sault Recreational Boating,$
+ptclaireRecBoating,Pointe Claire Recreational Boating,$
+varennesRecBoating,Varennes Recreational Boating,$
+sorelRecBoating,Sorel Recreational Boating,$

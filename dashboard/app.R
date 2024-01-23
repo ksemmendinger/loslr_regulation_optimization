@@ -32,6 +32,9 @@ fullPal <- c(blues, yellow, rev(reds))
 getPal <- colorRampPalette(fullPal)
 getRBPal <- colorRampPalette(c(blues, rev(reds)))
 
+# load variable names
+varNames <- read.csv("dashboard/varNames.csv")
+
 # -----------------------------------------------------------------------------
 # load pareto front data across experiments in output/data directory
 # -----------------------------------------------------------------------------
@@ -79,7 +82,7 @@ sidebarWidth <- 3
 mainbarWidth <- totalwidth - sidebarWidth
 
 ui <- fluidPage(
-
+  
   # set theme for overall web app
   theme = shinythemes::shinytheme("yeti"),
   
@@ -88,13 +91,17 @@ ui <- fluidPage(
     
     "Optimization Dashboard",
     
+    # -----------------------------------
+    # parallel axis plot
+    # -----------------------------------
+    
     tabPanel(
       
       # first tab title
       "Exploration",
       
       sidebarPanel(
-    
+        
         # side panel parameters
         style = "height: 95vh; overflow-y: auto; background-color: #F5F5F5; border-radius: 8px; border-width: 0px", 
         width = sidebarWidth,
@@ -106,7 +113,7 @@ ui <- fluidPage(
           options = list(`live-search` = TRUE, size = 5, `actions-box` = TRUE, `title` = "Select Policies for Plotting")
         ),
         br(),
-        column(12, align = "center", offset = 0, actionButton("go", "Generate Parallal Axis Plot", icon("chart-line"), width="66.7%")),
+        column(12, align = "center", offset = 0, actionButton("go", "Generate Parallel Axis Plot", icon("chart-line"), width="75%")),
         br(),
         br(),
         br(),
@@ -149,16 +156,15 @@ ui <- fluidPage(
         ),
         
         br(),
-        plotOutput("filterPlot", width = "100%", height = "1000px", brush = brushOpts(id = "plotBrush", delay = 5000)) %>% withSpinner(color = blues[3], proxy.height = 200),
+        plotOutput("filterPlot", width = "100%", height = "800px", brush = brushOpts(id = "plotBrush", delay = 5000)) %>% withSpinner(color = blues[3], proxy.height = 200),
         # uiOutput("filterPlot"),
         br(),
         
         br(),
         fluidRow(
-          column(12,
-                 column(10, h3(textOutput("tableTitle"))),
-                 column(2, uiOutput("tableSave"))
-          )
+          column(12, 
+                 column(10, h3(textOutput("tableTitle"))), 
+                 column(2, uiOutput("tableSave")))
         ),
         # h4("Table of Pareto Optimal Policy Performance"),
         DT::dataTableOutput("filteredTable") %>% withSpinner(color = blues[3], proxy.height = 200),
@@ -166,12 +172,54 @@ ui <- fluidPage(
         
       )
       
+    ),
+    
+    # -----------------------------------
+    # time series plots
+    # -----------------------------------
+    
+    tabPanel(
+      
+      # second tab title
+      "Analysis",
+      
+      sidebarPanel(
+        
+        # side panel parameters
+        style = "height: 95vh; overflow-y: auto; background-color: #F5F5F5; border-radius: 8px; border-width: 0px", 
+        width = sidebarWidth,
+        
+        # side panel visuals
+        h3("Policy Information"),
+        selectInput(inputId = "policySelection", label = "Policy Selection", choices = c("Select from Table", "Select by searchID"), multiple = FALSE, selected = "Select from Table"),
+        conditionalPanel("input.policySelection == 'Select by searchID'", textInput(inputId = "evalPoliciesManual", label = "Enter policies by searchID (separated with a comma):", placeholder = NULL, width = "100%")),
+        conditionalPanel("input.policySelection == 'Select from Table'", pickerInput(inputId = "evalPolicies", label = "Policies to Evaluate", choices = NULL, multiple = TRUE)), #, options = list(`actions-box` = TRUE))),
+        br(),
+        column(12, align = "center", offset = 0, actionButton("load_data", "Load Data", icon("chart-line"), width="75%")),
+        br(),
+        br(),
+        br(),
+        numericRangeInput("tsYears", "Years to Plot", value = c(NA, NA)),
+        br(),
+        pickerInput("tsVars", "Variables to Plot", choices = NA, selected = NA, multiple = TRUE, options = list(`live-search` = TRUE, size = 5, `actions-box` = TRUE, `title` = "Select Variables for Plotting")),
+        br(),
+        column(12, align = "center", offset = 0, actionButton("ts_go", "Generate Time Series Plots", icon("chart-line"), width="75%")),
+        br(),
+      ),
+      
+      mainPanel(
+        
+        DT::dataTableOutput("summaryTable") %>% withSpinner(color = blues[3], proxy.height = 200),
+        br(),
+        uiOutput("tsPlot")
+        
+      ),
+      
     )
     
   )
   
 )
-
 
 # -----------------------------------------------------------------------------
 # server
@@ -181,11 +229,15 @@ print("starting server")
 
 server <- function(input, output, session) {
   
+  # -----------------------------------
+  # parallel axis plot
+  # -----------------------------------
+  
   # experiments to load pareto fronts - user specified
   expPol <- eventReactive(input$go, ignoreInit = TRUE, {
     input$expPol
   })
- 
+  
   # policies for normalization and plotting
   basePol <- reactive({input$basePol})
   plotPol <- reactive({input$plotPol})
@@ -203,13 +255,13 @@ server <- function(input, output, session) {
     normPol <- str_detect(expPol, "percentDiff")
     normPol
     
-    })
+  })
   
   # create slider for sidebar
   output$rangeOutput <- renderUI({
     
     if (runCheck() == TRUE) return(NULL)
-  
+    
     pis <- pis()
     basePol <- basePol()
     bline <- baselineExperiment[[basePol]]
@@ -231,25 +283,25 @@ server <- function(input, output, session) {
   
   # update sliding tickers with ranges
   observe({
-
+    
     if (runCheck() == TRUE) return(NULL)
-
+    
     pis <- pis()
     basePol <- basePol()
     data <- normalizedParetoFront()
-
+    
     bline <- baselineExperiment[[basePol]]
-
+    
     for (i in 1:length(pis)) {
-
+      
       piName <- bline$performanceIndicators$piName[i]
       maxValue <- max(data[[piName]])
       varName <- paste0(tolower(bline$performanceIndicators$abbrv[i]), "Numeric")
       lowerBound <- bline$performanceIndicators$satisficingCriteria[i]
       updateNumericRangeInput(session, varName, value = c(lowerBound, maxValue))
-
+      
     }
-
+    
   })
   
   # create text for sliders
@@ -270,14 +322,14 @@ server <- function(input, output, session) {
   
   # filtering criteria specified in side panel
   filterBounds <- eventReactive(eval(parse(text = abbrv())), ignoreNULL = TRUE, ignoreInit = TRUE, {
-
+    
     basePol <- basePol()
     bline <- baselineExperiment[[basePol]]
     pis <- bline$performanceIndicators$piName
     abbrv <- tolower(bline$performanceIndicators$abbrv)
-
+    
     filterBounds <- list()
-
+    
     for (i in 1:length(abbrv)) {
       varName <- paste0(abbrv[i], "Numeric")
       vals <- input[[varName]]
@@ -287,9 +339,9 @@ server <- function(input, output, session) {
       )
       filterBounds[[i]] <- tmp
     }
-
+    
     bind_rows(filterBounds)
-
+    
   })
   
   # baseline policy for nomalization
@@ -357,9 +409,10 @@ server <- function(input, output, session) {
     }
     
     paretoFront <- bind_rows(pf) %>%
-      bind_rows(., paretoBaseline) %>%
-      mutate(plotID = 1:nrow(.))
-    
+      mutate(plotID = 1:nrow(.), plotID = as.character(plotID)) %>%
+      bind_rows(., paretoBaseline %>% mutate(plotID = Experiment))
+      
+    pf <<- paretoFront
     paretoFront
     
   })
@@ -396,11 +449,11 @@ server <- function(input, output, session) {
       
     } else {
       
-    # calculate % change from Bv7
-    normalizedParetoFront <- paretoFront %>%
-      mutate(across(all_of(maxPIs), ~ (.x - last(.x)) / last(.x) * 100),
-             across(all_of(minPIs), ~ (.x - last(.x)) / last(.x) * -100),
-             across(all_of(pis), ~ round(.x, 2)))
+      # calculate % change from Bv7
+      normalizedParetoFront <- paretoFront %>%
+        mutate(across(all_of(maxPIs), ~ (.x - last(.x)) / last(.x) * 100),
+               across(all_of(minPIs), ~ (.x - last(.x)) / last(.x) * -100),
+               across(all_of(pis), ~ round(.x, 2)))
     }
     
     normalizedParetoFront
@@ -453,7 +506,7 @@ server <- function(input, output, session) {
         pivot_wider(names_from = "PI", values_from = "Score")
       
     }
-    
+    selPols <<- selectedPolicies
     selectedPolicies
     
   })
@@ -463,15 +516,14 @@ server <- function(input, output, session) {
   values$tableSelection <- NULL
   observeEvent(input$filteredTable_rows_selected, ignoreNULL = TRUE, {
     
-      tableIDs <- input$filteredTable_rows_selected
-      print(tableIDs)
-
-      data <- selectedPolicies() %>%
-        ungroup() %>%
-        arrange(Scenario, plotID, Experiment, ID, Seed) %>%
-        slice(as.numeric(tableIDs)) %>%
-        select(plotID) %>%
-        deframe()
+    tableIDs <- input$filteredTable_rows_selected
+    
+    data <- selectedPolicies() %>%
+      ungroup() %>%
+      arrange(Scenario, plotID, Experiment, ID, Seed) %>%
+      slice(as.numeric(tableIDs)) %>%
+      select(plotID) %>%
+      deframe()
     
     values$tableSelection <- data
     
@@ -516,7 +568,7 @@ server <- function(input, output, session) {
                Value = ifelse(abs(Value) >= 1, round(Value, 0), Value),
                Value = ifelse(Range == "Min", paste("-", abs(Value), "%"), paste("+", abs(Value), "%")))
     }
-  
+    
     plotLabels
     
   })
@@ -532,7 +584,7 @@ server <- function(input, output, session) {
     plotLabels <- plotLabels()
     data <- selectedPolicies()
     tableSelection <- values$tableSelection
-
+    
     # order for plotting selected baseline policies
     blinePols <- c(plotPol, basePol[-which(basePol == plotPol)])
     
@@ -581,7 +633,8 @@ server <- function(input, output, session) {
             legend.text = element_text(size = 15),
             legend.box = "vertical",
             legend.margin = ggplot2::margin())  +
-      scale_x_discrete(labels = function(x) str_wrap(str_replace_all(x, "pf" , " "), width = 15))
+      scale_x_discrete(labels = function(x) str_wrap(str_replace_all(x, "pf" , " "), width = 15)) +
+      guides(colour = guide_legend(nrow = length(expPol)))
     
     plt
     
@@ -593,9 +646,7 @@ server <- function(input, output, session) {
   })
   
   # download button
-  output$filterPlotDownload <- downloadHandler(
-    filename = function() { paste(input$filterPlotName, input$filterPlotType, sep = ".") },
-    content = function(file) {
+  output$filterPlotDownload <- downloadHandler(filename = function() { paste(input$filterPlotName, input$filterPlotType, sep = ".") }, content = function(file) {
       if (input$filterPlotType == "pdf") {
         args <- list(file, width = input$filterPlotWidth, height = input$filterPlotHeight)
       } else {
@@ -604,8 +655,7 @@ server <- function(input, output, session) {
       do.call(input$filterPlotType, args)
       print(filterPlot())
       dev.off()
-    }
-  )
+    })
   
   outputTable <- reactive({
     
@@ -629,7 +679,7 @@ server <- function(input, output, session) {
     
     outputTable <- data %>%
       arrange(Scenario, plotID, Experiment, ID, Seed) %>%
-      select(Scenario, Experiment, ID, Seed, all_of(pis), plotID)
+      select(Scenario, Experiment, ID, Seed, plotID, all_of(pis))
     
     outputTable
     
@@ -658,7 +708,7 @@ server <- function(input, output, session) {
   
   # download button for table
   output$tableSave <- renderUI({
-    # if (length(expPol()) != 1) return(NULL)
+    if (runCheck() == TRUE) return(NULL)
     actionButton("tableDownload", label = "Export Table")
   })
   
@@ -666,11 +716,11 @@ server <- function(input, output, session) {
     
     expPol <- expPol()
     selectedPolicies <- selectedPolicies()
-  
+    
     scPols <- list()
     
     for (i in 1:length(expPol)) {
-  
+      
       ids <- selectedPolicies %>%
         ungroup() %>%
         filter(Experiment == expPol[i]) %>%
@@ -687,17 +737,16 @@ server <- function(input, output, session) {
       scPols[[i]] <- tmp
       
     }
-
+    
     bind_rows(scPols)
     
   })
   
-  observeEvent(
-    input$tableDownload, {
-    
+  observeEvent(input$tableDownload, {
+      
       pols <- expPol()
       scPols <- scPols()
-    
+      
       for (i in 1:length(pols)) {
         tmp <- scPols %>%
           filter(Experiment == pols[i]) %>%
@@ -709,29 +758,237 @@ server <- function(input, output, session) {
         print(paste("saved", fn, "table"))
         
       }
-    }
-    
-  )
+    })
   
   # table that corresponds to policies
   output$filteredTable <- DT::renderDataTable(
-    outputTable(),
-    server = FALSE,
-    rownames = FALSE,
-    filter = list(position = 'bottom'),
-    caption = 'Note: Hold shift and click to order by multiple columns.',
-    options = list(
-      dom = '<"top"f>t<"bottom"ip>',
-      search = list(regex = TRUE, caseInsensitive = TRUE),
-      scrollX = TRUE,
-      scrollY = TRUE,
-      paging = TRUE,
-      pageLength = 20,
-      lengthChange = FALSE,
-      width = 1000
-    )
+    outputTable(), server = FALSE, rownames = FALSE, filter = list(position = 'bottom'), caption = 'Note: Hold shift and click to order by multiple columns.',
+    options = list(dom = '<"top"f>t<"bottom"ip>', search = list(regex = TRUE, caseInsensitive = TRUE), scrollX = TRUE, scrollY = TRUE, 
+                   paging = TRUE, pageLength = 20, lengthChange = FALSE, width = 1000,
+                   columnDefs = list(list(className = 'dt-center', targets = "_all")))
   )
   
+  # -----------------------------------
+  # time series
+  # -----------------------------------
+  
+  policySelection <- reactive({input$policySelection})
+  
+  # update policies to reevaluate based on table selection
+  observeEvent(values$tableSelection, {
+    if (policySelection() == "Select from Table") {
+      updatePickerInput(session, "evalPolicies", choices = values$tableSelection, selected = values$tableSelection)
+    }
+  })
+  
+  # retreive policies from user selection
+  candidatePolicies <- reactive({
+    
+    if (is.null(input$evalPolicies) & is.null(input$evalPoliciesManual)) return()
+    
+    if (policySelection() == "Select from Table") {
+      
+      candidatePolicies <- as.numeric(input$evalPolicies)
+      
+    } else if (policySelection() == "Select by searchID") {
+      
+      candidatePolicies <- as.numeric(trimws(str_split(input$evalPoliciesManual, ",")[[1]]))
+      
+    }
+    print(candidatePolicies)
+    candidatePolicies
+    
+  })
+  
+  # indicator on whether or not to retreive data
+  loadData <- eventReactive(input$load_data, ignoreInit = TRUE, {
+    loadData <- TRUE
+    loadData
+  })
+  
+  # load in time series data - experiments
+  expData <- reactive({
+    
+    if (is.null(loadData())) return(NULL)
+    
+    paretoFront <- paretoFront()
+    candidatePolicies <- candidatePolicies()
+    
+    output <- list()
+    for (i in 1:length(candidatePolicies)) {
+      
+      fn <- paretoFront %>%
+        filter(plotID == candidatePolicies[i]) %>%
+        select(Experiment, ID, plotID)
+      
+      output[[i]] <- read.delim(paste0("output/data/", fn$Experiment,"/simulation/historic/id", fn$ID,"/piOutput.csv")) %>%
+        mutate(.before = 1, Experiment = fn$Experiment, ID = fn$ID, plotID = fn$plotID)
+      
+    }
+    
+    expData <- bind_rows(output)
+    expData
+  })
+  
+  # load in time series data - baseline
+  baseData <- reactive({
+    
+    if (is.null(loadData())) return(NULL)
+    
+    paretoFront <- paretoFront()
+    plotPol <- plotPol()
+    output <- list()
+    for (i in 1:length(plotPol)) {
+      
+      plotID <- paretoFront %>%
+        filter(Experiment == plotPol[i]) %>%
+        select(plotID) %>%
+        deframe()
+      
+      output[[i]] <- read.delim(paste0("output/data/baseline/", plotPol[i], "/simulation/historic/", plotPol[i],"/piOutput.csv")) %>%
+        mutate(.before = 1, Experiment = plotPol[i], ID = NA, plotID = plotID)
+      
+    }
+    
+    baseData <- bind_rows(output)
+    baseData
+  })
+  
+  # join baseline and experiment for plotting
+  tsData <- reactive({
+    expData <- expData()
+    baseData <- baseData()
+    tsData <- bind_rows(baseData, expData) %>%
+      select(Experiment, ID, plotID, varNames$varName) %>%
+      setNames(c("Experiment", "ID", "plotID", varNames$varDescription))
+    tmp <<- tsData
+    tsData
+  })
+  
+  # update inputs based on loaded data
+  observeEvent(tsData(), {
+    
+    tsData <- tsData()
+    yrs <- tsData %>% select(Year) %>% unique()
+    vars <- colnames(tsData)[!str_detect(colnames(tsData),paste(c("Sim", "Year", "QM", "Month", "Experiment", "ID", "plotID"), collapse= "|"))]
+    updateNumericInput(session, "tsYears", value = c(min(yrs), max(yrs)))
+    updatePickerInput(session, "tsVars", choices = vars)
+    
+  })
+  
+  # user specified inputs
+  tsYears <- eventReactive(input$ts_go, {input$tsYears})
+  tsVars <- eventReactive(input$ts_go, {input$tsVars})
+  
+  makePlot <- eventReactive(input$ts_go, ignoreInit = TRUE, {
+    makePlot <- TRUE
+    makePlot
+    
+  })
+  
+  tsColors <- reactive({
+    
+    if (is.null(loadData())) return(NULL)
+    
+    basePol <- basePol()
+    plotPol <- plotPol()
+    candidatePolicies <- candidatePolicies()
+    
+    # order for plotting selected baseline policies
+    blinePols <- c(plotPol, basePol[-which(basePol == plotPol)])
+    
+    # color palette
+    tsColors <- c(getRedPal(length(blinePols)), getBluePal(length(candidatePolicies)))
+    names(tsColors) <- c(blinePols, candidatePolicies)
+    
+    tsColors
+    
+  })
+  
+  tsPlot <- reactive({
+    
+    if (is.null(makePlot())) return(NULL)
+    
+    basePol <- basePol()
+    plotPol <- plotPol()
+    tsData <- tsData()
+    tsYears <- tsYears()
+    tsVars <- tsVars()
+    tsColors <- tsColors()
+    candidatePolicies <- candidatePolicies()
+    
+    # order for plotting selected baseline policies
+    blinePols <- c(plotPol, basePol[-which(basePol == plotPol)])
+
+    # filter by user specified inputs
+    data <- tsData %>%
+      filter(Year >= min(tsYears) & Year <= max(tsYears)) %>%
+      # mutate(newID = case_when(Experiment == blinePols ~ Experiment, TRUE ~ as.character(plotID)),
+      #        newID = factor(newID, levels = c(blinePols, candidatePolicies))) %>%
+      select(plotID, Sim, Year, `Quarter-Month`, all_of(tsVars)) %>%
+      pivot_longer(cols = all_of(tsVars), names_to = "Variable", values_to = "Value") %>%
+      left_join(., varNames, by = c("Variable" = "varDescription")) %>%
+      mutate(plotLabel = case_when(varUnits != "" ~ paste0(Variable, " (", varUnits, ")"), TRUE ~ "")) %>%
+      drop_na()
+  
+    # color palette
+    cols <- tsColors
+    
+    nyears <- 6 # how many labels to display for any given time interval
+    yrSeq <- seq(min(tsYears), max(tsYears), by = ceiling(diff(tsYears) / nyears))
+    simSeq <- data %>% filter(Year %in% yrSeq) %>% group_by(Year) %>% summarise(x = min(Sim)) %>% select(x) %>% deframe()
+    
+    ggplot(data = data, aes(x = Sim, y = Value, color = plotID)) +
+      facet_wrap(~ plotLabel, scales = "free", ncol = 1) +
+      geom_line(size = 1.25, alpha = 0.75, linetype = "dashed") + 
+      scale_color_manual(values = cols) +
+      scale_x_continuous(breaks = simSeq, labels = yrSeq) +
+      ylab("") +
+      xlab("") + 
+      theme_bw() +
+      theme(legend.position = "bottom", legend.title = element_blank(),
+            text = element_text(family = "Arial", color = "black", size = 18),
+            title = element_blank(),
+            axis.title.x = element_blank(),
+            axis.text = element_text(size = 16),
+            axis.title.y = element_text(size = 18),
+            axis.text.y = element_text(angle = 90, hjust = 0.5),
+            legend.text = element_text(size = 15),
+            legend.margin = ggplot2::margin())
+    
+  })
+  
+  # render plot in ui
+  output$tsPlot <- renderUI({
+    if (is.null(makePlot())) return(NULL)
+    output$plt <-renderPlot({tsPlot()})
+    height <- length(tsVars()) * 400
+    plotOutput("plt", width = "100%", height = paste0(height, "px")) %>% withSpinner(color = blues[3], proxy.height = 200)
+  })
+  
+  output$summaryTable <- DT::renderDataTable({
+
+    if (is.null(loadData())) return(NULL)
+
+    outputTable <- outputTable()
+    plotPol <- plotPol()
+    tsColors <- tsColors()
+    candidatePolicies <- candidatePolicies()
+
+    summaryTable <- outputTable %>%
+      filter(Experiment == plotPol | plotID %in% candidatePolicies) %>% 
+      mutate(.before = 1, `Legend Color` = " ") %>%
+      select(-Scenario)
+
+    print(summaryTable)
+    print(tsColors)
+
+    datatable(summaryTable, rownames = FALSE, selection = "none", 
+              options = list(searching = FALSE, paging = FALSE, ordering = FALSE, info = FALSE, columnDefs = list(list(className = 'dt-center', targets = "_all")))) %>%
+      formatStyle("Legend Color", "plotID", backgroundColor = styleEqual(names(tsColors), tsColors))
+
+  })
+
   # kill r command when browser closes
   session$onSessionEnded(function() {
     stopApp()
@@ -740,6 +997,4 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
-
 
