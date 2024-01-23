@@ -10,7 +10,7 @@ import pandas as pd
 
 # # import test data
 # data = pd.read_csv(
-#     "/Volumes/ky_backup/dps/output/data/baseline/simulation/historic/Bv7/formattedOutput.csv",
+#     "/Volumes/ky_backup/dps/output/data/baseline/Bv7/simulation/historic/Bv7/formattedOutput.csv",
 #     sep="\t",
 # )
 # data = pd.read_csv(
@@ -3145,8 +3145,6 @@ def objectiveSimulation(
             .merge(bv7, on="Loc")
         )
         naa["normPI"] = ((naa["PI"] - naa["Bv7"]) / naa["Bv7"]) * 100
-
-        naa.loc[naa["Loc"].isin(ucLocs), "normPI"].mean()
 
         objs = [
             naa.loc[naa["Loc"].isin(ucLocs), "normPI"].mean(),
