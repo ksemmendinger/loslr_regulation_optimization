@@ -28,7 +28,11 @@ from pathlib import Path
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "mac_ext", "RC_Bv7_offSepRule_percentDiff_12month_sqAR_14dv_7obj_historic_25000nfe"]
+# args = [
+#     "",
+#     "mac_ext",
+#     "RC_Bv7_offSepRule_percentDiff_12month_sqAR_14dv_7obj_historic_25000nfe",
+# ]
 
 # [1]: location to run [mac_loc, glhpc]
 loc = args[1]
@@ -104,44 +108,90 @@ end = "2020-12-31"
 from datetime import datetime
 
 for p in range(npol):
+# for p in range(4, 5):
     startTimeObj = datetime.now()
 
     pID = pols.loc[p, "ID"]
     print(pID)
 
     # parameters to change in the regulation model
+    # params = {
+    #     "strategies": {},
+    #     "parameters": {
+    #         "OfficialWetDry": {
+    #             "dry": pols.loc[p, "lfDryThreshold"],
+    #             "wet": pols.loc[p, "lfWetThreshold"],
+    #         },
+    #         "OfficialConfidence": {
+    #             "top": pols.loc[p, "lf50Conf"] + pols.loc[p, "lf99Conf"],
+    #             "bot": pols.loc[p, "lf50Conf"],
+    #         },
+    #         "OfficialNTSTrendCnst": {
+    #             "c1": pols.loc[p, "C1"] * 10,
+    #             "c1_wet_hconf": (pols.loc[p, "C1"] + pols.loc[p, "addC1"]) * 10,
+    #         },
+    #         "OfficialWetSupplyCurve": {
+    #             "p1": pols.loc[p, "P1"],
+    #         },
+    #         "OfficialDrySupplyCurve": {
+    #             "c2": pols.loc[p, "C2"] * 10,
+    #             "p2": pols.loc[p, "P2"],
+    #         },
+    #         "OfficialNTSStats": {
+    #             "_ANN_NTS_MAX": pols.loc[p, "rcThreshold"]
+    #             + pols.loc[p, "wetDenominator"],
+    #             "_ANN_NTS_AVG": pols.loc[p, "rcThreshold"],
+    #             "_ANN_NTS_MIN": pols.loc[p, "rcThreshold"]
+    #             - pols.loc[p, "dryDenominator"],
+    #         },
+    #         "OfficialReduceRC": {
+    #             "ont_mlv": pols.loc[p, "adjLevel"],
+    #             "flw_reduce": pols.loc[p, "adjFlow"] * 10,
+    #         },
+    #     },
+    # }
+
     params = {
-        "strategies": {},
+        "strategies": {
+            "RuleCurve": {
+                "wet_curve_strategy": "POSEWetSupplyCurve",
+                "dry_curve_strategy": "POSEDrySupplyCurve",
+            }
+        },
         "parameters": {
-            "OfficialWetDry": {
+            # turn OFF september rule
+            "Bounds": {"start": 0, "end": 0},
+            "WetDryforIndConf": {
                 "dry": pols.loc[p, "lfDryThreshold"],
                 "wet": pols.loc[p, "lfWetThreshold"],
             },
-            "OfficialConfidence": {
+            "ConfidenceBounds": {
                 "top": pols.loc[p, "lf50Conf"] + pols.loc[p, "lf99Conf"],
                 "bot": pols.loc[p, "lf50Conf"],
             },
-            "OfficialNTSTrendCnst": {
-                "c1": pols.loc[p, "C1"],
-                "c1_wet_hconf": pols.loc[p, "C1"] + pols.loc[p, "addC1"],
+            "NTSTrendConstantC1": {
+                "c1": pols.loc[p, "C1"] * 10,
+                "c1_wet_hconf": (pols.loc[p, "C1"] + pols.loc[p, "addC1"]) * 10,
             },
-            "OfficialWetSupplyCurve": {
+            "POSEWetSupplyCurve": {
                 "p1": pols.loc[p, "P1"],
             },
-            "OfficialDrySupplyCurve": {
-                "c2": pols.loc[p, "C2"],
+            "POSEDrySupplyCurve": {
+                "c2": pols.loc[p, "C2"] * 10,
                 "p2": pols.loc[p, "P2"],
             },
-            "OfficialNTSStats": {
-                "_ANN_NTS_MAX": pols.loc[p, "rcThreshold"]
-                + pols.loc[p, "wetDenominator"],
+            "NTSStatistics": {
+                "_ANN_NTS_MAX": pols.loc[
+                    p, "wetDenominator"
+                ],  # CALL POSE SINCE DENOMINATOR
                 "_ANN_NTS_AVG": pols.loc[p, "rcThreshold"],
-                "_ANN_NTS_MIN": pols.loc[p, "rcThreshold"]
-                - pols.loc[p, "dryDenominator"],
+                "_ANN_NTS_MIN": pols.loc[
+                    p, "dryDenominator"
+                ],  # CALL POSE SINCE DENOMINATOR
             },
-            "OfficialReduceRC": {
+            "ReduceRuleCurve": {
                 "ont_mlv": pols.loc[p, "adjLevel"],
-                "flw_reduce": pols.loc[p, "adjFlow"],
+                "flw_reduce": pols.loc[p, "adjFlow"] * -1,
             },
         },
     }
@@ -187,11 +237,8 @@ for p in range(npol):
     # loslr_sim.write_metadata_file(soln_outpath, csv=True)
 
     # # save additional experiment information (OPTIONAL)
-    # info = {'experiment': {
-    #                        'details': 'Bv7 with rc params.'
-    #                        }
-    #         }
-    # loslr_sim.write_exp_info(soln_outpath, info)
+    # info = {"experiment": {"details": "Bv7 with rc params."}}
+    # loslr_sim.write_exp_info(soln_outpath / "experiment_info.json")
 
     # and finally, we can write the simulation results to file(s)
     dbio.write_vault(
