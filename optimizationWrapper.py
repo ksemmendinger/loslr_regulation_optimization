@@ -3,28 +3,26 @@ import os
 import sys
 import toml
 import pathlib
-import numpy as np
-import pandas as pd
 from math import *
 from borg import *
-from datetime import datetime
 from functools import partial
+from importlib import import_module
 
 args = sys.argv
-# args = ["", "mac_ext", "config/glam/run_of_the_mill.toml", "1"]
+# args = [
+#     "",
+#     "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
+#     #     "config/glam/juneWorkshop.toml",
+#     "config/firo/config_12_lm_4inputs.toml",
+#     "1",
+# ]
 
 # -----------------------------------------------------------------------------
-# set up experimental design from inputs
+# set up experimental design from command line inputs
 # -----------------------------------------------------------------------------
 
 # [1]: location to run [mac_loc, glhpc]
-loc = args[1]
-if loc == "mac_loc":
-    wd = "/Users/kylasemmendinger/Documents/CIGLR/Research/dps"
-elif loc == "mac_ext":
-    wd = "/Volumes/ky_backup/dps"
-elif loc == "glhpc":
-    wd = "/home/kylasr/optimization"
+wd = args[1]
 os.chdir(wd)
 
 # [2]: path to configuration file
@@ -33,30 +31,85 @@ configFile = args[2]
 # [3]: seed [int]
 nseed = int(args[3])
 
+# -----------------------------------------------------------------------------
+# set variables for experiment form config file
+# -----------------------------------------------------------------------------
+
 # load configuration file from folder
 with open(configFile, "r") as f:
     config = toml.load(f)
 
-# set variables from config file
-releaseFun = config["experimentalDesign"]["releaseFunction"]
-limitType = config["experimentalDesign"]["limitType"]
+# get optimization parameters from config file
+nvars = config["optimizationParameters"]["numDV"]
+nobjs = config["optimizationParameters"]["numObj"]
+nconstrs = config["optimizationParameters"]["numCon"]
+nfe = config["optimizationParameters"]["nfe"]
+popSize = config["optimizationParameters"]["popSize"]
+metFreq = config["optimizationParameters"]["metFreq"]
+
+# get simulation parameters from config file
+releaseFunctionName = config["experimentalDesign"]["releaseFunction"]
+planLimitsName = config["experimentalDesign"]["limitType"]
 septemberRule = config["experimentalDesign"]["septemberRule"]
+stlawRoutingName = config["experimentalDesign"]["stlawRouting"]
+slonValues = config["experimentalDesign"]["slonValues"]
 leadtime = config["experimentalDesign"]["forecastLeadTime"]
 skill = config["experimentalDesign"]["forecastSkill"]
-nvars = config["experimentalDesign"]["numDV"]
-nobjs = config["experimentalDesign"]["numObj"]
-nconstrs = config["experimentalDesign"]["numCon"]
 trace = config["experimentalDesign"]["trace"]
-nfe = config["experimentalDesign"]["nfe"]
-popSize = config["experimentalDesign"]["popSize"]
-metFreq = config["experimentalDesign"]["metFreq"]
+
+# get decision variable info from config file
+decisionVariables = config["decisionVariables"]
+
+# release function parameters
+releaseFunInputs = config["releaseFunction"]
+
+# get objective function parameters from config file
+epsilon = config["performanceIndicators"]["epsilonValue"]
 piWeighting = config["performanceIndicators"]["metricWeighting"]
+objectiveFunctionName = config["performanceIndicators"]["objectiveFunction"]
 
 # supply trace - set routing version to run with SLON or Ottawa River flows [historic, stochastic]
-if trace == "stochastic":
-    version = "stochastic"
-else:
-    version = "historic"
+version = "historic"
+# if trace == "stochastic":
+#     version = "stochastic"
+# else:
+#   version = "historic"
+
+# -----------------------------------------------------------------------------
+# load functions for simulation - specified in config file
+# -----------------------------------------------------------------------------
+
+sys.path.append(".")
+
+# import policy simulation function
+import optimizationSimulation
+
+# import config specified simulation functions
+formatDecisionVariables = import_module(
+    "functions.release." + releaseFunctionName
+).formatDecisionVariables
+getReleaseFunctionInputs = import_module(
+    "functions.release." + releaseFunctionName
+).getReleaseFunctionInputs
+releaseFunction = import_module(
+    "functions.release." + releaseFunctionName
+).releaseFunction
+getPlanLimitsInputs = import_module(
+    "functions.limits." + planLimitsName
+).getPlanLimitsInputs
+planLimits = import_module("functions.limits." + planLimitsName).planLimits
+getStLawrenceRoutingInputs = import_module(
+    "functions.routing." + stlawRoutingName
+).getStLawrenceRoutingInputs
+stLawrenceRouting = import_module(
+    "functions.routing." + stlawRoutingName
+).stLawrenceRouting
+
+if septemberRule != "off":
+    septemberRule = import_module("functions.limits.septemberRule").septemberRule
+
+# import objective functions
+objectiveFunctions = import_module("objectiveFunctions." + objectiveFunctionName)
 
 # -----------------------------------------------------------------------------
 # file pointers
@@ -67,9 +120,9 @@ dataName = version + "/" + trace + "/" + leadtime + "_" + skill
 
 # output folder name
 folderName = (
-    releaseFun
+    releaseFunctionName
     + "_"
-    + limitType
+    + planLimitsName
     + "_"
     + septemberRule
     + "SepRule"
@@ -98,9 +151,6 @@ path.mkdir(parents=True, exist_ok=True)
 # set up borg
 # -----------------------------------------------------------------------------
 
-# import policy simulation function
-import optimizationSimulation
-
 # set seed
 Configuration.seed(nseed)
 
@@ -111,24 +161,31 @@ borg = Borg(
     nconstrs,
     partial(
         optimizationSimulation.optimization,
+        formatDecisionVariables,
+        decisionVariables,
         dataName,
-        version,
-        limitType,
+        releaseFunInputs,
+        getReleaseFunctionInputs,
+        releaseFunction,
         septemberRule,
-        releaseFun,
-        config["decisionVariables"],
-        piWeighting,
+        getPlanLimitsInputs,
+        planLimits,
+        getStLawrenceRoutingInputs,
+        stLawrenceRouting,
+        objectiveFunctions,
     ),
 )
 
 # set decision variable bounds
-b = config["decisionVariables"]["normalizedRange"]
-lowerb = [b[0]] * nvars
-upperb = [b[1]] * nvars
-borg.setBounds(*[list(x) for x in list(zip(lowerb, upperb))])
+if str(decisionVariables["normalized"]) == True:
+    lowerBounds = [decisionVariables["normalizedRange"][0]] * nvars
+    upperBounds = [decisionVariables["normalizedRange"][1]] * nvars
+else:
+    lowerBounds = decisionVariables["lowerBounds"]
+    upperBounds = decisionVariables["upperBounds"]
+borg.setBounds(*[list(x) for x in list(zip(lowerBounds, upperBounds))])
 
 # set objective tolerance epsilons - defines "meaningful" improvement
-epsilon = config["performanceIndicators"]["epsilonValue"]
 borg.setEpsilons(*epsilon)
 
 # set up configuration

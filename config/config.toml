@@ -1,0 +1,45 @@
+[experimentalDesign]
+releaseFunction = ""                                # release function script name
+septemberRule = ""                                  # september rule: "off" or september rule script name
+limitType = ""                                      # flow limits script name
+stlawRouting = ""                                   # st. lawrence routing script name
+slonValues = ""                                     # slon vs ottawa river flows: True or False
+forecastLeadTime = ""                               # forecast lead-time: 12month, 9month, 6month, 3month, 1month
+forecastSkill = ""                                  # forecast skill: 12-month status quo AR(1) [sqAR], linear model [sqLM], perfect [0]
+trace = ""                                          # trace to simulate
+
+[optimizationParameters]
+numDV = 0                                           # number of decision variables
+numObj = 0                                          # number of objectives
+numCon = 0                                          # number of constraints
+nfe = 0                                             # number of function evaluations
+popSize = 0                                         # initial population size
+metFreq = 0                                         # frequency of function evaluations to report metrics
+
+[decisionVariables]
+dvName = []                                         # decision variables names
+lowerBounds = []                                    # lower bounds of decision variables
+upperBounds = []                                    # upper bounds of decision variables
+normalized = "False"                                # optimize normalized ("True") or actual value ranges ("False")
+# normalizedRange = [0, 0]                          # if normalized="True", the range of normlized values
+
+[releaseFunction]                                   # release function specific variables
+nNeurons = 0
+nInputs = 0
+nTimeInputs = 0
+nOutputs = 0
+inputVars = []
+normalizedVars = []
+minValRange = []
+maxValRange = []
+minNormRange = []
+maxNormRange = []
+outputVars = []
+outputRange = []
+
+[performanceIndicators]
+objectiveFunction = []                              # objective function script name
+# metricWeighting = ""
+piName = []                                         # names of performance indicators
+epsilonValue = []                                   # epsilon values for objectives
+direction = []                                      # minimize or maximize values

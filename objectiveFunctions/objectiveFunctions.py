@@ -280,7 +280,8 @@ def commercialNavigation(
     daysperQM = 7.609
 
     # set navigation season status based on qm
-    if qm <= 12 or qm == 48:
+    # if qm <= 12 or qm == 48: 
+    if qm < 12: # changed nav season for Phase 2 to QM [12, 48] inclusive
         navStatus = 0
     else:
         navStatus = 1

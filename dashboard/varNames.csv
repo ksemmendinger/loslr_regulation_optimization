@@ -84,7 +84,7 @@ opgMosesSaundersEnergyValue,OPG Moses-Saunders Hydropower Production Value,$
 nypaMosesSaundersEnergyValue,NYPA Moses-Saunders Hydropower Production Value,$
 opgNiagaraEnergyValue,OPG Niagara Hydropower Production Value,$
 nypaNiagaraEnergyValue,NYPA Niagara Hydropower Production Value,$
-peakingMosesSaundersValue,Moses-Saunders Hydropower Production Value,$
+peakingMosesSaundersValue,Moses-Saunders Hydropower Peaking Value,$
 mmArea,Meadow Marsh Area,Hectares
 mmLowSupply,Low Supply Years,
 muskratProbLodgeViability,Muskrat Probability of Lodge Viability,%
