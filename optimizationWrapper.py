@@ -9,13 +9,14 @@ from functools import partial
 from importlib import import_module
 
 args = sys.argv
-# args = [
-#     "",
-#     "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
-#     #     "config/glam/juneWorkshop.toml",
-#     "config/firo/config_12_lm_4inputs.toml",
-#     "1",
-# ]
+args = [
+    "",
+    # "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
+    "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
+    #     "config/glam/juneWorkshop.toml",
+    "config/firo/ar12month.toml",
+    "1",
+]
 
 # -----------------------------------------------------------------------------
 # set up experimental design from command line inputs
@@ -52,10 +53,11 @@ releaseFunctionName = config["experimentalDesign"]["releaseFunction"]
 planLimitsName = config["experimentalDesign"]["limitType"]
 septemberRule = config["experimentalDesign"]["septemberRule"]
 stlawRoutingName = config["experimentalDesign"]["stlawRouting"]
-slonValues = config["experimentalDesign"]["slonValues"]
-leadtime = config["experimentalDesign"]["forecastLeadTime"]
-skill = config["experimentalDesign"]["forecastSkill"]
-trace = config["experimentalDesign"]["trace"]
+# slonValues = config["experimentalDesign"]["slonValues"]
+# leadtime = config["experimentalDesign"]["forecastLeadTime"]
+# skill = config["experimentalDesign"]["forecastSkill"]
+version = config["experimentalDesign"]["trace"]
+inputFile = config["experimentalDesign"]["inputFile"]
 
 # get decision variable info from config file
 decisionVariables = config["decisionVariables"]
@@ -69,7 +71,7 @@ piWeighting = config["performanceIndicators"]["metricWeighting"]
 objectiveFunctionName = config["performanceIndicators"]["objectiveFunction"]
 
 # supply trace - set routing version to run with SLON or Ottawa River flows [historic, stochastic]
-version = "historic"
+# version = "historic"
 # if trace == "stochastic":
 #     version = "stochastic"
 # else:
@@ -116,7 +118,8 @@ objectiveFunctions = import_module("objectiveFunctions." + objectiveFunctionName
 # -----------------------------------------------------------------------------
 
 # input data to load
-dataName = version + "/" + trace + "/" + leadtime + "_" + skill
+# dataName = version + "/" + trace + "/" + leadtime + "_" + skill
+dataName = version + "/" + inputFile
 
 # output folder name
 folderName = (
@@ -129,15 +132,13 @@ folderName = (
     + "_"
     + piWeighting
     + "_"
-    + leadtime
-    + "_"
-    + str(skill)
+    + inputFile.split("/")[1]
     + "_"
     + str(nvars)
     + "dv_"
     + str(nobjs)
     + "obj_"
-    + trace
+    + inputFile.split("/")[0]
     + "_"
     + str(nfe)
     + "nfe"

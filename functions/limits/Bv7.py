@@ -1,11 +1,25 @@
-# import libraries
+"""
+-------------------------------------------------------------------------------
+this script contains the coded logic for the Bv7 ruleset. a description of
+the limits can be found in `resources/Plan_2014_Report.pdf`. the rule curve
+prescribed release is checked against the I-limit (max flow for ice), L-limit
+(max flow for navigation and channel capacity), M-limit (min flow), J-limit 
+(min and max flow for smoothing). if any of the flow limits are violated by
+the rule curve flow, the flow is set to the most constraining flow limit. 
+lastly, the flow (rule curve or adjusted) is checked against the F-limit
+(max flow to balance downstream high water impacts). the F-limit may use
+forecasted or true SLON flows, which is specified by the `foreInd` variable.
+-------------------------------------------------------------------------------
+"""
+
+# import custom function for engineering rounding
 import sys
-import numpy as np
 
 sys.path.append(".")
 from functions.utils import round_d
 
 
+# pass in the input time series dictionary (data) and timestep to slice (t)
 def getPlanLimitsInputs(data, t):
     x = dict()
     x["QM"] = data["QM"][t]
@@ -27,7 +41,8 @@ def getPlanLimitsInputs(data, t):
     return x
 
 
-# takes in supplies and calculates releases/levels
+# takes in preliminary flow, level and regime from release function and a dict of
+# hydrologic inputs. outputs limit checked flow and regime
 def planLimits(
     qm,
     prelimLevel,
@@ -36,8 +51,8 @@ def planLimits(
     x,
     septemberRule,
     conv=2970,
-    navSeasonStart=12,
-    navSeasonEnd=48,
+    navSeasonStart=13,
+    navSeasonEnd=47,
     output="gov",
 ):
     ontLevel = prelimLevel
@@ -71,10 +86,13 @@ def planLimits(
     iLimFlow = 0
 
     if iceInd == 2 or iceIndPrev == 2:
-        iLimFlow = 704  # updated 4/9 for GLAM Phase 2
-        # iLimFlow = 623
+        # iLimFlow = 704  # updated 4/9 for GLAM Phase 2
+        iLimFlow = 623
 
-    elif iceInd == 1 or (qm < navSeasonStart or qm > navSeasonEnd):
+    # elif iceInd == 1 or (qm < 13 or qm > 47):
+    elif iceInd == 1 or (
+        qm < navSeasonStart or qm > navSeasonEnd
+    ):  # changed nav season 4/9 for GLAM Phase 2
         # calculate release to keep long sault level above 71.8 m
         con1 = (kingLevelStart - 62.40) ** 2.2381
         con2 = ((kingLevelStart - 71.80) / longsaultR) ** 0.3870
@@ -105,7 +123,8 @@ def planLimits(
     lFlow = 0
 
     # navigation season
-    if qm >= navSeasonStart and qm <= navSeasonEnd:
+    # if qm >= 13 and qm <= 47:
+    if qm >= navSeasonStart and qm <= navSeasonEnd:  # changed 4/9 for GLAM Phase 2
         lRegime = "LN"
 
         if ontLevel <= 74.22:
@@ -312,10 +331,6 @@ def planLimits(
     ontFlow = limFlow
     ontRegime = limRegime
 
-    # compute averaged quarter-monthly release using forecasted nts
-    # dif1 = round((sfSupplyNTS / 10 - ontFlow) / conv, 6)
-    # ontLevelEOQ = round(ontLevelStart + dif1, 2)
-
     # -----------------------------------------------------------------------------
     #
     # F limit - downstream flooding
@@ -342,10 +357,7 @@ def planLimits(
         actionlev = 22.48
         c1 = 12922.906
 
-    # flows through lac st louis from slon value
-    # calculate pointe claire level
-    # estimate flow required to maintain pointe claire below action level
-
+    # calculate flows through lac st louis from slon value (forecasted or true), pointe claire level, and estimate flow required to maintain pointe claire below action level
     if foreInd == 1:
         stlouisFlow = ontFlow * 10.0 + sfSlonFlow
         ptclaireLevel = round_d(16.57 + ((ptclaireR * stlouisFlow / 604.0) ** 0.58), 2)
@@ -356,98 +368,8 @@ def planLimits(
         flimFlow = round_d((c1 / ptclaireR - slonFlow) / 10.0, 0)
 
     if (ptclaireLevel > actionlev) and (ontFlow > flimFlow):
-        # if flimFlow < ontFlow:
         ontFlow = flimFlow
         ontRegime = "F"
-
-    # -----------------------------------------------------------------------------
-    #
-    # Minimum Head Limit - ADDED 4/9 FOR GLAM PHASE 2 EFFORTS
-    # from : https://github.com/cc-hydrosub/GLRRM-Ontario/blob/main/glrrm/ontario/plan2014/strategies/min_head_limit_strategies.py
-    # from Halya: Given the 2020 experience with minimum NYPA net head, add a
-    # constraint that limits the minimum net head to 22.5m on a quarter-monthly mean
-    # basis. Previously, operational adjustments were made to reflect the minimum head
-    # required by NYPA. This would be a last check after the near-final flow is
-    # calculated and will be applied to both Bv7 and Plan 2014. Note that Bv7 does not
-    # reach this limit in the historical “basis of comparison” dataset so this will not
-    # affect the Orders tests.
-    #
-    # -----------------------------------------------------------------------------
-
-    # ontFlow is semi-final flow - calculate level difference with observed NTS
-    dif2 = ((obsontNTS / 10) - ontFlow) / conv
-    ontLevel_EOQ_unrounded = ontLevelStart + dif2
-    ontLevel_MLV = round_d((ontLevelStart + ontLevel_EOQ_unrounded) * 0.5, 2)
-
-    # set constants
-    iters = 12
-    head_min = 22.50
-    tolerence = 0.02  # tolerence for difference between head and min head
-    flw_increment = 300  # 300 cms flow change ~ 0.02m headwater change
-
-    # initialize variables
-    flw_new = ontFlow
-    ont_mlv_new = ontLevel_MLV
-    dif = dif2
-
-    for i in range(iters):
-        # flow to maintain minimum head is calculated iteratively iterate until
-        # satisfactory flow found or 'iters' iterations kingston level
-        king_new = ont_mlv_new - 0.03
-        difLev = king_new - 62.40
-
-        # calculate Saunders headwater level
-        saundershwLevel1 = round_d(
-            king_new
-            - (
-                saundershwR
-                * pow(
-                    (flw_new * 10) / (21.603 * pow(difLev, 2.2586)),
-                    (1 / 0.3749),
-                )
-            ),
-            2,
-        )
-
-        if saundershwLevel1 > 73.87:
-            if iceInd == 2 or iceIndPrev == 2:
-                sahw_new = saundershwLevel1
-            else:
-                sahw_new = 73.783
-        else:
-            sahw_new = saundershwLevel1
-
-        # calculate interational tailwater level
-        intw_level_new = round_d(
-            44.50 + 0.006338 * pow((saunderstwR * flw_new * 10), 0.7158),
-            2,
-        )
-
-        # calculate head for this iteration
-        head_new = sahw_new - intw_level_new
-
-        if head_new < (head_min - tolerence):
-            flw_loop = flw_new + flw_increment * (head_new - head_min) / 10
-            flw_loop = round_d(flw_loop, 0)
-            dif = ((obsontNTS / 10) - flw_loop) / conv
-            ont_elv_loop = ontLevelStart + dif
-            ont_mlv_new = round((ontLevelStart + ont_elv_loop) * 0.5, 2)
-            flw_new = flw_loop
-        else:
-            flow_MH = flw_new
-            break
-
-        flow_MH = flw_loop
-
-    if ontFlow > flow_MH:
-        #     MH_applies = True
-        # else:
-        #     MH_applies = False
-
-        # # Compare minimum head limit
-        # if MH_applies:
-        ontFlow = flow_MH
-        ontRegime = "MH"
 
     if output == "gov":
         return {"ontFlow": ontFlow, "ontRegime": ontRegime}
@@ -462,5 +384,4 @@ def planLimits(
             "jFlow": jLimFlow,
             "jRegime": jRegime,
             "fFlow": flimFlow,
-            "mhFlow": flow_MH,
         }

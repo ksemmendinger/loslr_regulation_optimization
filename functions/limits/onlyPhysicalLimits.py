@@ -1,6 +1,12 @@
-# import libraries
+"""
+-------------------------------------------------------------------------------
+only flow limits not intrinsically represented in the objective function models
+are included. this script includes the I-limit and the MH-limit.
+-------------------------------------------------------------------------------
+"""
+
+# import custom function for engineering rounding
 import sys
-import numpy as np
 
 sys.path.append(".")
 from functions.utils import round_d

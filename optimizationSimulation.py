@@ -276,9 +276,10 @@ def simulation(
     tmpLSL = lsl
 
     while tmpLSL.shape[0] > 0:
-        # get first occurence of Lac St. Louis flow exceeding previous flow by 1.5 and set freshet indicator to 1
+        # get next occurence of Lac St. Louis flow exceeding previous flow by 1.5 and set freshet indicator to 1
         ind1 = tmpLSL.loc[tmpLSL["stlouisFlow"] > tmpLSL["criteria1"], "Sim"].min()
 
+        # added in break to account for if the freshet conditions are never met
         if np.isnan(ind1):
             break
 

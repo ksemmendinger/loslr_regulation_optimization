@@ -1,12 +1,21 @@
-# import libraries
+"""
+-------------------------------------------------------------------------------
+the default logic for this script is the same as `Bv7.py`. this script also
+contains updates from glam's phase 2 of the expedited review. these updates
+better represent operating conditions. changes include increasing the maximum 
+flow during ice formation (6,230 -> 7,040 cms) and extending the default 
+navigation season ([13,47] -> [12,48]). there is also a new flow limit to 
+represent the minimum head needed at the Moses-Saunders dam (MH-limit). the
+MH-limit is the final flow limit to be checked against and uses the actual NTS
+for a given timestep (vs the short-forecast NTS).
+-------------------------------------------------------------------------------
+"""
+
+# import custom function for engineering rounding
 import sys
-import numpy as np
 
 sys.path.append(".")
 from functions.utils import round_d
-
-# navSeasonStart = 13
-# navSeasonEnd = 47
 
 
 def getPlanLimitsInputs(data, t):
@@ -39,8 +48,8 @@ def planLimits(
     x,
     septemberRule,
     conv=2970,
-    navSeasonStart=13,
-    navSeasonEnd=47,
+    navSeasonStart=12,
+    navSeasonEnd=48,
     output="gov",
 ):
     ontLevel = prelimLevel
@@ -53,7 +62,6 @@ def planLimits(
     obsontNTS = x["obsontNTS"]
     sfSupplyNTS = x["sfSupplyNTS"]
     ontLevelStart = x["ontLevelStart"]
-    # kingLevelStart = x["kingLevelStart"]
     kingLevelStart = ontLevelStart - 0.03
     ptclaireR = x["ptclaireR"]
     longsaultR = x["longsaultR"]
@@ -74,13 +82,10 @@ def planLimits(
     iLimFlow = 0
 
     if iceInd == 2 or iceIndPrev == 2:
-        # iLimFlow = 704  # updated 4/9 for GLAM Phase 2
-        iLimFlow = 623
+        iLimFlow = 704  # updated 4/9 for GLAM Phase 2
+        # iLimFlow = 623
 
-    # elif iceInd == 1 or (qm < 13 or qm > 47):
-    elif iceInd == 1 or (
-        qm < navSeasonStart or qm > navSeasonEnd
-    ):  # changed nav season 4/9 for GLAM Phase 2
+    elif iceInd == 1 or (qm < navSeasonStart or qm > navSeasonEnd):
         # calculate release to keep long sault level above 71.8 m
         con1 = (kingLevelStart - 62.40) ** 2.2381
         con2 = ((kingLevelStart - 71.80) / longsaultR) ** 0.3870
@@ -111,8 +116,7 @@ def planLimits(
     lFlow = 0
 
     # navigation season
-    # if qm >= 13 and qm <= 47:
-    if qm >= navSeasonStart and qm <= navSeasonEnd:  # changed 4/9 for GLAM Phase 2
+    if qm >= navSeasonStart and qm <= navSeasonEnd:
         lRegime = "LN"
 
         if ontLevel <= 74.22:
@@ -315,51 +319,6 @@ def planLimits(
             limFlow = mLimFlow
             limRegime = mRegime
 
-    # # get the smallest of the maximum limits (L and I)
-    # maxLim = -9999
-
-    # if lLimFlow != 0:
-    #     if maxLim < 0:
-    #         maxLim = lLimFlow
-    #         maxRegime = lRegime
-
-    # if iLimFlow != 0:
-    #     if maxLim < 0 or iLimFlow < maxLim:
-    #         maxLim = iLimFlow
-    #         maxRegime = iRegime
-
-    # # compare rc flow or j limit with maximum limits (RC or J with L and I)
-    # if maxLim > 0 and maxLimFlow > maxLim:
-    #     maxLimFlow = maxLim
-    #     maxLimRegime = maxRegime
-
-    # # get the biggest of the minimum limits (M)
-    # minLimFlow = mLimFlow
-    # minLimRegime = mRegime
-
-    # # compare the maximum and minimum limits
-    # if maxLimFlow > minLimFlow:
-    #     limFlow = maxLimFlow
-    #     limRegime = maxLimRegime
-
-    # # if the limit reaches to this point, then take the minimum limit
-    # else:
-    #     # if the M limit is greater than the smaller of the I/L limit, take the M limit
-    #     if minLimFlow > maxLim:
-    #         if minLimRegime == mRegime:
-    #             limFlow = minLimFlow
-    #             limRegime = minLimRegime
-    #         else:
-    #             if maxLim > minLimFlow:
-    #                 limFlow = maxLim
-    #                 limRegime = maxRegime
-    #             else:
-    #                 limFlow = minLimFlow
-    #                 limRegime = mRegime
-    #     else:
-    #         limFlow = minLimFlow
-    #         limRegime = minLimRegime
-
     # update ontFlow and ontRegime post limit check
     ontFlow = limFlow
     ontRegime = limRegime
@@ -408,14 +367,13 @@ def planLimits(
         flimFlow = round_d((c1 / ptclaireR - slonFlow) / 10.0, 0)
 
     if (ptclaireLevel > actionlev) and (ontFlow > flimFlow):
-        # if flimFlow < ontFlow:
         ontFlow = flimFlow
         ontRegime = "F"
 
     # -----------------------------------------------------------------------------
     #
     # Minimum Head Limit - ADDED 4/9 FOR GLAM PHASE 2 EFFORTS
-    #
+    # from : https://github.com/cc-hydrosub/GLRRM-Ontario/blob/main/glrrm/ontario/plan2014/strategies/min_head_limit_strategies.py
     # from Halya: Given the 2020 experience with minimum NYPA net head, add a
     # constraint that limits the minimum net head to 22.5m on a quarter-monthly mean
     # basis. Previously, operational adjustments were made to reflect the minimum head
@@ -426,80 +384,80 @@ def planLimits(
     #
     # -----------------------------------------------------------------------------
 
-    # # ontFlow is semi-final flow - calculate level difference with observed NTS
-    # dif2 = round(((obsontNTS / 10) - ontFlow) / conv, 6)
-    # ontLevel_EOQ_unrounded = round(ontLevelStart + dif2, 6)
-    # ontLevel_MLV = round((ontLevelStart + ontLevel_EOQ_unrounded) * 0.5, 2)
+    # ontFlow is semi-final flow - calculate level difference with observed NTS
+    dif2 = ((obsontNTS / 10) - ontFlow) / conv
+    ontLevel_EOQ_unrounded = ontLevelStart + dif2
+    ontLevel_MLV = round_d((ontLevelStart + ontLevel_EOQ_unrounded) * 0.5, 2)
 
-    # # set constants
-    # iters = 12
-    # head_min = 22.50
-    # tolerence = 0.02  # tolerence for difference between head and min head
-    # flw_increment = 300  # 300 cms flow change ~ 0.02m headwater change
+    # set constants
+    iters = 12
+    head_min = 22.50
+    tolerence = 0.02  # tolerence for difference between head and min head
+    flw_increment = 300  # 300 cms flow change ~ 0.02m headwater change
 
-    # # initialize variables
-    # flw_new = ontFlow
-    # ont_mlv_new = ontLevel_MLV
-    # dif = dif2
+    # initialize variables
+    flw_new = ontFlow
+    ont_mlv_new = ontLevel_MLV
+    dif = dif2
 
-    # for i in range(iters):
-    #     # flow to maintain minimum head is calculated iteratively iterate until
-    #     # satisfactory flow found or 'iters' iterations kingston level
-    #     king_new = ont_mlv_new - 0.03
-    #     difLev = king_new - 62.40
+    for i in range(iters):
+        # flow to maintain minimum head is calculated iteratively iterate until
+        # satisfactory flow found or 'iters' iterations kingston level
+        king_new = ont_mlv_new - 0.03
+        difLev = king_new - 62.40
 
-    #     # calculate Saunders headwater level
-    #     saundershwLevel1 = round(
-    #         king_new
-    #         - (
-    #             saundershwR
-    #             * pow(
-    #                 (flw_new * 10) / (21.603 * pow(difLev, 2.2586)),
-    #                 (1 / 0.3749),
-    #             )
-    #         ),
-    #         2,
-    #     )
+        # calculate Saunders headwater level
+        saundershwLevel1 = round_d(
+            king_new
+            - (
+                saundershwR
+                * pow(
+                    (flw_new * 10) / (21.603 * pow(difLev, 2.2586)),
+                    (1 / 0.3749),
+                )
+            ),
+            2,
+        )
 
-    #     if saundershwLevel1 > 73.87:
-    #         if iceInd == 2 or iceIndPrev == 2:
-    #             sahw_new = saundershwLevel1
-    #         else:
-    #             sahw_new = 73.783
-    #     else:
-    #         sahw_new = saundershwLevel1
+        if saundershwLevel1 > 73.87:
+            if iceInd == 2 or iceIndPrev == 2:
+                sahw_new = saundershwLevel1
+            else:
+                sahw_new = 73.783
+        else:
+            sahw_new = saundershwLevel1
 
-    #     # calculate interational tailwater level
-    #     intw_level_new = round(
-    #         44.50 + 0.006338 * pow((saunderstwR * flw_new * 10), 0.7158),
-    #         2,
-    #     )
+        # calculate interational tailwater level
+        intw_level_new = round_d(
+            44.50 + 0.006338 * pow((saunderstwR * flw_new * 10), 0.7158),
+            2,
+        )
 
-    #     # calculate head for this iteration
-    #     head_new = sahw_new - intw_level_new
+        # calculate head for this iteration
+        head_new = sahw_new - intw_level_new
 
-    #     if head_new < (head_min - tolerence):
-    #         flw_loop = flw_new + flw_increment * (head_new - head_min) / 10
-    #         flw_loop = round(flw_loop, 0)
-    #         dif = round(((obsontNTS / 10) - flw_loop) / conv, 6)
-    #         ont_elv_loop = ontLevelStart + dif
-    #         ont_mlv_new = round((ontLevelStart + ont_elv_loop) * 0.5, 2)
-    #         flw_new = flw_loop
-    #     else:
-    #         flow_MH = flw_new
-    #         break
+        if head_new < (head_min - tolerence):
+            flw_loop = flw_new + flw_increment * (head_new - head_min) / 10
+            flw_loop = round_d(flw_loop, 0)
+            dif = ((obsontNTS / 10) - flw_loop) / conv
+            ont_elv_loop = ontLevelStart + dif
+            ont_mlv_new = round((ontLevelStart + ont_elv_loop) * 0.5, 2)
+            flw_new = flw_loop
+        else:
+            flow_MH = flw_new
+            break
 
-    #     flow_MH = flw_loop
+        flow_MH = flw_loop
 
-    # if ontFlow > flow_MH:
-    #     MH_applies = True
-    # else:
-    #     MH_applies = False
+    if ontFlow > flow_MH:
+        #     MH_applies = True
+        # else:
+        #     MH_applies = False
 
-    # # Compare minimum head limit
-    # if MH_applies:
-    #     ontFlow = flow_MH
-    #     ontRegime = "MH"
+        # # Compare minimum head limit
+        # if MH_applies:
+        ontFlow = flow_MH
+        ontRegime = "MH"
 
     if output == "gov":
         return {"ontFlow": ontFlow, "ontRegime": ontRegime}
@@ -514,5 +472,5 @@ def planLimits(
             "jFlow": jLimFlow,
             "jRegime": jRegime,
             "fFlow": flimFlow,
-            # "mhFlow": flow_MH,
+            "mhFlow": flow_MH,
         }

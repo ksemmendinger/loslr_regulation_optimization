@@ -1,10 +1,65 @@
 # Optimization of Lake Ontario Flow Regulation
 
-This repo contains code to generate water supply forecasts, optimize flow regulation plans, assess policy performance across plausible future climate conditions, and explore results in an interactive dashboard.
+This repo contains code to optimize flow regulation plans, assess policy performance across various hydrologic traces, and explore results in an interactive dashboard. For forecast generation, see [this](https://github.com/ksemmendinger/Plan-2014-Python) repository.
+
+**need to update workflow**
+
+![workflow](resources/workflow.png)
 
 <br>
 
-![workflow](resources/workflow.png)
+## Table of Contents
+**Simulation-Optimization**
+1. [Configuration File](#configuration-file)
+1. [Input Data](#input-data)
+1. [Release Function](#release-function)
+1. [Flow Limits](#flow-limits)
+1. [Routing Scheme](#routing-scheme)
+1. [Objective Functions](#objective-functions)
+
+***A Posteriori* Analysis**
+1. [Dashboard](#dashboard)
+1. [Candidate Policy Selection](#candidate-policy-selection)
+1. [Policy Simulation](#policy-simulation)
+1. [Secondary Analyses](#secondary-analyses)
+
+## Simulation-Optimization
+
+#### Configuration File
+
+The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written in [toml](https://toml.io/en/). A template and examples of a configuration file can be found [here](config/).
+
+#### Input Data
+
+*list needed inputs (supples, roughness, indicators, etc)*
+
+#### Release Function
+
+A template and examples of a configuration file can be found [here](functions/release/).
+
+#### Flow Limits
+
+A template and examples of a configuration file can be found [here](functions/limits/).
+
+#### Routing Scheme
+
+A template and examples of a configuration file can be found [here](functions/routing/).
+
+#### Objective Functions
+
+Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations can be found [here](objectiveFunctions/).
+
+## *A Posteriori* Analysis
+
+#### Dashboard
+
+#### Candidate Policy Selection
+
+#### Policy Simulation
+
+#### Secondary Analyses
+
+<!-- ![workflow](resources/workflow.png)
 
 <br>
 
@@ -247,4 +302,4 @@ shiny::runApp()
 
 More detail on running the dashboard is available [here](output/dashboard/README.md).
 
-<br>
+<br> -->

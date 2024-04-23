@@ -1,13 +1,12 @@
 import sys
 import numpy as np
-from typing import List, Dict, Union
 
 sys.path.append(".")
 from functions.utils import round_d
 
 
 # take in list, output dict with keys as parameter names
-def formatDecisionVariables(vars: List[float], **args) -> Dict[str, float]:
+def formatDecisionVariables(vars, **args):
     # create empty dictionary to save formatted dvs
     pars = dict()
 
@@ -32,9 +31,7 @@ def formatDecisionVariables(vars: List[float], **args) -> Dict[str, float]:
 
 
 # take in dict of hydrologic data and timeslice, output list of inputs for releaseFunction
-def getReleaseFunctionInputs(
-    data: Dict[str, np.ndarray], t: int, **args
-) -> Dict[str, float]:
+def getReleaseFunctionInputs(data, t, **args):
     # extract hydrologic variables from input dictionary
     lfSupply = data["forNTS"][t]
     ontLevelBOQ = data["ontLevelBOQ"][t]
@@ -57,12 +54,7 @@ def getReleaseFunctionInputs(
 
 
 # takes in output from formatDecisionVariables and getInputs, outputs release and flow regime
-def releaseFunction(
-    x: Dict[str, float],
-    pars: Dict[str, float],
-    conv=2970,
-    **args,
-) -> Dict[str, Union[float, str]]:
+def releaseFunction(x, pars, conv=2970, **args):
     # extract hydrologic variables from input dictionary
     lfSupply = x["forNTS"]
     ontLevelBOQ = x["ontLevelBOQ"]

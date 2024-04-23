@@ -2,14 +2,13 @@
 import sys
 import math
 import numpy as np
-from typing import List, Dict, Union
 
 sys.path.append(".")
 from functions.utils import minmaxNorm, round_d
 
 
 # shape ANN decision variables for the number of neurons (N), inputs (M), and outputs (K)
-def formatDecisionVariables(vars: List[float], **args) -> Dict[str, float]:
+def formatDecisionVariables(vars, **args):
     N = args["nNeurons"]
     M = args["nInputs"]
     K = args["nOutputs"]
@@ -36,9 +35,7 @@ def formatDecisionVariables(vars: List[float], **args) -> Dict[str, float]:
 
 
 # take in dict of hydrologic data and timeslice, output list of inputs for releaseFunction
-def getReleaseFunctionInputs(
-    data: Dict[str, np.ndarray], t: int, **args
-) -> Dict[str, float]:
+def getReleaseFunctionInputs(data, t, **args):
     x = dict()
 
     # normalize hydrologic inputs based on ranges supplied in config file - these could change
