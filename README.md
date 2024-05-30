@@ -1,15 +1,26 @@
-# Optimization of Lake Ontario Flow Regulation
+# Optimization and Simulation of Lake Ontario Flow Regulation
 
-This repo contains code to optimize flow regulation plans, assess policy performance across various hydrologic traces, and explore results in an interactive dashboard. For forecast generation, see [this](https://github.com/ksemmendinger/Plan-2014-Python) repository.
+There are two major components to the workflow in this repository: the **[simulation and optimization](#simulation-optimization)** of alternative outflow control policies and the **[visualization and data analysis](#data-visualization-and-post-analysis)** on optimized alternatives. This repository contains code to:
 
-**need to update workflow**
+1. Optimize control policies
+1. Simulate plan prescribed outflows and water levels
+1. Assess policy performance for key system objectives
+1. Explore results in an interactive dashboard
 
-![workflow](resources/workflow.png)
+<!-- For forecast generation, see [this](https://github.com/ksemmendinger/Plan-2014-Python) repository. -->
 
 <br>
 
-## Table of Contents
-**Simulation-Optimization**
+![workflow](resources/workflow.png)
+
+*Disclaimer: While the Bv7 rule curve and flow limit functions have been verified using the [Great Lakes Regulation and Routing Model](https://github.com/cc-hydrosub/GLRRM-Ontario), this repository is **not** intended to simulate official Plan 2014 prescribed outflows and simulate the resulting water levels.*
+
+<br>
+
+## Simulation-Optimization
+
+There are 6 major components to simulaitng and optimizing alternative control policies:
+
 1. [Configuration File](#configuration-file)
 1. [Input Data](#input-data)
 1. [Release Function](#release-function)
@@ -17,225 +28,400 @@ This repo contains code to optimize flow regulation plans, assess policy perform
 1. [Routing Scheme](#routing-scheme)
 1. [Objective Functions](#objective-functions)
 
-***A Posteriori* Analysis**
+This repository makes a major assumption that a control policy is made up of 2 components: a release function and flow limits (or operational adjustments). The release function calculates a preliminary flow, which is then checked against a series of flow limits and modified if the preliminary flow falls outside of those flow limits. Flow limits are a major component of the Plan 2014 control policy, and the Bv7 ruleset is included in this repository. This repository does not contain code that simualtes Board deviations decisions.
+
+### Configuration File
+
+The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
+
+#### Experimental Design
+These parameters specify the input files and functions used to guide policy simulation. Each variable should be type `string`.
+
+``` toml
+[experimentalDesign]
+
+# file name of the release function (without .py extension)
+releaseFunction = ""
+
+# whether to impose the September Rule (R+) regime on the release function release ["on" or "off"]
+septemberRule = ""
+
+# file name of the flow limit function (without .py extension)
+limitType = ""
+
+# file name of the routing function (without .py extension)
+stlawRouting = ""
+
+# folder name of the hydrologic trace that contains input data that is being optimized over
+trace = ""
+
+# file name of the input data that is being optimized over
+inputFile = ""
+```
+
+#### Optimization Parameters
+These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be type `int`.
+
+``` toml
+[optimizationParameters]
+
+# number of decision variables to optimize
+numDV = int
+
+# number of objectives
+numObj = int
+
+# number of constraints
+numCon = int
+
+# number of function evaluations
+nfe = int
+
+# initial population size
+popSize = int
+
+# frequency of function evaluations to report metrics
+metFreq = int
+```
+
+#### Optimization Parameters
+These parameters specify information about the decision varibles. Each variable type is specified below.
+
+``` toml
+[decisionVariables]
+
+# list of decision variables names - list of `strings` of length of numDV
+dvName = []
+
+# list of lower bounds of decision variable ranges - list of `floats` of length of numDV
+lowerBounds = []
+
+# list of upper bounds of decision variable ranges - list of `floats` of length of numDV
+upperBounds = []
+
+# whether the decision variables are normalized before input to the simulation model ["True" or "False"]
+normalized = ""
+
+# if normalized is True, specify the normalization range
+normalizedRange = [int, int]
+```
+
+#### Release Function
+This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
+
+``` toml
+[releaseFunction]
+releaseFunctionVariable1 = ""
+releaseFunctionVariable2 = ""
+```
+
+#### Performance Indicators
+These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
+
+``` toml
+[performanceIndicators]
+
+# file name of the objective function - string
+objectiveFunction = ""
+
+# aggregate metric to return to optimization algorithm - string
+metricWeighting = ""
+
+# list of performance indicator names - list of strings of length numObj
+piName = []
+
+# list of thresholds of *meaningful* improvements/reductions in performance for each obejctive - list of floats of length numObj
+epsilonValue = []
+
+# list of the direction of improvement for each objective - list of "min" or "max" of length numObj
+direction = []
+```
+
+### Input Data
+
+Input hydrologic files are provided for the historic supply data from 1900 - 2020 (`input/historic/hydro`). The following are required inputs to simulate a hydrologic time series:
+    
+| Variable Name | Description |
+| --- | --- |
+| Sim | Simulation time step |
+| Year | Simulation year |
+| Month | Simulation month |
+| QM | Simulation quarter-month |
+| ontLevelMOQ | Lake Ontario mean-of-quarter water level. 1-year of spinup required.|
+| ontNBS | True Ontario net basin supply. 1-year of spinup required. |
+| erieOut | True Lake Erie outflows. 1-year of spinup required. |
+| stlouisontOut | True Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River + other tributary inflows]. Also known as SLON. 1-year of spinup required.|
+| ontNTS | True Ontario net total supply. 1-year of spinup required. |
+| iceInd | Ice indicator [0 = no ice, 1 = formed/stable ice, 2 = unstable/forming ice] |
+| tidalInd | Tidal signal |
+| foreInd | Perfect forecast indicator [whether to use forecasted or observed SLON values] |
+| forNTS | Forecast annual average Ontario net total supply over the next 48 quarter-months from long-term forecast |
+| indicator | Whether forNTS is wet (1), dry (-1), or neither (0) |
+| confidence | Confidence in how wet or dry forNTS is [1 = not confident, 2= average confidence, 3 = very confident] |
+| desprairiesOut | Roughness coefficient at Long Sault Dam |
+| stfrancoisOut | Roughness coefficient at Long Sault Dam |
+| richelieuOut | Roughness coefficient at Long Sault Dam |
+| longsaultR | Roughness coefficient at Long Sault Dam |
+| saundershwR | Roughness coefficient at the headwaters of Moses-Saunders Dam |
+| ptclaireR | Roughness coefficient at Pointe-Claire |
+| ogdensburgR | Roughness coefficient at Ogdensburg |
+| cardinalR | Roughness coefficient at Cardinal |
+| iroquoishwR | Roughness coefficient at the headwaters of Iroquois Dam |
+| iroquoistwR | Roughness coefficient at the tailwaters of Iroquois Dam |
+| morrisburgR | Roughness coefficient at Morrisburg |
+| saunderstwR | Roughness coefficient at the tailwaters of Moses-Saunders Dam |
+| cornwallR | Roughness coefficient at Cornwall |
+| summerstownR | Roughness coefficient at Summerstown |
+| jetty1R | Roughness coefficient at Jetty 1 |
+| varennesR | Roughness coefficient at Varennes |
+| sorelR | Roughness coefficient at Sorel |
+| stpierreR	 | 	Roughness coefficient at Saint-Pierre |
+| threeriversR | Roughness coefficient at Trois-Rivières |
+| batiscanR | Roughness coefficient at Batiscan
+| ontNBS_QM1 | First (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
+| ontNBS_QM2 | Second (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
+| ontNBS_QM3 | Third (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
+| ontNBS_QM4 | Fourth (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
+| erieOut_QM1 | First (of four) quarter-month forecast of Lake Erie outflows from short-term forecast |
+| erieOut_QM2 | Second (of four) quarter-month forecast of Lake Erie outflows from short-term forecast |	
+| erieOut_QM3 | Third (of four) quarter-month forecast of Lake Erie outflows from short-term forecast |
+| erieOut_QM4 | Fourth (of four) quarter-month forecast of Lake Erie outflows from short-term forecast |
+| ontNTS_QM1 | First (of four) quarter-month forecast of Ontario net total supply (Ontario net basin supply + Lake Erie outflows) from short-term forecast |
+| ontNTS_QM2 | Second (of four) quarter-month forecast of Ontario net total supply (Ontario net basin supply + Lake Erie outflows) from short-term forecast |
+| ontNTS_QM3 | Third (of four) quarter-month forecast of Ontario net total supply (Ontario net basin supply + Lake Erie outflows) from short-term forecast |
+| ontNTS_QM4 | Fourth (of four) quarter-month forecast of Ontario net total supply (Ontario net basin supply + Lake Erie outflows) from short-term forecast |
+| slonFlow_QM1 | First (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
+| slonFlow_QM2 | Second (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
+| slonFlow_QM3 | Third (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
+| slonFlow_QM4 | Fourth (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
+
+### Release Function
+
+Release function scripts should contain functions: `formatDecisionVariables` to format decision variables, `getReleaseFunctionInputs` to extract the release function inputs from the dictionary of input data, and `releaseFunction` to prescribe a preliminary flow based on the inputs. Each function's inputs and outputs are described below.
+
+```python
+# format raw decision variables from optimization algorithm
+def formatDecisionVariables(vars, **args):
+
+    # INPUTS
+    # vars: list of decision variable values returned from the Borg MOEA
+    # args: dict of optional release function inputs from the configuration file in "releaseFunction" section
+
+    # OUTPUTS
+    # pars: dict with key value pairs of decision variable names and values
+    
+    # code to format decision variables values for `releaseFunction` ...
+
+    return pars
+```
+
+```python
+
+# extracts timestep inputs for `releaseFunction`
+def getReleaseFunctionInputs(data, t, **args):
+
+    # INPUTS
+    # data: dictionary of input time series from main simulation function
+    # keys are variable names and values are np.arrays of the time series of the variable values
+    # t: timestep being simulated in for loop
+    # args: dict of optional release function inputs from the configuration file in "releaseFunction" section
+
+    # OUTPUTS
+    # x: dictionary with named key value pairs of hydrologic inputs at the
+    # timestep of interest, calculated or formatted as needed
+
+    # code to extract, calculate, or format needed inputs for `releaseFunction`....
+
+    return x
+
+```
+
+```python
+
+# takes in output from formatDecisionVariables and getInputs, outputs release and flow regime
+def releaseFunction(x, pars, **args):
+
+    # INPUTS
+    # x: dict that is output from `getReleaseFunctionInputs`
+    # pars: dict that is output from `formatDecisionVariables`
+    # args: dict of optional release function inputs from the configuration file in "releaseFunction" section
+
+    # OUTPUTS
+    # dictionary with named key value pairs:
+    # "rfFlow": prescribed outflow
+    # "rfRegime": regime that prescribed outflow follows
+    # "pprFlow": preproj flow or np.nan
+    # "rfOutput": output from release function (could be the same as ontFlow)
+
+    # code for release function here....
+
+    # return all the relevant outputs to save in dataframe
+    outputs = dict()
+    outputs["rfFlow"] = ontFlow
+    outputs["rfRegime"] = ontRegime
+    outputs["pprFlow"] = pprFlow # or np.nan
+    outputs["rfOutput"] = rfOutput
+
+    return outputs
+
+```
+
+Examples for the Plan 2014 rule curve and the ANN policy appoximator release functions can found [here](functions/release). A blank template of a release function can be found [here](functions/release/template.py).
+
+### Flow Limits
+
+Flow limit function scripts should contain functions: `getPlanLimitsInputs` to extract the limit function inputs from the dictionary of input data and `planLimits` to check the preliminary flow against the flow limits and modify if needed. Each function's inputs and outputs are described below.
+
+```python
+# extracts timestep inputs for `planLimits`
+def getPlanLimitsInputs(data, t):
+    
+    # INPUTS
+    # data: dictionary of input time series from main simulation function
+    # keys are variable names and values are np.arrays of the time series of 
+    # the variable values
+    # t: timestep from simulation for loop
+
+    # OUTPUTS
+    # x: dictionary with named key value pairs of hydrologic inputs at the
+    # timestep of interest
+
+    # code to extract, calculate, or format needed inputs for `planLimits`....
+
+    return x
+```
+
+```python
+# function to check (and modify) preliminary flow from release function 
+def planLimits(
+    qm,
+    prelimLevel,
+    prelimFlow,
+    prelimRegime,
+    x,
+    septemberRule,
+    ):
+
+    # INPUTS
+    # qm: quarter-month from simulation for loop
+    # prelimLevel: release function calculated preliminary water level
+    # prelimFlow: release function calculated preliminary flow
+    # prelimRegime: release function calculated preliminary regime
+    # x: dict that is output from `getPlanLimitsInputs`
+    # septemberRule: "off" or the septemberRule function
+
+    # OUTPUTS
+    # dictionary with named key value pairs
+    # "ontFlow": checked outflow (could be release function or a limit flow)
+    # "ontRegime": regime that outflow follows (could be "RF" or other)
+
+    # code to check against flow limits here....
+
+    return {"ontFlow": ontFlow, "ontRegime": ontRegime}
+
+```
+
+Examples for the Bv7 or Phase 2 updated Bv7 flow limit functions can found [here](functions/limits). A blank template of a flow limit function can be found [here](functions/limits/template.py).
+
+
+### Routing Scheme
+
+Routing function scripts should contain functions: `getStLawrenceRoutingInputs` to extract the routing function inputs from the dictionary of input data and `stLawrenceRouting` to route the outflow through the system and determine water levels along Lake Ontario and the St. Lawrence River. Each function's inputs and outputs are described below.
+
+```python
+# extracts timestep inputs for `stLawrenceRouting`
+def getStLawrenceRoutingInputs(data, t):
+    
+    # INPUTS
+    # data: dictionary of input time series from main simulation function
+    # keys are variable names and values are np.arrays of the time series of 
+    # the variable values
+    # t: timestep from simulation for loop
+
+    # OUTPUTS
+    # x: dictionary with named key value pairs of hydrologic inputs at the
+    # timestep of interest
+
+    # code to extract, calculate, or format needed inputs for `stLawrenceRouting`....
+
+    return x
+```
+
+```python
+# routes final outflow through system to calculate levels/flows along the St. Lawrence River
+def stLawrenceRouting(ontLevel, ontFlow, x):
+
+    # INPUTS
+    # ontLevel: water level calculated with observed NTS and final release
+    # ontFlow: final outflow for timestep
+    # x: dictionary output from `getStLawrenceRoutingInputs`
+
+    # OUTPUTS
+    # dictionary with named key value pairs for relevant locations along the st. lawrence river (see below for all locations)
+
+    # code to calculate st. lawrence levels and flows ....
+
+    # save timestep in dictionary
+    levels = dict()
+    levels["stlouisFlow"] = stlouisFlow
+    levels["kingstonLevel"] = kingstonLevel_rounded
+    levels["alexbayLevel"] = alexbayLevel
+    levels["brockvilleLevel"] = brockvilleLevel
+    levels["ogdensburgLevel"] = ogdensburgLevel
+    levels["cardinalLevel"] = cardinalLevel
+    levels["iroquoishwLevel"] = iroquoishwLevel
+    levels["iroquoistwLevel"] = iroquoistwLevel
+    levels["morrisburgLevel"] = morrisburgLevel
+    levels["longsaultLevel"] = longsaultLevel
+    levels["saundershwLevel"] = saundershwLevel
+    levels["saunderstwLevel"] = saunderstwLevel
+    levels["cornwallLevel"] = cornwallLevel
+    levels["summerstownLevel"] = summerstownLevel
+    levels["lerybeauharnoisLevel"] = lerybeauharnoisLevel
+    levels["ptclaireLevel"] = ptclaireLevel
+    levels["jetty1Level"] = jetty1Level
+    levels["stlambertLevel"] = stlambertLevel
+    levels["varennesLevel"] = varennesLevel
+    levels["sorelLevel"] = sorelLevel
+    levels["lacstpierreLevel"] = lacstpierreLevel
+    levels["maskinongeLevel"] = maskinongeLevel
+    levels["troisrivieresLevel"] = troisrivieresLevel
+    levels["batiscanLevel"] = batiscanLevel
+
+    return levels
+```
+
+Examples for the routing function using SLON flows can found [here](functions/routing/stlaw.py). A blank template of a routing function can be found [here](functions/routing/template.py).
+
+### Objective Functions
+
+Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations and required inputs can be found [here](objectiveFunctions/).
+
+## Data Visualization and Post Analysis
+
 1. [Dashboard](#dashboard)
 1. [Candidate Policy Selection](#candidate-policy-selection)
 1. [Policy Simulation](#policy-simulation)
 1. [Secondary Analyses](#secondary-analyses)
 
-## Simulation-Optimization
+### Dashboard
+Launching dashboard...
 
-#### Configuration File
+### Candidate Policy Selection
+Select from dashboard...
 
-The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written in [toml](https://toml.io/en/). A template and examples of a configuration file can be found [here](config/).
+### Policy Simulation
 
-#### Input Data
+Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script.
 
-*list needed inputs (supples, roughness, indicators, etc)*
+### Secondary Analyses
 
-#### Release Function
+This repository contains code to calculate...
 
-A template and examples of a configuration file can be found [here](functions/release/).
+Users can add additional analysis scripts to the output/ folder and call them in the postAnalysis.sh script to run.
 
-#### Flow Limits
+<!-- !
 
-A template and examples of a configuration file can be found [here](functions/limits/).
-
-#### Routing Scheme
-
-A template and examples of a configuration file can be found [here](functions/routing/).
-
-#### Objective Functions
-
-Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations can be found [here](objectiveFunctions/).
-
-## *A Posteriori* Analysis
-
-#### Dashboard
-
-#### Candidate Policy Selection
-
-#### Policy Simulation
-
-#### Secondary Analyses
-
-<!-- ![workflow](resources/workflow.png)
-
-<br>
-
-# Table of Contents
-
-- [Overview](#overview)
-    - [Plan 2014](#plan-2014)
-    - [Forecast Generation](#forecast-generation)
-    - [Control Policy Optimization](#control-policy-optimization)
-    - [Objective Functions](#objective-functions)
-    - [*A Posteriori* Analysis](#a-posteriori-analysis)
-- [Getting Started](#getting-started) 
-    - [Many-Objective Evolutionary Algorithm](#many-objective-evolutionary-algorithm)
-    - [Demo](#demo)
-      - [Run Optimization](#run-optimization)
-      - [*A Posteriori* Evaluation](#a-posteriori-evaluation)
-      - [Dashboard](#dashboard)
-
-<br>
-
-# Overview
-
-This section describes the current flow regulation plan of the LOSLR system, key decision variables that are optimized within Plan 2014 to discover new, alternative control policies, and objective functions that measure system performance for alternative control policies.
-
-## Plan 2014
-
-The current control policy, [Plan 2014](resources/Plan_2014_Report.pdf), takes in the current water level of Lake Ontario, $Level_{Ont}$, and a forecasted supply index, $NTS_{fcst}$, and prescribes releases based on a sliding rule curve function and adjusts the rule curve release via embedded flow constraints. 
-
-The forecasted supply index, $NTS_{fcst}$, at any given quarter-month, $q$, is calculated by inputing the rolling average annual net total supply calculated into an autoregressive time series model:
-
-$$ NTS_{prev} = \overline {NTS_{q - 49} : NTS_{q - 1}} $$
-
-$$ NTS_{fcst} = AR_{1}(NTS_{prev}) $$
-
-Confidence intervals, $CI_{50}$ and $CI_{99}$, are applied to the $NTS_{fcst}$ term to calculate upper and lower limits:
-
-$$
-NTS_{99} = NTS_{fcst} \pm CI_{99}
-\ \ \ \ \ \ \ \ \ \ 
-NTS_{50} = NTS_{fcst} \pm CI_{50}
-$$
-
-$NTS_{fcst}$, $NTS_{99}$, and $NTS_{50}$  are compared to thresholds of wet and dry supplies, $T_{w}$ and $T_{d}$, to determine if future conditions are wet, average, or dry and confidence in those future conditions.
-
-The sliding rule curve function is based on the pre-project release, $R_{pp}$, conditions, which is calculated using the open-water stage-discharge relationship:
-
-$$ 
-R_{pp} = 555.823 * (Level_{Ont} - 0.035 - 69.474)^{1.5} 
-$$
-
-The $R_{pp}$ flow amount is adjusted up or down, $A_{w}$ and $A_{d}$, based on recent supply conditions to get the rule curve release, $R_{rc}$, amount:
-
-$$
-R_{rc} = \cases{
-R_{pp} + A_{w} ^ {P_1} * C_1 & $NTS_{fcst} \ge T_{rc}$ \cr
-\\
-R_{pp} - A_{d} ^ {P_2} * C_2 & $NTS_{fcst} \lt T_{rc}$}
-$$
-
-$$
-A_{w} = \displaystyle \left[ \frac {NTS_{fcst} - NTS_{avg}} {NTS_{max} - NTS_{avg}} \right] \\
-$$
-
-$$
-A_{d} = \displaystyle \left[ \frac {NTS_{avg} - NTS_{fcst}} {NTS_{avg} - NTS_{min}} \right] \\
-$$
-
-where $NTS_{max}$ is the historical maximum annual average NTS, $NTS_{min}$ is the historical minimum annual average NTS, $NTS_{avg}$ is the historical average annual average NTS the threshold that designates which regime to follow. The historical values in Plan 2014 were calculated from the period of record from 1900 through 2000. 
-
-The multipliers, $C_{1}$ and $C_{2}$, and exponents, $P_{1}$ and $P_{2}$, are sets of constants some of which are determined by comparing the forecasted supply to a threshold of wet conditions, $T_{w}$, and forecast confidence, $CI_{99}$. When there is high confidence in wet basin conditions, releases increase by setting $C_{1}$ to $C_{1w}$ from $C_{1m}$:
-
-$$
-C_{1} = \cases{
-C_{1w} & $NTS_{fcst} - CI_{99} \ge T_{w}$ \cr
-\\
-C_{1m} & $otherwise$}
-$$
-
-During extremely dry conditions (designated when water levels fall below some threshold, $L_{d}$), the rule curve release is further reduced by $F_{d}$:
-
-$$
-R_{rc} = \cases{
-R_{rc} - F_{d} & $Level_{Ont} \lt L_{d}$ \cr
-\\
-R_{rc} & $otherwise$}
-$$
-
-Between September 1st and December 31, releases are increased if lake levels are dangerously high to reach target level, ${L}_{r}$:
-
-$$
-R_{rc} = \cases{
-R_{rc} + \displaystyle \left[ \frac {(Level_{Ont} - L_{r}) * 2970} {Q_{e} - q + 1} \right] & $Q_{s} \le q \le Q_{e}, \ Level_{Ont} \gt L_{r}$ \cr
-\\
-R_{rc} & $otherwise$}
-$$
-
-where $Q_{s}$ is the starting quarter-month, September 1 (QM32), and $Q_{e}$ is the ending quarter-month, December 31 (QM48).
-
-The $R_{rc}$ prescribed flow is then checked against a series of flow limits, which are embedded within Plan 2014 to protect various system needs and interests. For example, the I-limit constrains flows during ice formation to prevent an ice jam and the L-limit constrains flows during navigation season to maintain safe velocities for ship navigability. More information on flow limits can be found in the [Plan 2014 Compendium Report](resources/Plan2014_CompendiumReport.pdf).
-
-<br>
-
-## Forecast Generation
-The parameters of the $AR_{1}$ forecast model (first-order autocorrelation coefficient and shift) in Plan 2014 were calibrated using the historical data from 1900 through 2000. Using the same trend-based forecast structure, we create new forecasts at the 1, 3, 6, and 12-month lead-times. For example, rather than averaging the previous 48 quarter-months of water supplies for the 12-month lead time, we average the previous 24 quarter-months of water supplies for the 6-month lead time. We refit the parameters in the AR1 forecast model for each lead-time using historic NTS data from 1900 through 2020. For each forecast lead-time, we create forecasts using the baseline trend-model skill as well as perfect skill (i.e., perfect insight into future conditions).
-
-<br>
-
-## Control Policy Optimization
-Given legal and regulatory operating requirement, we optimize key decision variable in the rule curve function and leave the flow limits as is. The optimization currently includes 17 decision variables from the forecasting and rule cruve functions, including:
-
-- Forecast confidence intervals
-    - $CI_{50}$, $CI_{99}$
-- Forecast wet and dry thresholds 
-    - $T_{w}$, $T_{d}$
-- Rule curve coefficients and exponents
-    - $C_{1m}$, $C_{1w}$, $C_{2}$, $P_{1}$, $P_{2}$
-- Rule curve threshold and flow adjustments
-    - $T_{rc}$, $A_{w}$, $A_{d}$
-- Rule curve dry period adjustments
-    - $L_{d}$, $F_{d}$
-- Rule curve high level adjustments
-    - $L_{r}$, $Q_{s}$, and $Q_{e}$.
-
-Upper and lower bounds of the decision variables are set to $\pm$ 75% of their current value in Plan 2014.
-
-<br>
-
-## Objective Functions
-There are 7 objective functions used to measure policy performance:
-
-1) **Upstream flooding impacts**
-    - *Unit:* Number of homes flooded
-    - *Timestep:* Quarter-monthly
-    - *Location:* Lake Ontario, Alexandria Bay (NY), Cardinal (ON)
-2) **Downstream flooding impacts**
-    - *Unit:* Number of homes flooded
-    - *Timestep:* Quarter-monthly
-    - *Location:* Lery-Beauharnois (QC), Pointe-Claire (QC), Maskinonge (QC), Sorel (QC), Lac St. Pierre (QC), Trois-Rivieres (QC)
-3) **Commercial navigation costs**
-    - *Unit:* USD
-    - *Timestep:* Quarter-monthly
-    - *Location:* Lake Ontario, the Seaway (Upper St. Lawrence to Montreal), downstream of Montreal
-4) **Hydropower production**
-    - *Unit:* USD
-    - *Timestep:* Quarter-monthly
-    - *Location:* Moses-Saunders Dam and Niagara Power Generation Station
-5) **Meadow marsh area**
-    - *Unit:* Hectares
-    - *Timestep:* Annually
-    - *Location:* Lake Ontario
-6) **Muskrat house density**
-    - *Unit:* Dimensionless
-    - *Timestep:* Annually
-    - *Location:* Thousand Islands Region in the Upper St. Lawrence River (Alexandria Bay, NY)
-7) **Recreational boating costs**
-    - *Unit:* USD
-    - *Timestep:* Quarter-monthly
-    - *Location:* Lake Ontario, Alexandria Bay (NY), Brockville (ON), Ogdensburg (NY), Long Sault (ON), Pointe-Claire (QC), Varennes (QC), Sorel (QC)
-
-The **net annual average** values for each objective function are used as the metric to represent overall policy performance. More detail on the model input, output, and formulation is available [here](objectiveFunctions/README.md).
-
-<br>
-
-## *A Posteriori* Analysis
-Given the computational constraints, only 7 objective functions can be used to optimize control policies. However, there are additional criteria a plan must meet in order to be considered a candidate plan, including:
-
-1) Basis of Comparison (H-Criteria)
-2) Impact Zone Performance
-3) Policy Robustness and Scenario Disovery
-4) Spatial Breakdown of Impacts
-5) Annual Objective Performance
-6) Monthly Hydrologic Statistics
-
-Data and code to simulate these additional performance indicators are located in the `output/postScripts` directory.
-
-<br>
 
 # Getting Started
 

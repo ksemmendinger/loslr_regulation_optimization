@@ -280,8 +280,8 @@ def commercialNavigation(
     daysperQM = 7.609
 
     # set navigation season status based on qm
-    # if qm <= 12 or qm == 48: 
-    if qm < 12: # changed nav season for Phase 2 to QM [12, 48] inclusive
+    # if qm <= 12 or qm == 48:
+    if qm < 12:  # changed nav season for Phase 2 to QM [12, 48] inclusive
         navStatus = 0
     else:
         navStatus = 1
@@ -2008,7 +2008,9 @@ def objectiveEvaluation(
     cn["jettyChange"] = np.diff(cn["jetty1Level"], prepend=cn["jetty1Level"][0])
 
     # get previous freshet values
+    cn["freshetIndicator"] = cn["freshetIndicator"].astype(float)
     cn["freshetIndicatorPrevious"] = np.roll(cn["freshetIndicator"], 1)
+    cn["freshetIndicatorPrevious"] = cn["freshetIndicatorPrevious"].astype(float)
     cn["freshetIndicatorPrevious"][0] = np.nan
 
     # initialize rows

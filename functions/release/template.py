@@ -22,7 +22,7 @@ from functions.utils import round_d
 def formatDecisionVariables(vars, **args):
 
     # INPUTS
-    # vars: list of decision variables returned from the Borg MOEA
+    # vars: list of decision variable values returned from the Borg MOEA
     # args: dict of optional release function inputs from config["releaseFunction"]
 
 
@@ -65,8 +65,8 @@ def getReleaseFunctionInputs(data, t, **args):
 def releaseFunction(x, pars, **args):
     
     # INPUTS
-    # x: dictionary output from `getReleaseFunctionInputs`
-    # pars: dictionary output from `formatDecisionVariables`
+    # x: dict that is output from `getReleaseFunctionInputs`
+    # pars: dict that is output from `formatDecisionVariables`
     # args: dict of optional release function inputs from config["releaseFunction"]
 
     # OUTPUTS
