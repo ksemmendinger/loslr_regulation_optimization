@@ -35,7 +35,7 @@ This repository makes a **key assumption** that a control policy is made up of t
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
 <details closed>
-<summary><h3>More Info</h3> </summary>
+<summary>More Info</summary>
 
 <details closed>
 <summary><h4>Experimental Design</h3></summary>
@@ -162,6 +162,8 @@ direction = []
 </details>
 
 </details>
+
+<br>
 
 <details closed>
 <summary><h3>Optimization Algorithm</h3></summary>
