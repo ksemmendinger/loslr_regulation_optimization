@@ -164,14 +164,15 @@ direction = []
 </details>
 
 ### Optimization Algorithm
-[Insert MOEA Info Here]
+A many-objective evolutionary algorithm (MOEA) is used to optimize control policies for flow regulation. The optimization algorithm used in this repository is the [Borg MOEA](https://doi.org/10.1162/EVCO_a_00075). Before any runs, you will need to download and compile Borg. A two-part tutorial on setup (with an example) is available [here](https://waterprogramming.wordpress.com/2015/06/25/basic-borg-moea-use-for-the-truly-newbies-part-12/) by the Reed Lab at Cornell University. Once you have compiled Borg, you can introduce new simulation and evaluation problems. You will need to move the `borg.c`, `borg.py`, and `libborg.so` to the directory with your wrapper script.
 
 ### Input Data
 
 Input hydrologic files are provided for the historic supply data from 1900 - 2020 (`input/historic/hydro`). The following are required inputs to simulate a hydrologic time series:
 
 <details closed>
-<summary>Click to Expand</summary>
+<summary><code>Supply Data</code></summary>
+<br>
 
 | Variable Name | Description |
 | --- | --- |
@@ -184,32 +185,21 @@ Input hydrologic files are provided for the historic supply data from 1900 - 202
 | erieOut | True Lake Erie outflows. 1-year of spinup required. |
 | stlouisontOut | True Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River + other tributary inflows]. Also known as SLON. 1-year of spinup required.|
 | ontNTS | True Ontario net total supply. 1-year of spinup required. |
-| iceInd | Ice indicator [0 = no ice, 1 = formed/stable ice, 2 = unstable/forming ice] |
-| tidalInd | Tidal signal |
-| foreInd | Perfect forecast indicator [whether to use forecasted or observed SLON values] |
+| desprairiesOut | Flows out of Des Praries River |
+| stfrancoisOut | Flows out of St. Francois River |
+| richelieuOut | Flows out of Richelieu River |
+
+</details>
+
+<details closed>
+<summary><code>Forecast Information</code></summary>
+<br>
+
+| Variable Name | Description |
+| --- | --- |
 | forNTS | Forecast annual average Ontario net total supply over the next 48 quarter-months from long-term forecast |
 | indicator | Whether forNTS is wet (1), dry (-1), or neither (0) |
 | confidence | Confidence in how wet or dry forNTS is [1 = not confident, 2= average confidence, 3 = very confident] |
-| desprairiesOut | Roughness coefficient at Long Sault Dam |
-| stfrancoisOut | Roughness coefficient at Long Sault Dam |
-| richelieuOut | Roughness coefficient at Long Sault Dam |
-| longsaultR | Roughness coefficient at Long Sault Dam |
-| saundershwR | Roughness coefficient at the headwaters of Moses-Saunders Dam |
-| ptclaireR | Roughness coefficient at Pointe-Claire |
-| ogdensburgR | Roughness coefficient at Ogdensburg |
-| cardinalR | Roughness coefficient at Cardinal |
-| iroquoishwR | Roughness coefficient at the headwaters of Iroquois Dam |
-| iroquoistwR | Roughness coefficient at the tailwaters of Iroquois Dam |
-| morrisburgR | Roughness coefficient at Morrisburg |
-| saunderstwR | Roughness coefficient at the tailwaters of Moses-Saunders Dam |
-| cornwallR | Roughness coefficient at Cornwall |
-| summerstownR | Roughness coefficient at Summerstown |
-| jetty1R | Roughness coefficient at Jetty 1 |
-| varennesR | Roughness coefficient at Varennes |
-| sorelR | Roughness coefficient at Sorel |
-| stpierreR	 | 	Roughness coefficient at Saint-Pierre |
-| threeriversR | Roughness coefficient at Trois-Rivières |
-| batiscanR | Roughness coefficient at Batiscan
 | ontNBS_QM1 | First (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
 | ontNBS_QM2 | Second (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
 | ontNBS_QM3 | Third (of four) quarter-month forecast of Ontario net basin supply from short-term forecast |
@@ -226,6 +216,44 @@ Input hydrologic files are provided for the historic supply data from 1900 - 202
 | slonFlow_QM2 | Second (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
 | slonFlow_QM3 | Third (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
 | slonFlow_QM4 | Fourth (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
+
+</details>
+
+<details closed>
+<summary><code>Indicator Variables</code></summary>
+<br>
+
+| Variable Name | Description |
+| --- | --- |
+| iceInd | Ice indicator [0 = no ice, 1 = formed/stable ice, 2 = unstable/forming ice] |
+| tidalInd | Tidal signal |
+| foreInd | Perfect forecast indicator [whether to use forecasted or observed SLON values] |
+
+</details>
+
+<details closed>
+<summary><code>Roughness Coefficients</code></summary>
+<br>
+
+| Variable Name | Description |
+| --- | --- |
+| longsaultR | Roughness coefficient at Long Sault Dam |
+| saundershwR | Roughness coefficient at the headwaters of Moses-Saunders Dam |
+| ptclaireR | Roughness coefficient at Pointe-Claire |
+| ogdensburgR | Roughness coefficient at Ogdensburg |
+| cardinalR | Roughness coefficient at Cardinal |
+| iroquoishwR | Roughness coefficient at the headwaters of Iroquois Dam |
+| iroquoistwR | Roughness coefficient at the tailwaters of Iroquois Dam |
+| morrisburgR | Roughness coefficient at Morrisburg |
+| saunderstwR | Roughness coefficient at the tailwaters of Moses-Saunders Dam |
+| cornwallR | Roughness coefficient at Cornwall |
+| summerstownR | Roughness coefficient at Summerstown |
+| jetty1R | Roughness coefficient at Jetty 1 |
+| varennesR | Roughness coefficient at Varennes |
+| sorelR | Roughness coefficient at Sorel |
+| stpierreR	 | 	Roughness coefficient at Saint-Pierre |
+| threeriversR | Roughness coefficient at Trois-Rivières |
+| batiscanR | Roughness coefficient at Batiscan |
 
 </details>
 
@@ -470,6 +498,12 @@ Examples for the routing function using SLON flows can found [here](functions/ro
 
 Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations and required inputs can be found [here](objectiveFunctions/).
 
+<!-- <br>
+
+<hr style="border:1px solid gray">
+
+<br> -->
+
 ## Data Visualization and Post Analysis
 
 1. [Dashboard](#dashboard)
@@ -491,7 +525,9 @@ Borg returns the decision variables values of policy that fall on the Pareto Fro
 
 This repository contains code to calculate...
 
-Users can add additional analysis scripts to the output/ folder and call them in the postAnalysis.sh script to run.
+Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
+
+---
 
 <!-- !
 
