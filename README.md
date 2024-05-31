@@ -32,9 +32,9 @@ There are seven major components required to simulate and optimize alternative c
 This repository makes a **key assumption** that a control policy is made up of two modules: a ***release function*** and ***flow limits*** (or operational adjustments). The release function calculates a preliminary flow, which is then checked against a series of flow limits and modified if the preliminary flow falls outside of those flow limits. Flow limits are a major component of flow regulation in the Plan 2014 control policy (e.g. I-limit, L-limit, F-limit). See Annex B, Section B2 in the [Plan 2014 Compendium Report](resources/Plan2014_CompendiumReport.pdf) for more details. The Bv7 ruleset is included in this repository; however, this repository does not contain code to simulate Board deviations decisions under the [H14 criteria](https://www.ijc.org/en/loslrb/watershed/faq/4#:~:text=Criterion%20H14%20allows%20for%20major,water%20supplies%20to%20Lake%20Ontario.).
 
 <details closed>
-<summary><h3>Configuration File</h3></summary>
+<summary><h3>Configuration File</h3> The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below. </summary>
 
-The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
+<!-- The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below. -->
 
 <details closed>
 <summary><h4>Experimental Design</h3></summary>
