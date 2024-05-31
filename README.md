@@ -35,73 +35,70 @@ This repository makes a **key assumption** that a control policy is made up of t
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
 <details closed>
-<summary>More Info</summary>
-
-<!-- <details closed>
-<summary><h4>Experimental Design</h3></summary> -->
+<summary>More Information</summary>
 
 #### Experimental Design
-These parameters specify the input files and functions used to guide policy simulation. Each variable should be type `string`.
+These parameters specify the input files and functions used to guide policy simulation. Each variable should be a `str`.
 
-<details closed>
-<summary><span><pre>[experimentalDesign]</pre></span></summary>
+ <details closed>
+
+<summary>
 
 ``` toml
+[experimentalDesign]
+```
 
+</summary>
+
+``` toml
 # file name of the release function (without .py extension)
-releaseFunction = ""
+releaseFunction = "ruleCurve" # type:str
 
 # whether to impose the September Rule (R+) regime on the release function release ["on" or "off"]
-septemberRule = ""
+septemberRule = "off" # type:str
 
 # file name of the flow limit function (without .py extension)
-limitType = ""
+limitType = "Bv7" # type:str
 
 # file name of the routing function (without .py extension)
-stlawRouting = ""
+stlawRouting = "stlaw" # type:str
 
 # folder name of the hydrologic trace that contains input data that is being optimized over
-trace = ""
+trace = "historic" # type:str
 
-# file name of the input data that is being optimized over
-inputFile = ""
+# path and file name of the input data that is being optimized over
+inputFile = "1900_2020/12month_sqAR" # type:str
 ```
 
 </details>
 
-<!-- </details> -->
+#### Optimization Parameters
 
-<details closed>
-<summary><h4>Optimization Parameters</h3></summary>
-
-These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be type `int`.
+These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be an `int`.
 
 ``` toml
 [optimizationParameters]
 
 # number of decision variables to optimize
-numDV = int
+numDV = 10 # type: int
 
 # number of objectives
-numObj = int
+numObj = 7 # type: int
 
 # number of constraints
-numCon = int
+numCon = 0 # type: int
 
 # number of function evaluations
-nfe = int
+nfe = 200000 # type: int
 
 # initial population size
-popSize = int
+popSize = 100 # type: int
 
 # frequency of function evaluations to report metrics
-metFreq = int
+metFreq = 100 # type: int
 ```
 
-</details>
-
-<details closed>
-<summary><h4>Decision Variables</h3></summary>
+#### Decision Variables
 
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
@@ -124,10 +121,7 @@ normalized = ""
 normalizedRange = [int, int]
 ```
 
-</details>
-
-<details closed>
-<summary><h4>Release Function</h3></summary>
+#### Release Function
 
 This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
 
@@ -137,10 +131,7 @@ releaseFunctionVariable1 = ""
 releaseFunctionVariable2 = ""
 ```
 
-</details>
-
-<details closed>
-<summary><h4>Performance Indicators</h3></summary>
+#### Performance Indicators
 
 These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
 
@@ -165,20 +156,16 @@ direction = []
 
 </details>
 
-</details>
-
-<br>
-
-<details closed>
-<summary><h3>Optimization Algorithm</h3></summary>
+### Optimization Algorithm
 [Insert MOEA Info Here]
-</details>
 
-<details closed>
-<summary><h3>Input Data</h3></summary>
+### Input Data
 
 Input hydrologic files are provided for the historic supply data from 1900 - 2020 (`input/historic/hydro`). The following are required inputs to simulate a hydrologic time series:
-    
+
+<details closed>
+<summary>More Information</summary>
+
 | Variable Name | Description |
 | --- | --- |
 | Sim | Simulation time step |
@@ -235,10 +222,12 @@ Input hydrologic files are provided for the historic supply data from 1900 - 202
 
 </details>
 
-<details closed>
-<summary><h3>Release Function</h3></summary>
+### Release Function
 
 Release function scripts should contain functions: `formatDecisionVariables` to format decision variables, `getReleaseFunctionInputs` to extract the release function inputs from the dictionary of input data, and `releaseFunction` to prescribe a preliminary flow based on the inputs. Each function's inputs and outputs are described below.
+
+<details closed>
+<summary>More Information</summary>
 
 ```python
 # format raw decision variables from optimization algorithm
@@ -307,14 +296,16 @@ def releaseFunction(x, pars, **args):
 
 ```
 
-Examples for the Plan 2014 rule curve and the ANN policy appoximator release functions can found [here](functions/release). A blank template of a release function can be found [here](functions/release/template.py).
-
 </details>
 
-<details closed>
-<summary><h3>Flow Limits</h3></summary>
+Examples for the Plan 2014 rule curve and the ANN policy appoximator release functions can found [here](functions/release). A blank template of a release function can be found [here](functions/release/template.py).
+
+### Flow Limits
 
 Flow limit function scripts should contain functions: `getPlanLimitsInputs` to extract the limit function inputs from the dictionary of input data and `planLimits` to check the preliminary flow against the flow limits and modify if needed. Each function's inputs and outputs are described below.
+
+<details closed>
+<summary>More Information</summary>
 
 ```python
 # extracts timestep inputs for `planLimits`
@@ -365,14 +356,16 @@ def planLimits(
 
 ```
 
-Examples for the Bv7 or Phase 2 updated Bv7 flow limit functions can found [here](functions/limits). A blank template of a flow limit function can be found [here](functions/limits/template.py).
-
 </details>
 
-<details closed>
-<summary><h3>Routing Scheme</h3></summary>
+Examples for the Bv7 or Phase 2 updated Bv7 flow limit functions can found [here](functions/limits). A blank template of a flow limit function can be found [here](functions/limits/template.py).
+
+### Routing Scheme
 
 Routing function scripts should contain functions: `getStLawrenceRoutingInputs` to extract the routing function inputs from the dictionary of input data and `stLawrenceRouting` to route the outflow through the system and determine water levels along Lake Ontario and the St. Lawrence River. Each function's inputs and outputs are described below.
+
+<details closed>
+<summary>More Information</summary>
 
 ```python
 # extracts timestep inputs for `stLawrenceRouting`
@@ -437,16 +430,13 @@ def stLawrenceRouting(ontLevel, ontFlow, x):
     return levels
 ```
 
+</details>
+
 Examples for the routing function using SLON flows can found [here](functions/routing/stlaw.py). A blank template of a routing function can be found [here](functions/routing/template.py).
 
-</details>
-
-<details closed>
-<summary><h3>Objective Functions</h3></summary>
+### Objective Functions
 
 Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations and required inputs can be found [here](objectiveFunctions/).
-
-</details>
 
 ## Data Visualization and Post Analysis
 
