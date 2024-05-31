@@ -7,6 +7,8 @@ There are two major components to the workflow in this repository: the **[simula
 1. Assess policy performance for key system objectives
 1. Explore results in an interactive dashboard
 
+For more information on running the policy simulation and optimization framework, see [Getting Started](#getting-started).
+
 <!-- For forecast generation, see [this](https://github.com/ksemmendinger/Plan-2014-Python) repository. -->
 
 <br>
@@ -423,75 +425,7 @@ Objective functions are simulated over the user-specified time period. Each obje
 1. [Secondary Analyses](#secondary-analyses)
 
 ### Dashboard
-Launching dashboard...
 
-### Candidate Policy Selection
-Select from dashboard...
-
-### Policy Simulation
-
-Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script.
-
-### Secondary Analyses
-
-This repository contains code to calculate...
-
-Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
-
----
-
-<!-- !
-
-
-# Getting Started
-
-## Many-Objective Evolutionary Algorithm
-
-Before any runs, you will need to download and compile the many-objective evolutionary algorithm, [Borg](https://doi.org/10.1162/EVCO_a_00075). A two-part tutorial on setup (with an example) is available [here](https://waterprogramming.wordpress.com/2015/06/25/basic-borg-moea-use-for-the-truly-newbies-part-12/) by the Reed Lab at Cornell University. Once you have compiled Borg, you can introduce new simulation and evaluation problems.
-
-You'll need to move the `borg.c`, `borg.py`, and `libborg.so` to the directory with your wrapper script.
-
-<br>
-
-## Demo
-In this example, the `plan2014_wrapper.py` script talks to Borg. In the wrapper script, you can specify the number of decision variables and their ranges, the number of objectives, the epsilon of significance for each objective value, and other parameters of the Borg MOEA.
-
-The wrapper script points to an external simulation-evaluation function, in this case `plan2014_optim.py`. The simulation function takes in an array of decision variables, simulates the time series of water levels and flows over a given supply sequence, calculates objective performance over the time series, and returns an array of length n, where n is the number of objectives, to Borg.
-
-
-#### Run Optimization
-You can run Borg on your local machine from the command line or on a HPC (see example SLURM script, [`runOptimization.sh`](./runOptimization.sh)):
-
-```
-python plan2014_wrapper.py {FN} {TRACE} {LEADTIME} {SKILL} {N_SEEDS} {NFE} {POPSIZE} {REPORT} {DVBOUNDS} {NDVS}
-```
-
-You will need to specify the:
-
-- `FN`: Directory
-- `TRACE`: Hydrologic trace to simulate for optimization
-- `LEADTIME`: Forecast lead-time (for Plan 2014 input `12month`)
-- `SKILL`: Forecast skill level (for Plan 2014 input `sqAR`)
-- `N_SEEDS`: Number of seeds to run in parallel
-- `NFE`: Number of function evaluations (1 NFE = 1 trace simulation)
-- `POPSIZE`: Initial population size (100 is a good default)
-- `REPORT`: Frequency to report pareto front evolution 
-- `DVBOUNDS`: Percent change to decision variables for upper and lower limits
-- `NDVS`: Number of decision variables
-
-#### *A Posteriori* Evaluation
-After running the optimization, to assess the pareto front for the *a posteriori* criteria, run the following command:
-
-```
-python output/evaluate.sh {FN} {N_SEEDS} {LEADTIME} {SKILL} {NFE} {NOBJS} {NDVS} {NWORKERS}
-```
-Where the `FN`, `N_SEEDS`, `LEADTIME`, `SKILL`, `NFE`, and `NDVS` corresponds to the values used to run the optimization, and:
-
-- `NOBJS`: Number of objectives in the optimization
-- `NWORKERS`: Number of workers to run in parallel for resimulation
-
-
-#### Dashboard
 Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command:
 
 ```
@@ -508,4 +442,31 @@ shiny::runApp()
 
 More detail on running the dashboard is available [here](output/dashboard/README.md).
 
-<br> -->
+### Candidate Policy Selection
+Select from dashboard...
+
+### Policy Simulation
+
+Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script.
+
+### Secondary Analyses
+
+This repository contains code to calculate...
+
+Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
+
+<br>
+
+## Getting Started
+
+The `optimizationWrapper.py` script talks to Borg. The wrapper script reads the [configuration file](configuration-file) and sets up the optimization experiment. The wrapper script calls `optimizationSimulation.py` to simulate the time series of outflows, water levels, and system performance that result from the decision variables returned by Borg in each function evaluation.
+
+You can run Borg on your local machine from the command line or on a HPC (see example [SLURM script](./optimizationRun.sh)). Users should specify three arguments:
+
+1. `${loc}` : the absolute path of the home directory (i.e., where the code repository is located)
+1. `${config}` : the relative path to the configuration file from the home directory
+1. `${S}` : the random seed to use in the optimization
+
+```python
+python optimizationWrapper.py ${loc} ${config} ${S}
+```
