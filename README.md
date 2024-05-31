@@ -459,13 +459,13 @@ Users can add additional analysis scripts to the `output/` folder and call them 
 
 ## Getting Started
 
-The `optimizationWrapper.py` script talks to Borg. The wrapper script reads the [configuration file](configuration-file) and sets up the optimization experiment. The wrapper script calls `optimizationSimulation.py` to simulate the time series of outflows, water levels, and system performance that result from the decision variables returned by Borg in each function evaluation.
+There are two scripts that drive the policy simulation and optimization: `optimizationWrapper.py` and `optimizationSimulation.py`. The `optimizationWrapper.py` script calls and interacts with the Borg MOEA. The wrapper script reads the user-generated [configuration file](configuration-file) and sets up the optimization experiment. `optimizationWrapper.py` then calls `optimizationSimulation.py` to simulate the time series of outflows, water levels, and system performance that result from the decision variables returned by Borg in each function evaluation.
 
-You can run Borg on your local machine from the command line or on a HPC (see example [SLURM script](./optimizationRun.sh)). Users should specify three arguments:
+You can run Borg on your local machine from the command line or on a HPC (see example [bash](./runOptimization_Local.sh) or [SLURM](./runOptimization_HPC.sh) script). Users should specify three arguments:
 
 1. `${loc}` : the absolute path of the home directory (i.e., where the code repository is located)
 1. `${config}` : the relative path to the configuration file from the home directory
-1. `${S}` : the random seed to use in the optimization
+1. `${S}` : the random seeds to use in the optimization
 
 ```python
 python optimizationWrapper.py ${loc} ${config} ${S}
