@@ -32,19 +32,18 @@ This repository makes a **key assumption** that a control policy is made up of t
 ### Configuration File
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
-<details closed>
-<summary> Click to Expand </summary>
-
-#### Experimental Design
-These parameters specify the input files and functions used to guide policy simulation. Each variable should be a `str`.
+<!-- <details closed>
+<summary> Click to Expand </summary> -->
 
 <details closed>
-
 <summary><span><code>[experimentalDesign]</code></span></summary>
-
 <br>
 
+These parameters specify the input files and functions used to guide policy simulation. Each variable should be a `str`.
+
 ``` toml
+[experimentalDesign]
+
 # file name of the release function (without .py extension)
 releaseFunction = "ruleCurve" # type:str
 
