@@ -32,9 +32,6 @@ This repository makes a **key assumption** that a control policy is made up of t
 ### Configuration File
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
-<!-- <details closed>
-<summary> Click to Expand </summary> -->
-
 <details closed>
 <summary><span><code>[experimentalDesign]</code></span></summary>
 <br>
@@ -65,16 +62,15 @@ inputFile = "1900_2020/12month_sqAR" # type:str
 
 </details>
 
-#### Optimization Parameters
+<details closed>
+<summary><span><code>[optimizationParameters]</code></span></summary>
+<br>
 
 These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be an `int`.
 
-<details closed>
-<summary><span><code>[optimizationParameters]</code></span></summary>
-
-<br>
-
 ``` toml
+[optimizationParameters]
+
 # number of decision variables to optimize
 numDV = 10 # type: int
 
@@ -96,16 +92,15 @@ metFreq = 100 # type: int
 
 </details>
 
-#### Decision Variables
+<details closed>
+<summary><span><code>[decisionVariables]</code></span></summary>
+<br>
 
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
-<details closed>
-<summary><span><code>[decisionVariables]</code></span></summary>
-
-<br>
-
 ``` toml
+[decisionVariables]
+
 # list of decision variables names - list of `str` of length of numDV
 dvName = []
 
@@ -124,32 +119,30 @@ normalizedRange = [int, int]
 
 </details>
 
-#### Release Function
+<details closed>
+<summary><span><code>[releaseFunction]</code></span></summary>
+<br>
 
 This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
 
-<details closed>
-<summary><span><code>[releaseFunction]</code></span></summary>
-
-<br>
-
 ``` toml
+[releaseFunction]
+
 releaseFunctionVariable1 = ""
 releaseFunctionVariable2 = ""
 ```
 
 </details>
 
-#### Performance Indicators
+<details closed>
+<summary><span><code>[performanceIndicators]</code></span></summary>
+<br>
 
 These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
 
-<details closed>
-<summary><span><code>[performanceIndicators]</code></span></summary>
-
-<br>
-
 ``` toml
+[performanceIndicators]
+
 # file name of the objective function
 objectiveFunction = "" # type: str
  
