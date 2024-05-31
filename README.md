@@ -35,12 +35,12 @@ This repository makes a **key assumption** that a control policy is made up of t
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
 <details closed>
-<summary>More Information</summary>
+<summary> Click to Expand </summary>
 
 #### Experimental Design
 These parameters specify the input files and functions used to guide policy simulation. Each variable should be a `str`.
 
- <details closed>
+<details closed>
 
 <summary><span><code>[experimentalDesign]</code></span></summary>
 
@@ -72,9 +72,12 @@ inputFile = "1900_2020/12month_sqAR" # type:str
 
 These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be an `int`.
 
-``` toml
-[optimizationParameters]
+<details closed>
+<summary><span><code>[optimizationParameters]</code></span></summary>
 
+<br>
+
+``` toml
 # number of decision variables to optimize
 numDV = 10 # type: int
 
@@ -94,20 +97,25 @@ popSize = 100 # type: int
 metFreq = 100 # type: int
 ```
 
+</details>
+
 #### Decision Variables
 
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
-``` toml
-[decisionVariables]
+<details closed>
+<summary><span><code>[decisionVariables]</code></span></summary>
 
-# list of decision variables names - list of `strings` of length of numDV
+<br>
+
+``` toml
+# list of decision variables names - list of `str` of length of numDV
 dvName = []
 
-# list of lower bounds of decision variable ranges - list of `floats` of length of numDV
+# list of lower bounds of decision variable ranges - list of `float` of length of numDV
 lowerBounds = []
 
-# list of upper bounds of decision variable ranges - list of `floats` of length of numDV
+# list of upper bounds of decision variable ranges - list of `float` of length of numDV
 upperBounds = []
 
 # whether the decision variables are normalized before input to the simulation model ["True" or "False"]
@@ -117,38 +125,51 @@ normalized = ""
 normalizedRange = [int, int]
 ```
 
+</details>
+
 #### Release Function
 
 This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
 
+<details closed>
+<summary><span><code>[releaseFunction]</code></span></summary>
+
+<br>
+
 ``` toml
-[releaseFunction]
 releaseFunctionVariable1 = ""
 releaseFunctionVariable2 = ""
 ```
+
+</details>
 
 #### Performance Indicators
 
 These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
 
+<details closed>
+<summary><span><code>[performanceIndicators]</code></span></summary>
+
+<br>
+
 ``` toml
-[performanceIndicators]
+# file name of the objective function
+objectiveFunction = "" # type: str
+ 
+# aggregate metric to return to optimization algorithm
+metricWeighting = "" # type: str
 
-# file name of the objective function - string
-objectiveFunction = ""
-
-# aggregate metric to return to optimization algorithm - string
-metricWeighting = ""
-
-# list of performance indicator names - list of strings of length numObj
+# list of performance indicator names - list of `str` of length numObj
 piName = []
 
-# list of thresholds of *meaningful* improvements/reductions in performance for each obejctive - list of floats of length numObj
+# list of thresholds of *meaningful* improvements/reductions in performance for each obejctive - list of `float` of length numObj
 epsilonValue = []
 
 # list of the direction of improvement for each objective - list of "min" or "max" of length numObj
 direction = []
 ```
+
+</details>
 
 </details>
 
@@ -160,7 +181,7 @@ direction = []
 Input hydrologic files are provided for the historic supply data from 1900 - 2020 (`input/historic/hydro`). The following are required inputs to simulate a hydrologic time series:
 
 <details closed>
-<summary>More Information</summary>
+<summary>Click to Expand</summary>
 
 | Variable Name | Description |
 | --- | --- |
@@ -223,7 +244,8 @@ Input hydrologic files are provided for the historic supply data from 1900 - 202
 Release function scripts should contain functions: `formatDecisionVariables` to format decision variables, `getReleaseFunctionInputs` to extract the release function inputs from the dictionary of input data, and `releaseFunction` to prescribe a preliminary flow based on the inputs. Each function's inputs and outputs are described below.
 
 <details closed>
-<summary>More Information</summary>
+<summary><code>formatDecisionVariables()</code></summary>
+<br>
 
 ```python
 # format raw decision variables from optimization algorithm
@@ -241,8 +263,13 @@ def formatDecisionVariables(vars, **args):
     return pars
 ```
 
-```python
+</details>
 
+<details closed>
+<summary><code>getReleaseFunctionInputs()</code></summary>
+<br>
+
+```python
 # extracts timestep inputs for `releaseFunction`
 def getReleaseFunctionInputs(data, t, **args):
 
@@ -262,8 +289,13 @@ def getReleaseFunctionInputs(data, t, **args):
 
 ```
 
-```python
+</details>
 
+<details closed>
+<summary><code>releaseFunction()</code></summary>
+<br>
+
+```python
 # takes in output from formatDecisionVariables and getInputs, outputs release and flow regime
 def releaseFunction(x, pars, **args):
 
@@ -301,7 +333,8 @@ Examples for the Plan 2014 rule curve and the ANN policy appoximator release fun
 Flow limit function scripts should contain functions: `getPlanLimitsInputs` to extract the limit function inputs from the dictionary of input data and `planLimits` to check the preliminary flow against the flow limits and modify if needed. Each function's inputs and outputs are described below.
 
 <details closed>
-<summary>More Information</summary>
+<summary><code>getPlanLimitsInputs()</code></summary>
+<br>
 
 ```python
 # extracts timestep inputs for `planLimits`
@@ -321,6 +354,12 @@ def getPlanLimitsInputs(data, t):
 
     return x
 ```
+
+</details>
+
+<details closed>
+<summary><code>planLimits()</code></summary>
+<br>
 
 ```python
 # function to check (and modify) preliminary flow from release function 
