@@ -42,13 +42,9 @@ These parameters specify the input files and functions used to guide policy simu
 
  <details closed>
 
-<summary>
+<summary><span><code>[experimentalDesign]</code></span></summary>
 
-``` toml
-[experimentalDesign]
-```
-
-</summary>
+<br>
 
 ``` toml
 # file name of the release function (without .py extension)
