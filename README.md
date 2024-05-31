@@ -37,14 +37,16 @@ The optimization requires several hyperparameters, decision variables, and simul
 <details closed>
 <summary>More Info</summary>
 
-<details closed>
-<summary><h4>Experimental Design</h3></summary>
+<!-- <details closed>
+<summary><h4>Experimental Design</h3></summary> -->
 
-<!-- #### Experimental Design -->
+#### Experimental Design
 These parameters specify the input files and functions used to guide policy simulation. Each variable should be type `string`.
 
+<details closed>
+<summary><pre>[experimentalDesign]</pre></summary>
+
 ``` toml
-[experimentalDesign]
 
 # file name of the release function (without .py extension)
 releaseFunction = ""
@@ -66,6 +68,8 @@ inputFile = ""
 ```
 
 </details>
+
+<!-- </details> -->
 
 <details closed>
 <summary><h4>Optimization Parameters</h3></summary>
