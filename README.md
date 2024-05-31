@@ -15,8 +15,6 @@ There are two major components to the workflow in this repository: the **[simula
 
 *Disclaimer: While the Bv7 rule curve and flow limit functions have been verified using the [Great Lakes Regulation and Routing Model](https://github.com/cc-hydrosub/GLRRM-Ontario), this repository is **not** intended to simulate official Plan 2014 prescribed outflows and simulate the resulting water levels.*
 
-<br>
-
 ## Simulation-Optimization
 
 There are seven major components required to simulate and optimize alternative control policies, which are described in more detail below:
@@ -400,7 +398,8 @@ Examples for the Bv7 or Phase 2 updated Bv7 flow limit functions can found [here
 Routing function scripts should contain functions: `getStLawrenceRoutingInputs` to extract the routing function inputs from the dictionary of input data and `stLawrenceRouting` to route the outflow through the system and determine water levels along Lake Ontario and the St. Lawrence River. Each function's inputs and outputs are described below.
 
 <details closed>
-<summary>More Information</summary>
+<summary><code>getStLawrenceRoutingInputs()</code></summary>
+<br>
 
 ```python
 # extracts timestep inputs for `stLawrenceRouting`
@@ -420,6 +419,12 @@ def getStLawrenceRoutingInputs(data, t):
 
     return x
 ```
+
+</details>
+
+<details closed>
+<summary><code>stLawrenceRouting()</code></summary>
+<br>
 
 ```python
 # routes final outflow through system to calculate levels/flows along the St. Lawrence River
