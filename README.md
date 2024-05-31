@@ -44,7 +44,7 @@ The optimization requires several hyperparameters, decision variables, and simul
 These parameters specify the input files and functions used to guide policy simulation. Each variable should be type `string`.
 
 <details closed>
-<summary><pre>[experimentalDesign]</pre></summary>
+<summary><span><pre>[experimentalDesign]</pre></span></summary>
 
 ``` toml
 
