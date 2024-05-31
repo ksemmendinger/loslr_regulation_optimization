@@ -69,7 +69,6 @@ inputFile = ""
 <details closed>
 <summary><h4>Optimization Parameters</h3></summary>
 
-<!-- #### Optimization Parameters -->
 These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be type `int`.
 
 ``` toml
@@ -99,7 +98,6 @@ metFreq = int
 <details closed>
 <summary><h4>Decision Variables</h3></summary>
 
-<!-- #### Decision Variables -->
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
 ``` toml
@@ -126,7 +124,6 @@ normalizedRange = [int, int]
 <details closed>
 <summary><h4>Release Function</h3></summary>
 
-<!-- #### Release Function -->
 This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
 
 ``` toml
@@ -140,7 +137,6 @@ releaseFunctionVariable2 = ""
 <details closed>
 <summary><h4>Performance Indicators</h3></summary>
 
-<!-- #### Performance Indicators -->
 These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
 
 ``` toml
@@ -166,10 +162,13 @@ direction = []
 
 </details>
 
-### Optimization Algorithm
-[]
+<details closed>
+<summary><h3>Optimization Algorithm</h3></summary>
+[Insert MOEA Info Here]
+</details>
 
-### Input Data
+<details closed>
+<summary><h3>Input Data</h3></summary>
 
 Input hydrologic files are provided for the historic supply data from 1900 - 2020 (`input/historic/hydro`). The following are required inputs to simulate a hydrologic time series:
     
@@ -227,7 +226,10 @@ Input hydrologic files are provided for the historic supply data from 1900 - 202
 | slonFlow_QM3 | Third (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
 | slonFlow_QM4 | Fourth (of four) quarter-month forecast of Lac St. Louis - Lake Ontario flows [abstraction of Ottawa River flows] from short-term forecast |
 
-### Release Function
+</details>
+
+<details closed>
+<summary><h3>Release Function</h3></summary>
 
 Release function scripts should contain functions: `formatDecisionVariables` to format decision variables, `getReleaseFunctionInputs` to extract the release function inputs from the dictionary of input data, and `releaseFunction` to prescribe a preliminary flow based on the inputs. Each function's inputs and outputs are described below.
 
@@ -300,7 +302,10 @@ def releaseFunction(x, pars, **args):
 
 Examples for the Plan 2014 rule curve and the ANN policy appoximator release functions can found [here](functions/release). A blank template of a release function can be found [here](functions/release/template.py).
 
-### Flow Limits
+</details>
+
+<details closed>
+<summary><h3>Flow Limits</h3></summary>
 
 Flow limit function scripts should contain functions: `getPlanLimitsInputs` to extract the limit function inputs from the dictionary of input data and `planLimits` to check the preliminary flow against the flow limits and modify if needed. Each function's inputs and outputs are described below.
 
@@ -355,8 +360,10 @@ def planLimits(
 
 Examples for the Bv7 or Phase 2 updated Bv7 flow limit functions can found [here](functions/limits). A blank template of a flow limit function can be found [here](functions/limits/template.py).
 
+</details>
 
-### Routing Scheme
+<details closed>
+<summary><h3>Routing Scheme</h3></summary>
 
 Routing function scripts should contain functions: `getStLawrenceRoutingInputs` to extract the routing function inputs from the dictionary of input data and `stLawrenceRouting` to route the outflow through the system and determine water levels along Lake Ontario and the St. Lawrence River. Each function's inputs and outputs are described below.
 
@@ -425,9 +432,14 @@ def stLawrenceRouting(ontLevel, ontFlow, x):
 
 Examples for the routing function using SLON flows can found [here](functions/routing/stlaw.py). A blank template of a routing function can be found [here](functions/routing/template.py).
 
-### Objective Functions
+</details>
+
+<details closed>
+<summary><h3>Objective Functions</h3></summary>
 
 Objective functions are simulated over the user-specified time period. Each objective is aggregated by the net annual average value, and that metric is returned to Borg to drive the optimization. More information on the objective function formulations and required inputs can be found [here](objectiveFunctions/).
+
+</details>
 
 ## Data Visualization and Post Analysis
 
