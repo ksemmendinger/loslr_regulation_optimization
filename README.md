@@ -19,18 +19,23 @@ There are two major components to the workflow in this repository: the **[simula
 
 ## Simulation-Optimization
 
-There are 6 major components to simulaitng and optimizing alternative control policies:
+There are seven major components required to simulate and optimize alternative control policies, which are described in more detail below:
 
 1. [Configuration File](#configuration-file)
-1. [Input Data](#input-data)
+1. [Optimization Algorithm](#optimization-algorithm)
+1. [Input Data File](#input-data)
 1. [Release Function](#release-function)
-1. [Flow Limits](#flow-limits)
-1. [Routing Scheme](#routing-scheme)
+1. [Flow Limit Function](#flow-limits)
+1. [Routing Function](#routing-scheme)
 1. [Objective Functions](#objective-functions)
 
-This repository makes a major assumption that a control policy is made up of 2 components: a release function and flow limits (or operational adjustments). The release function calculates a preliminary flow, which is then checked against a series of flow limits and modified if the preliminary flow falls outside of those flow limits. Flow limits are a major component of the Plan 2014 control policy, and the Bv7 ruleset is included in this repository. This repository does not contain code that simualtes Board deviations decisions.
+This repository makes a **key assumption** that a control policy is made up of two modules: a ***release function*** and ***flow limits*** (or operational adjustments). The release function calculates a preliminary flow, which is then checked against a series of flow limits and modified if the preliminary flow falls outside of those flow limits. Flow limits are a major component of flow regulation in the Plan 2014 control policy (e.g. I-limit, L-limit, F-limit). See Annex B, Section B2 in the [Plan 2014 Compendium Report](resources/Plan2014_CompendiumReport.pdf) for more details. The Bv7 ruleset is included in this repository; however, this repository does not contain code to simulate Board deviations decisions under the [H14 criteria](https://www.ijc.org/en/loslrb/watershed/faq/4#:~:text=Criterion%20H14%20allows%20for%20major,water%20supplies%20to%20Lake%20Ontario.).
 
-### Configuration File
+<details closed>
+<summary><h3>Configuration File</h3></summary>
+<br>
+
+<!-- ### Configuration File -->
 
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
@@ -84,7 +89,7 @@ popSize = int
 metFreq = int
 ```
 
-#### Optimization Parameters
+#### Decision Variables
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
 ``` toml
@@ -136,6 +141,10 @@ epsilonValue = []
 # list of the direction of improvement for each objective - list of "min" or "max" of length numObj
 direction = []
 ```
+</details>
+
+### Optimization Algorithm
+[]
 
 ### Input Data
 
