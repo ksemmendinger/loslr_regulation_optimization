@@ -33,13 +33,13 @@ This repository makes a **key assumption** that a control policy is made up of t
 
 <details closed>
 <summary><h3>Configuration File</h3></summary>
-<br>
-
-<!-- ### Configuration File -->
 
 The optimization requires several hyperparameters, decision variables, and simulation modules. These fields are specified in a user-generated configuration file. Configuration files are written using the [toml](https://toml.io/en/) file format. A template and examples of a configuration file can be found [here](config/). The variables that must be specified in a configuration file are described below.
 
-#### Experimental Design
+<details closed>
+<summary><h4>Experimental Design</h3></summary>
+
+<!-- #### Experimental Design -->
 These parameters specify the input files and functions used to guide policy simulation. Each variable should be type `string`.
 
 ``` toml
@@ -64,7 +64,12 @@ trace = ""
 inputFile = ""
 ```
 
-#### Optimization Parameters
+</details>
+
+<details closed>
+<summary><h4>Optimization Parameters</h3></summary>
+
+<!-- #### Optimization Parameters -->
 These are parameters needed to run the many-objective evolutionary algorithm, Borg. Each variable should be type `int`.
 
 ``` toml
@@ -89,7 +94,12 @@ popSize = int
 metFreq = int
 ```
 
-#### Decision Variables
+</details>
+
+<details closed>
+<summary><h4>Decision Variables</h3></summary>
+
+<!-- #### Decision Variables -->
 These parameters specify information about the decision varibles. Each variable type is specified below.
 
 ``` toml
@@ -111,7 +121,12 @@ normalized = ""
 normalizedRange = [int, int]
 ```
 
-#### Release Function
+</details>
+
+<details closed>
+<summary><h4>Release Function</h3></summary>
+
+<!-- #### Release Function -->
 This sections contains specific inputs needed for the user specified release function. These inputs are completely dependent on the release function specified in experimentalDesign.
 
 ``` toml
@@ -120,7 +135,12 @@ releaseFunctionVariable1 = ""
 releaseFunctionVariable2 = ""
 ```
 
-#### Performance Indicators
+</details>
+
+<details closed>
+<summary><h4>Performance Indicators</h3></summary>
+
+<!-- #### Performance Indicators -->
 These parameters specify information about the performance indicators (i.e. objective functions). Each variable type is specified below.
 
 ``` toml
@@ -141,6 +161,9 @@ epsilonValue = []
 # list of the direction of improvement for each objective - list of "min" or "max" of length numObj
 direction = []
 ```
+
+</details>
+
 </details>
 
 ### Optimization Algorithm
