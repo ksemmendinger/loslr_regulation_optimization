@@ -468,12 +468,26 @@ Users can add additional analysis scripts to the `output/` folder and call them 
 
 There are two scripts that drive the policy simulation and optimization: `optimizationWrapper.py` and `optimizationSimulation.py`. The `optimizationWrapper.py` script calls and interacts with the Borg MOEA. The wrapper script reads the user-generated [configuration file](configuration-file) and sets up the optimization experiment. `optimizationWrapper.py` then calls `optimizationSimulation.py` to simulate the time series of outflows, water levels, and system performance that result from the decision variables returned by Borg in each function evaluation.
 
-You can run Borg on your local machine from the command line or on a HPC (see example [bash](./runOptimization_Local.sh) or [SLURM](./runOptimization_HPC.sh) script). Users should specify three arguments:
-
-1. `${loc}` : the absolute path of the home directory (i.e., where the code repository is located)
-1. `${config}` : the relative path to the configuration file from the home directory
-1. `${S}` : the random seeds to use in the optimization
+You can run Borg on your local machine from the command line or on a HPC (see example [bash](./runOptimization_Local.sh) or [SLURM](./runOptimization_HPC.sh) script). Both scripts call the `optimizationWrapper.py` script, which requires three user-specified arguments:
 
 ```python
 python optimizationWrapper.py ${loc} ${config} ${S}
 ```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${config}` : the relative path to the configuration file from the home directory
+1. `${S}` : the random seed to use in the optimization
+
+To ensure convergence on the Pareto Frontier and avoid falling into local minima/maxima, it is advisable to run multiple seeds per experiment. The `runOptimization_Local.sh` and `runOptimization_HPC.sh` shell scripts are setup to take in the **number of seeds** to run per experiment rather than the **random seed**. To run the shell script locally (or submit a SLURM job on a HPC), users must specify three arguments:
+
+```
+./runOptimization_Local.sh ${loc} ${config} ${nseeds}
+```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${config}` : the relative path to the configuration file from the home directory
+1. `${nseeds}` : the random seed to use in the optimization
+
+<br>
+
+---
