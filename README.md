@@ -433,18 +433,23 @@ Objective functions are simulated over the user-specified time period. Each obje
 
 ### Dashboard
 
-Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command:
+Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command and specifying the following:
 
+```bash
+python output/postScripts/dataFormat.py ${loc} ${folderName} ${nseeds}
 ```
-python output/dashboard/dataRetrieval.py
-```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
+1. `${nseeds}` : the number of random seeds to use in the optimization
 
 You can then run the dashboard by navigating to the `dashboard/` directory, activating the conda environment, and launching r:
 
-```
-cd output/dashboard/
-r
-shiny::runApp()
+```bash
+conda activate r-shiny      # activate shiny specific conda environment
+cd dashboard/               # navigate to folder where dashboard script is stored
+r                           # launch r
+shiny::runApp()             # launch app
 ```
 
 More detail on running the dashboard is available [here](output/dashboard/README.md).
@@ -452,15 +457,13 @@ More detail on running the dashboard is available [here](output/dashboard/README
 ### Candidate Policy Selection
 Select from dashboard...
 
-### Policy Simulation
+### Policy Re-Simulation
 
 Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script.
 
 ### Secondary Analyses
 
-This repository contains code to calculate...
-
-Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
+This repository contains code to performa a time-varying sensitivity analysis on candidate policies. Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
 
 <br>
 
@@ -470,7 +473,7 @@ There are two scripts that drive the policy simulation and optimization: `optimi
 
 You can run Borg on your local machine from the command line or on a HPC (see example [bash](./runOptimization_Local.sh) or [SLURM](./runOptimization_HPC.sh) script). Both scripts call the `optimizationWrapper.py` script, which requires three user-specified arguments:
 
-```python
+```bash
 python optimizationWrapper.py ${loc} ${config} ${S}
 ```
 
@@ -480,13 +483,13 @@ python optimizationWrapper.py ${loc} ${config} ${S}
 
 To ensure convergence on the Pareto Frontier and avoid falling into local minima/maxima, it is advisable to run multiple seeds per experiment. The `runOptimization_Local.sh` and `runOptimization_HPC.sh` shell scripts are setup to take in the **number of seeds** to run per experiment rather than the **random seed**. To run the shell script locally (or submit a SLURM job on a HPC), users must specify three arguments:
 
-```
+```bash
 ./runOptimization_Local.sh ${loc} ${config} ${nseeds}
 ```
 
 1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
 1. `${config}` : the relative path to the configuration file from the home directory
-1. `${nseeds}` : the random seed to use in the optimization
+1. `${nseeds}` : the number of random seeds to use in the optimization
 
 <br>
 
