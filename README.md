@@ -2,7 +2,7 @@
 
 ### Background
 
-Outflows from Lake Ontario are regulated at the [Moses-Saunders Dam](https://www.google.com/maps/place/Moses-Saunders+Power+Dam,+Cornwall,+ON+K6J+5E3,+Canada/@45.0025651,-74.8008106,14z/data=!4m6!3m5!1s0x4ccc17a553817bf7:0x249b9c21d02310c4!8m2!3d45.0077955!4d-74.7923992!16s%2Fm%2F0j438n5?entry=ttu), which is located downstream on the St. Lawrence River near Cornwall, Ontario and Massena, New York. The Moses-Saunders Dam spans the border of the United States and Canada and is jointly managed by the two countries by the [International Lake Ontario - St. Lawrence River Board](https://ijc.org/en/loslrb), at the direction of the [Internation Joint Commission](https://ijc.org/en). The current flow regulation plan of the LOSLR system is [Plan 2014](./resources/Plan_2014_Report.pdf), which is the first control policy in the system to use forecasts to guide release decisions. **The repository establishes a framework to identify alternative forecast-informed reservoir operating (FIRO) policies using a simulation and optimization approach.**
+Outflows from Lake Ontario are regulated at the [Moses-Saunders Dam](https://www.google.com/maps/place/Moses-Saunders+Power+Dam,+Cornwall,+ON+K6J+5E3,+Canada/@45.0025651,-74.8008106,14z/data=!4m6!3m5!1s0x4ccc17a553817bf7:0x249b9c21d02310c4!8m2!3d45.0077955!4d-74.7923992!16s%2Fm%2F0j438n5?entry=ttu), which is located downstream on the St. Lawrence River near Cornwall, Ontario and Massena, New York. The Moses-Saunders Dam spans the border of the United States and Canada and is jointly managed by the two countries by the [International Lake Ontario - St. Lawrence River Board](https://ijc.org/en/loslrb), at the direction of the [Internation Joint Commission](https://ijc.org/en). The current flow regulation plan of the LOSLR system is [Plan 2014](./resources/Plan_2014_Report.pdf), which is the first control policy in the system to use forecasts to guide release decisions. **The repository contains a framework to identify alternative forecast-informed reservoir operating (FIRO) policies using a simulation and optimization approach.**
 
 ### Repository Overview
 
@@ -10,8 +10,9 @@ There are two major components to the workflow in this repository: the **[simula
 
 1. Optimize control policies
 1. Simulate plan prescribed outflows and water levels
-1. Assess policy performance for key system objectives
+1. Assess policy performance for system objectives
 1. Explore results in an interactive dashboard
+1. Perform a time-varying sensitivity analysis (and other analyses) on policy alternatives
 
 For more information on running the policy simulation and optimization framework, see [Getting Started](#getting-started).
 
