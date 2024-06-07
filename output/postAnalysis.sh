@@ -4,18 +4,26 @@ source ~/.bash_profile
 conda activate py-plan2014
 
 currentDir=$(pwd)
-nobjs=7
 
 loc="$1"
 folderName="$2"
 nseeds="$3"
+nobjs="$4"
 
-# -----------------------------------------------------------------------------
-# format data
-# -----------------------------------------------------------------------------
+# path where output data is stored
+moeaFileDirName="${loc}"/output/data
 
-echo "... formatting raw data ..."
-python postScripts/dataFormat.py ${loc} ${folderName} ${nseeds}
+# path to moeaFramework/ folder
+# NOTE: DO NOT store moeaFramework/ on Google Drive Desktop or Box Drive - the syncing will mess up results
+# moeaDir="/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization/moeaFramework"
+moeaDir="${loc}"/moeaFramework
+
+# # -----------------------------------------------------------------------------
+# # format data
+# # -----------------------------------------------------------------------------
+
+# echo "... formatting raw data ..."
+# python postScripts/dataFormat.py "${loc}" "${folderName}" "${nseeds}"
 
 # -----------------------------------------------------------------------------
 # MOEA performance
@@ -23,26 +31,36 @@ python postScripts/dataFormat.py ${loc} ${folderName} ${nseeds}
 
 echo "... calculating borg metrics ..."
 
-fileDirName="${currentDir}/data"
-cd /Users/kylasemmendinger/Desktop/moeaFramework
-./find_metrics.sh ${fileDirName} ${folderName} ${nseeds} ${nobjs}
+cd "${moeaDir}"
+./find_metrics.sh "${moeaFileDirName}" "${folderName}" "${nseeds}" "${nobjs}"
 
 echo "... making convergence plots ..."
-cd  ${currentDir}
-Rscript postScripts/convergencePlots.R ${loc} ${folderName} ${nseeds}
+echo cd  ${currentDir}
+echo Rscript postScripts/convergencePlots.R "${loc}" "${folderName}" "${nseeds}"
 
-# -----------------------------------------------------------------------------
-# policy simulation in glrrm
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
+# # policy simulation - time series and objective functions
+# # -----------------------------------------------------------------------------
 
-echo "... policy simulation ..."
-python postScripts/policySimulation.py ${loc} ${folderName}
+# echo "... policy simulation ..."
+# python postScripts/policySimulation.py "${loc}" "${folderName}" "historic" "1900_2020"
 
-echo "... formatting glrrm output ..."
-python postScripts/glrrmOutputFormat.py ${loc} ${folderName}
+# echo "... formatting glrrm output ..."
+# python postScripts/glrrmOutputFormat.py "${loc}" "${folderName}"
 
-echo "... pi simulation ..."
-python postScripts/piSimulation.py ${loc} ${folderName}
+
+# # -----------------------------------------------------------------------------
+# # policy simulation in glrrm
+# # -----------------------------------------------------------------------------
+
+# echo "... policy simulation ..."
+# python postScripts/policySimulation.py ${loc} ${folderName}
+
+# echo "... formatting glrrm output ..."
+# python postScripts/glrrmOutputFormat.py ${loc} ${folderName}
+
+# echo "... pi simulation ..."
+# python postScripts/piSimulation.py ${loc} ${folderName}
 
 
 # OLD 

@@ -426,22 +426,57 @@ Objective functions are simulated over the user-specified time period. Each obje
 
 ## Data Visualization and Post Analysis
 
+1. [Data Preparation](#data-preparation)
+1. [Formatting Raw Data](#formatting-raw-data)
+1. [MOEA Framework](#moea-framework)
 1. [Dashboard](#dashboard)
 1. [Candidate Policy Selection](#candidate-policy-selection)
 1. [Policy Simulation](#policy-simulation)
 1. [Secondary Analyses](#secondary-analyses)
 
-### Dashboard
+### Data Preparation
 
-Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command and specifying the following:
+The raw output from the Borg MOEA is stored in `output/data/**/raw`, where `**` is the folder of the experiment of interest. There will be a `pareto_front_S*.txt` and a `runtime_S*.txt` file for each seed the optimization ran. To visualize results in the dashboard, the raw data needs to be formatted and the MOEA diagnostics need to be run using the [MOEA Framework](http://moeaframework.org). There is a shell script provided to format the raw data and run the MOEA Framework, `output/dataPrep.sh`. Run the shell script from terminal and specify the following:
 
 ```bash
-python output/postScripts/dataFormat.py ${loc} ${folderName} ${nseeds}
+./dataPrep.sh ${loc} ${folderName} ${nseeds} ${nobjs}
 ```
 
 1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
 1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
 1. `${nseeds}` : the number of random seeds to use in the optimization
+1. `${nobjs}` : the number of objectives for which the optimization was run
+
+#### Formatting Raw Data
+
+To format the raw output for the dashboard and other post analyses, run the following command and specifying the following:
+
+```bash
+python output/postScripts/dataFormat.py ${loc} ${folderName} ${nseeds} 
+```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
+1. `${nseeds}` : the number of random seeds to use in the optimization
+
+The script will create and populate the `clean/` and `moeaFramework/` directories in `output/data/**`.
+
+#### MOEA Framework
+
+The `dataPrep.sh` script calls the `find_metrics.sh` script in the `moeaFramework/` directory. The `find_metrics.sh` script will calculate the hypervolume, generational distance, inverted generational distance, spacing, epsilon indicator, and maximum pareto front error for each of the seeds. Convergence plots are saved in the `output/data/**/moeaFramework/plots` directory.
+
+<!-- ```bash
+python output/postScripts/dataFormat.py ${loc} ${folderName} ${nseeds} 
+```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
+1. `${nseeds}` : the number of random seeds to use in the optimization -->
+
+### Dashboard
+
+Results from the optimization and simulation of candidate plans for objective functions and *a posteriori* performance indicators are displayed in an interactive dashboard (based in an R Shiny app). First, compile the results by running the following command and specifying the following:
+
 
 You can then run the dashboard by navigating to the `dashboard/` directory, activating the conda environment, and launching r:
 
