@@ -436,7 +436,7 @@ Objective functions are simulated over the user-specified time period. Each obje
 
 ### Data Preparation
 
-The raw output from the Borg MOEA is stored in `output/data/**/raw`, where `**` is the folder of the experiment of interest. There will be a `pareto_front_S*.txt` and a `runtime_S*.txt` file for each seed the optimization ran. To visualize results in the dashboard, the raw data needs to be formatted and the MOEA diagnostics need to be run using the [MOEA Framework](http://moeaframework.org). There is a shell script provided to format the raw data and run the MOEA Framework, `output/dataPrep.sh`. Run the shell script from terminal and specify the following:
+The raw output from the Borg MOEA is stored in `output/data/**/raw`, where `**` is the folder of the experiment of interest. There will be a `pareto_front_S*.txt` and a `runtime_S*.txt` file for each seed the optimization ran. To visualize results in the dashboard, the raw data needs to be formatted and the MOEA performance metrics need to be calculated using the [MOEA Framework](http://moeaframework.org). There is a [shell script](output/dataPrep.sh) provided to [format the raw data](output/postScripts/dataFormat.py) and [run the MOEA Framework](moeaFramework/find_metrics.sh). Run the `dataPrep.sh` script from terminal and specify the following:
 
 ```bash
 ./dataPrep.sh ${loc} ${folderName} ${nseeds} ${nobjs}
@@ -463,15 +463,18 @@ The script will create and populate the `clean/` and `moeaFramework/` directorie
 
 #### MOEA Framework
 
-The `dataPrep.sh` script calls the `find_metrics.sh` script in the `moeaFramework/` directory. The `find_metrics.sh` script will calculate the hypervolume, generational distance, inverted generational distance, spacing, epsilon indicator, and maximum pareto front error for each of the seeds. Convergence plots are saved in the `output/data/**/moeaFramework/plots` directory.
+To run the MOEA Framework, download the [demo application](http://moeaframework.org/downloads.html), and move the `.jar` file to the `moeaFramework/` directory. You may need to update the version number of the `.jar` called in the `find_metrics.sh` script:
 
-<!-- ```bash
-python output/postScripts/dataFormat.py ${loc} ${folderName} ${nseeds} 
+```bash
+# ensure the version number [2.12] matches your download or update `JAVA_ARGS` accordingly
+JAVA_ARGS="-cp MOEAFramework-2.12-Demo.jar"     
 ```
 
-1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
-1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
-1. `${nseeds}` : the number of random seeds to use in the optimization -->
+We recommend using the [`wfg2` method](doi.org/10.1109/TEVC.2010.2077298) to calculate the hypervolume metric. Follow the directions [here](https://github.com/MOEAFramework/Hypervolume?tab=readme-ov-file#wfg-setup) to compile the executable for the `wfg2` hypervolume calculation and move `wfg2` to the `moeaFramework/` directory. The `global.properties` file in the `moeaFramework/` directory tells the MOEA Framework to use the `wfg2` calculation for the hypervolume metric.
+
+**Once everything is compiled and setup, ensure there are four files in the `moeaFramework/` directory: `wfg2`, `MOEAFramework-#-Demo.jar`, `global.properties`, and `find_metrics.sh`.**
+
+The `dataPrep.sh` script calls the `find_metrics.sh` script in the `moeaFramework/` directory. The `find_metrics.sh` script will calculate the hypervolume, generational distance, inverted generational distance, spacing, epsilon indicator, and maximum pareto front error for each of the seeds. Convergence plots are saved in the `output/data/**/moeaFramework/plots` directory. 
 
 ### Dashboard
 

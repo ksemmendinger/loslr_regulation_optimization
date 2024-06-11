@@ -5,17 +5,15 @@ conda activate py-plan2014
 
 currentDir=$(pwd)
 
-loc="$1"
-folderName="$2"
-nseeds="$3"
-nobjs="$4"
+loc="$1"                # home directory for the optimization code
+folderName="$2"         # name of folder with results
+nseeds="$3"             # number of random seeds to run optimization
+nobjs="$4"              # number of objectives included in optimization
 
 # path where output data is stored
 moeaFileDirName="${loc}"/output/data
 
-# path to moeaFramework/ folder
-# NOTE: DO NOT store moeaFramework/ on Google Drive Desktop or Box Drive - the syncing will mess up results
-# moeaDir="/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization/moeaFramework"
+# path to `moeaFramework/` folder - NOTE: DO NOT store `moeaFramework/` on Google Drive Desktop or Box Drive, the syncing will freeze the code
 moeaDir="${loc}"/moeaFramework
 
 # -----------------------------------------------------------------------------
