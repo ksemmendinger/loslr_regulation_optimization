@@ -3,10 +3,8 @@ releaseFunction = "flowANN"   # release function script name
 septemberRule = "off"               # september rule: on, off
 limitType = "onlyPhysicalLimits"                   # flow limits script name
 stlawRouting = "stlaw"              # st. lawrence routing script name
-slonValues = "True"                 # slon vs ottawa river flows
-forecastLeadTime = "12month"        # forecast lead-time: 12month, 6month, 3month, 1month
-forecastSkill = "0"              # forecast skill: 12-month status quo AR(1) [sqAR], linear model [sqLM], perfect [0]
-trace = "1900_2020"                  # trace to simulate
+trace = "historic"                                  # folder name of the hydrologic trace that contains input data that is being optimized over
+inputFile = "1900_2020/12month_0"                # path and file name of the input data that is being optimized over
 
 [optimizationParameters]
 numDV = 91                      # number of decision variables

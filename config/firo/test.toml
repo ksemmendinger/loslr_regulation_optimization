@@ -1,18 +1,18 @@
 [experimentalDesign]
-releaseFunction = "flowANN"   # release function script name
+releaseFunction = "adjustmentANN"   # release function script name
 septemberRule = "off"               # september rule: on, off
-limitType = "onlyPhysicalLimits"                   # flow limits script name
+limitType = "Bv7"                   # flow limits script name
 stlawRouting = "stlaw"              # st. lawrence routing script name
 trace = "historic"                                  # folder name of the hydrologic trace that contains input data that is being optimized over
-inputFile = "1900_2020/6month_0"                # path and file name of the input data that is being optimized over
+inputFile = "1900_2020/12month_sqAR"                # path and file name of the input data that is being optimized over
 
 [optimizationParameters]
 numDV = 91                      # number of decision variables
 numObj = 7                      # number of objectives
 numCon = 0                      # number of constraints
-nfe = 75000                     # number of function evaluations
-popSize = 100                   # initial population size
-metFreq = 100                   # frequency of function evaluations to report metrics
+nfe = 10                     # number of function evaluations
+popSize = 1                   # initial population size
+metFreq = 1                   # frequency of function evaluations to report metrics
 
 [decisionVariables]
 dvName = [
