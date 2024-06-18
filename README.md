@@ -427,8 +427,8 @@ Objective functions are simulated over the user-specified time period. Each obje
 ## Data Visualization and Post Analysis
 
 1. [Data Preparation](#data-preparation)
-1. [Formatting Raw Data](#formatting-raw-data)
-1. [MOEA Framework](#moea-framework)
+    1. [Formatting Raw Data](#formatting-raw-data)
+    1. [MOEA Framework](#moea-framework)
 1. [Dashboard](#dashboard)
 1. [Candidate Policy Selection](#candidate-policy-selection)
 1. [Policy Simulation](#policy-simulation)
@@ -493,7 +493,8 @@ shiny::runApp()             # launch app
 More detail on running the dashboard is available [here](output/dashboard/README.md).
 
 ### Candidate Policy Selection
-Select from dashboard...
+
+Once you launch the dashboard, you can select experiments to load in and visualize.
 
 ### Policy Re-Simulation
 

@@ -9,14 +9,14 @@ from functools import partial
 from importlib import import_module
 
 args = sys.argv
-args = [
-    "",
-    # "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
-    "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
-    #     "config/glam/juneWorkshop.toml",
-    "config/firo/ar12month.toml",
-    "1",
-]
+# args = [
+#     "",
+#     # "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
+#     "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
+#     #     "config/glam/juneWorkshop.toml",
+#     "config/firo/ar12month.toml",
+#     "1",
+# ]
 
 # -----------------------------------------------------------------------------
 # set up experimental design from command line inputs
