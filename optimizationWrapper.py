@@ -14,7 +14,7 @@ args = sys.argv
 #     # "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation",
 #     "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
 #     #     "config/glam/juneWorkshop.toml",
-#     "config/firo/ar12month.toml",
+#     "config/test.toml",
 #     "1",
 # ]
 
@@ -68,7 +68,8 @@ releaseFunInputs = config["releaseFunction"]
 # get objective function parameters from config file
 epsilon = config["performanceIndicators"]["epsilonValue"]
 piWeighting = config["performanceIndicators"]["metricWeighting"]
-objectiveFunctionName = config["performanceIndicators"]["objectiveFunction"]
+objectiveFormulation = config["performanceIndicators"]["objectiveFormulation"]
+objectiveModelNames = config["performanceIndicators"]["objectiveModels"]
 
 # supply trace - set routing version to run with SLON or Ottawa River flows [historic, stochastic]
 # version = "historic"
@@ -110,8 +111,19 @@ stLawrenceRouting = import_module(
 if septemberRule != "off":
     septemberRule = import_module("functions.limits.septemberRule").septemberRule
 
-# import objective functions
-objectiveFunctions = import_module("objectiveFunctions." + objectiveFunctionName)
+# import objective function simulation script
+objectiveFunctions = import_module(
+    "objectiveFunctions." + objectiveFormulation + ".objectiveSimulation"
+)
+
+# import individual objecive function modules
+piModels = []
+for x in range(len(objectiveModelNames)):
+    tmpPI = objectiveModelNames[x]
+    tmp = import_module(
+        "objectiveFunctions." + objectiveFormulation + ".functions." + tmpPI
+    )
+    piModels.append(tmp)
 
 # -----------------------------------------------------------------------------
 # file pointers
@@ -174,6 +186,8 @@ borg = Borg(
         getStLawrenceRoutingInputs,
         stLawrenceRouting,
         objectiveFunctions,
+        piModels,
+        piWeighting,
     ),
 )
 

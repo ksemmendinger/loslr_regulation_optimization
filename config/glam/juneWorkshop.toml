@@ -58,8 +58,17 @@ inputVars = ["forNTS", "ontLevelBOQ"]
 # outputVars = ["rfFlow"]
 
 [performanceIndicators]
-objectiveFunction = "objectiveFunctions"
+objectiveFormulation = "legacyPIs"
 metricWeighting = 'netAnnualAverage'
+objectiveModels = [
+    "upstreamCoastalImpacts", 
+    "downstreamCoastalImpacts", 
+    "commercialNavigation", 
+    "hydropowerProduction", 
+    "meadowMarsh", 
+    "muskratLodgeViability", 
+    "recreationalBoating"
+]
 piName = [
     "Coastal Impacts: Upstream Buildings Impacted (#)",
     "Coastal Impacts: Downstream Buildings Impacted (#)",

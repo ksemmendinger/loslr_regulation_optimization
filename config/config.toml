@@ -42,8 +42,9 @@ outputVars = []
 outputRange = []
 
 [performanceIndicators]
-objectiveFunction = []                              # objective function script name
-# metricWeighting = ""
+objectiveFunction = ""                              # objective function script name
+metricWeighting = ""                                # weighing function
+objectiveModels = []                                # script names of PI models to run in `functions/`
 piName = []                                         # names of performance indicators
 epsilonValue = []                                   # epsilon values for objectives
 direction = []                                      # minimize or maximize values

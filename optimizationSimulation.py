@@ -311,6 +311,8 @@ def optimization(
     getStLawrenceRoutingInputs,
     stLawrenceRouting,
     objectiveFunctions,
+    piModels,
+    piWeighting,
     *vars
 ):
     # -----------------------------------------------------------------------------
@@ -379,21 +381,10 @@ def optimization(
     data = {x: data[x].values for x in data}
 
     # initialize output
-    nobjs = 7
-    objs = [0.0] * nobjs
-
-    # run models
-    (
-        objs[0],
-        objs[1],
-        objs[2],
-        objs[3],
-        objs[4],
-        objs[5],
-        objs[6],
-    ) = objectiveFunctions.objectiveSimulation(
+    objs = objectiveFunctions.objectiveSimulation(
         data,
-        output="netAnnualAverage",
+        piModels,
+        piWeighting,
     )
 
     endTimeObj = datetime.now()
