@@ -1,6 +1,39 @@
-# Objective Function Formulation
+# Objective Functions
 
-This folder contains data and code for the objective functions used to assess plan performance. The objective functions can be run in `optimization` or `simulation` mode. There are 7 objective functions used to measure policy performance.
+The `objectiveFunctions/` folder is structured to easily switch between objective function (i.e. performance indicators (PI)) formulations and models. Formulations are stored within named folders in the `objectiveFunctions/` directory. For example, objective functions based on the legacy PI model formulations are stored within the `objectiveFunctions/legacyPIs/` directory. Individual objective functions are stored in the `functions/` directory of the formulation folder. Non-hydrologic input data for the objective functions are stored in the `data/` directory of the formulation folder.
+
+Each objective function script has 3 major components:
+
+1. Reading in non-hydrologic input data (*if applicable*)
+2. Calculating the PI value at each time step
+3. Running the PI model for the full time series of water levels and flows
+
+
+```python
+# non-hydrologic input data or parameters for the PI model
+pars = pd.read_csv("non-hydrologic_inputs.csv")
+
+# calculates the impact at a given timestep
+def piModel(input_t, pars):
+
+  return pi_t
+
+# calls piModel() for the entire time series, data, returned from `simulation()`
+def runModel(data):
+
+  pi = []
+  for t in data:
+    input_t = data[t]
+    pi_t = piModel(input_t, pars)
+    pi.append(pi_t)
+
+  return pi
+
+```
+
+This folder contains data and code for the objective functions used to assess plan performance. Objective functions can be run in `optimization` or `simulation` mode. In **optimization** model, aggregate metrics for each objective function are used as the metric to represent overall policy performance. The default aggregate metric is the **net annual average**. In **simulation** mode, data frames of **time series** are returned for the quarter-monthly or annual performance values for the simulated hydrologic trace.
+
+There are 7 PI models included in the repository:
 
 1) [Upstream Flooding Impacts](#upstream-flooding-impacts)
 2) [Downstream Flooding Impacts](#downstream-flooding-impacts)
@@ -9,14 +42,14 @@ This folder contains data and code for the objective functions used to assess pl
 5) [Meadow Marsh Area](#meadow-marsh-area)
 6) [Muskrat Wintertime Lodge Viability](#muskrat-lodge-viability)
 7) [Recreational Boating Costs](#recreational-boating-costs)
-    
-In **optimization** mode (`optimizationSimulation.py`), the **net annual average** values for each objective function are used as the metric to represent overall policy performance. 
 
-In **simulation** mode (`output/postScripts/policySimulation.py`), data frames of **time series** are returned for the quarter-monthly or annual performance values for the simulated hydrologic trace.
+These models are primarily based on the legacy PI models used in the LOSLR Study (with some minor updates). The PIs are described in more detail [below](#legacy-pi-models).
 
 <br>
 
-### Upstream Flooding Impacts
+### Legacy PI Models
+
+#### Upstream Flooding Impacts
 
   - *Unit:* Number of homes flooded
   - *Timestep:* Quarter-monthly
@@ -34,9 +67,7 @@ The number of homes flooded at certain water level were obtained from the [Decis
   - Alexandria Bay: `alexbayCoastal`
   - Cardinal: `cardinalCoastal`
 
-<br>
-
-### Downstream Flooding Impacts
+#### Downstream Flooding Impacts
 
   - *Unit:* Number of homes flooded
   - *Timestep:* Quarter-monthly
@@ -57,9 +88,7 @@ The number of homes flooded at certain water level were obtained from the [Decis
   - Lac St. Pierre: `sorelCoastal`
   - Trois-Rivieres: `troisrivieresCoastal`
 
-<br>
-
-### Commercial Navigation Costs
+#### Commercial Navigation Costs
   - *Unit:* USD
   - *Timestep:* Quarter-monthly
   - *Location:* Lake Ontario, the Seaway (Upper St. Lawrence to Montreal), downstream of Montreal
@@ -76,9 +105,7 @@ Commercial navigation is split into three geographic regions: across Lake Ontari
   - St. Lawrence Seaway: `seawayCommercialNavigation`
   - Downstream of Montreal: `montrealCommercialNavigation`
 
-<br>
-
-### Hydropower Production
+#### Hydropower Production
   - *Unit:* USD
   - *Timestep:* Quarter-monthly
   - *Location:* Moses-Saunders Dam and Niagara Power Generation Station
@@ -96,10 +123,8 @@ Hydropower at the Moses-Saunders and Niagara Power Generation Station is generat
   - Peaking Value at Moses-Saunders: `peakingMosesSaundersValue`
   - OPG @ Niagara: `opgNiagaraEnergyValue`
   - NYPA @ Niagara: `nypaNiagaraEnergyValue`
-  
-<br>
 
-### Meadow Marsh Area
+#### Meadow Marsh Area
   - *Unit:* Hectares
   - *Timestep:* Annually
   - *Location:* Lake Ontario
@@ -114,9 +139,7 @@ Meadow marsh presence is calculated following the methodology outlined in [Wilco
   - Meadow Marsh Area: `mmArea`
   - Low Supply Indicator: `mmLowSupply`
 
-<br>
-
-### Muskrat Lodge Viability
+#### Muskrat Lodge Viability
   - *Unit:* Probability
   - *Timestep:* Annually
   - *Location:* Thousand Islands Region in the Upper St. Lawrence River (Alexandria Bay, NY)
@@ -130,9 +153,7 @@ Muskrat wintertime house density is used as a proxy for emergent marsh presence,
 
   - Muskrat Lodge Viability: `muskratProbLodgeViability`
 
-<br>
-
-### Recreational Boating Costs
+#### Recreational Boating Costs
   - *Unit:* USD
   - *Timestep:* Quarter-monthly
   - *Location:* Lake Ontario, Alexandria Bay (NY), Brockville (ON), Ogdensburg (NY), Long Sault (ON), Pointe-Claire (QC), Varennes (QC), Sorel (QC)
@@ -152,5 +173,3 @@ Recreational boating is a key driver of local tourism in the region. Cost estima
   - Pointe-Claire: `ptclaireRecBoating`
   - Varennes: `varennesRecBoating`
   - Sorel: `sorelRecBoating`
-  
-<br>

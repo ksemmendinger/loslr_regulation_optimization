@@ -10,7 +10,7 @@
 
 def objectiveSimulation(
     data,  # dataframe of simulated water levels and flows
-    piModels,  # pi models saved in list
+    piModels,  # list of pi modules loaded in `optimizationWrapper`
     output,  # simulation, netAnnualAverage, percentDiff
 ):
     piOutput = []

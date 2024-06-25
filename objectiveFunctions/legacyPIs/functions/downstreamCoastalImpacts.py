@@ -48,7 +48,7 @@ staticTroisRivieresImpacts = {
 }
 
 
-# returns the number of buildings impacted downstream
+# returns the number of buildings impacted downstream for a given time step
 def piModel(
     lerybeauharnoisLevel,
     ptclaireLevel,

@@ -380,7 +380,8 @@ def optimization(
     # convert data frame to dictionary for faster computation
     data = {x: data[x].values for x in data}
 
-    # initialize output
+    # run `objectiveSimulation` over time series output from simulation()
+    # returns list aggregated metrics of length, numObjs, to send back to Borg
     objs = objectiveFunctions.objectiveSimulation(
         data,
         piModels,

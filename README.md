@@ -2,7 +2,7 @@
 
 ### Background
 
-Outflows from Lake Ontario are regulated at the [Moses-Saunders Dam](https://www.google.com/maps/place/Moses-Saunders+Power+Dam,+Cornwall,+ON+K6J+5E3,+Canada/@45.0025651,-74.8008106,14z/data=!4m6!3m5!1s0x4ccc17a553817bf7:0x249b9c21d02310c4!8m2!3d45.0077955!4d-74.7923992!16s%2Fm%2F0j438n5?entry=ttu), which is located downstream on the St. Lawrence River near Cornwall, Ontario and Massena, New York. The Moses-Saunders Dam spans the border of the United States and Canada and is jointly managed by the two countries by the [International Lake Ontario - St. Lawrence River Board](https://ijc.org/en/loslrb), at the direction of the [Internation Joint Commission](https://ijc.org/en). The current flow regulation plan of the LOSLR system is [Plan 2014](./resources/Plan_2014_Report.pdf), which is the first control policy in the system to use forecasts to guide release decisions. **The repository contains a framework to identify alternative forecast-informed reservoir operating (FIRO) policies using a simulation and optimization approach.**
+Outflows from Lake Ontario are regulated at the [Moses-Saunders Dam](https://www.google.com/maps/place/Moses-Saunders+Power+Dam,+Cornwall,+ON+K6J+5E3,+Canada/@45.0025651,-74.8008106,14z/data=!4m6!3m5!1s0x4ccc17a553817bf7:0x249b9c21d02310c4!8m2!3d45.0077955!4d-74.7923992!16s%2Fm%2F0j438n5?entry=ttu), which is located downstream on the St. Lawrence River near Cornwall, Ontario and Massena, New York. The Moses-Saunders Dam spans the border of the United States and Canada and is jointly managed by the two countries by the [International Lake Ontario - St. Lawrence River Board](https://ijc.org/en/loslrb), at the direction of the [International Joint Commission](https://ijc.org/en). The current flow regulation plan of the LOSLR system is [Plan 2014](./resources/Plan_2014_Report.pdf), which is the first control policy in the system to use forecasts to guide release decisions. **The repository contains a framework to identify alternative forecast-informed reservoir operating (FIRO) policies using a simulation and optimization approach.**
 
 ### Repository Overview
 
@@ -154,11 +154,14 @@ These parameters specify information about the performance indicators (i.e. obje
 ``` toml
 [performanceIndicators]
 
-# file name of the objective function
+# file name of the objective function formulation to use. should correspond to a directory in `objectiveFunctions/`
 objectiveFunction = "" # type: str
  
-# aggregate metric to return to optimization algorithm
-metricWeighting = "" # type: str
+# aggregate metric to return to optimization algorithm. `str`
+metricWeighting = ""
+
+# list of the script names of each of the PI models to run. files should be in the in `objectiveFunctions/[formulation]/functions/` directory - list of `str` of length numObj
+objectiveModels = []
 
 # list of performance indicator names - list of `str` of length numObj
 piName = []
