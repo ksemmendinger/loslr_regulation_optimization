@@ -3,10 +3,9 @@ releaseFunction = "ruleCurve"
 septemberRule = "off"
 limitType = "Bv7"
 stlawRouting = "stlaw"
-slonValues = "True"
-forecastLeadTime = "12month"
-forecastSkill = "sqAR"
-trace = "1961_2020"
+trace = "historic"                                  # folder name of the hydrologic trace that contains input data that is being optimized over
+inputFile = "1961_2020/12month_sqAR"                # path and file name of the input data that is being optimized over
+
 
 [optimizationParameters]
 numDV = 9
@@ -29,6 +28,15 @@ inputVars = [ "forNTS", "ontLevelBOQ",]
 [performanceIndicators]
 objectiveFunction = "objectiveFunctions"
 metricWeighting = "netAnnualAverage"
+objectiveModels = [
+    "upstreamCoastalImpacts", 
+    "downstreamCoastalImpacts", 
+    "commercialNavigation", 
+    "hydropowerProduction", 
+    "meadowMarsh", 
+    "muskratLodgeViability", 
+    "recreationalBoating"
+]
 piName = [ "Coastal Impacts: Upstream Buildings Impacted (#)", "Coastal Impacts: Downstream Buildings Impacted (#)", "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)", "Hydropower: Moses-Saunders + Niagara Energy Value ($)", "Meadow Marsh: Area (ha)", "Muskrat Lodge Viability (%)", "Recreational Boating: Impact Costs ($)",]
 epsilonValue = [ 1650.0, 100.0, 1000000.0, 22500000.0, 500.0, 3.0, 900000.0,]
 direction = [ "min", "min", "min", "max", "max", "max", "min",]

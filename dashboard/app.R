@@ -5,9 +5,9 @@
 print("... setting up script ...")
 
 # set working directory
-# setwd("/Volumes/ky_backup/dps")
-setwd("/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation")
-# 
+setwd("/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization")
+# setwd("/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation")
+
 # # clean up
 # rm(list=ls())
 # gc()

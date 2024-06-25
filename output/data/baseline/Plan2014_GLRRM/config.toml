@@ -1,0 +1,122 @@
+[experimentalDesign]
+releaseFunction = "RC"
+limitType = "Bv7"
+septemberRule = "on"
+forecastLeadTime = "12month"
+forecastSkill = "sqAR"
+trace = "historic"
+
+[decisionVariables]
+dvName = [
+    "C1",
+    "addC1",
+    "C2",
+    "P1",
+    "P2",
+    "rcThreshold",
+    "wetDenominator",
+    "dryDenominator",
+    "adjLevel",
+    "adjFlow",
+    "lf50Conf",
+    "lf99Conf",
+    "lfDryThreshold",
+    "lfWetThreshold",
+]
+baselineValue = [
+    220.0,
+    40.0,
+    60.0,
+    0.9,
+    1.0,
+    7011.0,
+    1541.0,
+    1294.0,
+    74.60,
+    -20.0,
+    50.0,
+    139.0,
+    6859.0,
+    7237.0,
+]
+normalizedValue = [
+    0.22,
+    0.16,
+    0.2,
+    0.26666666666666666,
+    0.3333333333333333,
+    0.4317142857142857,
+    0.7703851925962981,
+    0.6468234117058529,
+    0.1999999999999981,
+    0.3,
+    0.2,
+    0.556,
+    0.3882857142857143,
+    0.4962857142857143,
+]
+lowerBounds = [
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.5,
+    5500.0,
+    1.0,
+    1.0,
+    74.0,
+    -50.0,
+    0.0,
+    0.0,
+    5500.0,
+    5500.0,
+]
+upperBounds = [
+    1000.0,
+    250.0,
+    300.0,
+    2.0,
+    2.0,
+    9000.0,
+    2000.0,
+    2000.0,
+    77.0,
+    50.0,
+    250.0,
+    250.0,
+    9000.0,
+    9000.0,
+]
+normalizedRange = [0, 1]
+
+[performanceIndicators]
+direction = ["min", "min", "min", "max", "max", "max", "min"]
+piName = [
+    "Coastal Impacts: Upstream Buildings Impacted (#)",
+    "Coastal Impacts: Downstream Buildings Impacted (#)",
+    "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
+    "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
+    "Meadow Marsh: Area (ha)",
+    "Muskrat Lodge Viability (%)",
+    "Recreational Boating: Impact Costs ($)",
+]
+tag = [
+    "upCoast",
+    "downCoast",
+    "comNav",
+    "hydPower",
+    "meaMarsh",
+    "muskPLV",
+    "recBoat",
+]
+abbrv = ["UC", "DC", "CN", "HP", "MM", "MLV", "RB"]
+satisficingCriteria = [0.0, 0.0, 0.0, -0.5, 0.0, 0.0, -20.0]
+baselineValue = [
+    56406.14130578513,
+    3596.685950413223,
+    195414877.03305784,
+    -2239260118.4060163,
+    -9844.27863928571,
+    -0.4154438016528926,
+    18958006.29504132,
+]
