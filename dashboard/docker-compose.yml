@@ -1,0 +1,26 @@
+services:
+  # To develop / debug the dashboard using docker, see the NOTE: sections below.
+  # NOTE: To start a terminal session connected to the dashboard container use:
+  # docker compose run --rm --service-ports dashboard
+  # If you are on an arm platform (e.g. mac M-series) you may need to run instead:
+  # DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose run --rm --service-ports dashboard
+  dashboard:
+    image: dashboard
+    container_name: dashboard
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    # NOTE: uncomment 'entrypoint: bash' and comment out the following
+    # 'entrypoint' for development / debugging.
+    # Use command in the uncommented entrypoint to start the rshiny server from bash.
+    # entrypoint: bash
+    entrypoint: Rscript -e 'library(shiny); runApp("app", host="0.0.0.0", port=8080)'
+    environment:
+      - working_directory=/data
+    volumes:
+      # NOTE: The ':ro' suffix mounts the directories in read-only mode.
+      # Remove the ':ro' suffix to modify local files in or out of the container for debugging or development purposes.
+      - "../:/data:ro"
+      - "./app.R:/app/app.R"
+    ports:
+      - "8080:8080"

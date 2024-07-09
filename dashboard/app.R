@@ -18,7 +18,10 @@ defaultPolicy <- "Plan2014_GLRRM"
 print("... setting up script ...")
 
 # set working directory
-setwd("/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization")
+default_working_directory="/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization"
+working_directory = Sys.getenv("working_directory", default_working_directory)[1]
+print(paste0("using working directory: ", working_directory))
+setwd(working_directory)
 # setwd("/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation")
 
 # # clean up
