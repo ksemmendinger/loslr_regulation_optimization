@@ -31,7 +31,7 @@ normalized = "False"                                # optimize normalized ("True
 normalizedRange = []
 
 [performanceIndicators]
-objectiveFunction = "legacyPIs"            # objective function script name
+objectiveFormulation = "legacyPIs"            # objective function script name
 metricWeighting = "netAnnualAverage"                # weighting function
 objectiveModels = [                                 # script names of PI models to run in `functions/`
     "upstreamCoastalImpacts", 
