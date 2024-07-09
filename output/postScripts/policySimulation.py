@@ -17,12 +17,13 @@ from importlib import import_module
 
 # set variables from command line input
 args = sys.argv
+
 # args = [
 #     "",
 #     "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
 #     "ruleCurve_Bv7_offSepRule_netAnnualAverage_12month_sqAR_9dv_7obj_1961_2020_75000nfe",
 #     "historic",
-#     "1900_2020",
+#     "1961_2020",
 #     # "12month_0",
 # ]
 
@@ -181,10 +182,10 @@ for p in range(npol):
         # startTimeObj = datetime.now()
 
         # filter out first year of spinup data from time series
-        data = outSim.loc[outSim["Year"] > min(outSim.Year), :].reset_index(drop=True)
+        outSim = outSim.loc[outSim["Year"] > min(outSim.Year), :].reset_index(drop=True)
 
         # convert data frame to dictionary for faster computation
-        data = {x: data[x].values for x in data}
+        data = {x: outSim[x].values for x in outSim}
 
         # run pi models over time series and return full simulation results
         (
@@ -214,7 +215,7 @@ for p in range(npol):
             + "/simulation/"
             + traceType
             + "/"
-            + inputTrace
+            + inputTrace.split("/")[0]
             + "/id"
             + str(pID)
         )

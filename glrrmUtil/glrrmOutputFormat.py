@@ -14,16 +14,20 @@ import pathlib
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation", "baseline/Bv7"]
+# args = [
+#     "",
+#     "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
+#     "baseline/Bv7_GLRRM",
+# ]
 
 # [1]: path to working directory
 os.chdir(args[1])
 
-# [2]: folder name of experiment
+# [2]: folder name of baseline policy
 expName = args[2]
 
 # match up for GLRRM and optimization variable names
-names = pd.read_csv("output/postScripts/glrrmOutputMatchup.csv")
+names = pd.read_csv("glrrmUtil/glrrmOutputMatchup.csv")
 
 # -----------------------------------------------------------------------------
 # format GLRRM output
@@ -31,10 +35,12 @@ names = pd.read_csv("output/postScripts/glrrmOutputMatchup.csv")
 
 # get filelist
 path = "output/data/" + expName
-filelist = [f for f in glob(path + "/**", recursive=True) if "glrrmOutput.csv" in f]
+filelist = [
+    f for f in glob(path + "/simulation/**", recursive=True) if "glrrmOutput.csv" in f
+]
 
 for i in range(len(filelist)):
-    print(pathlib.PurePath(filelist[i]).parent.name)
+    # print(pathlib.PurePath(filelist[i]).parent.name)
 
     # load glrrm output
     fn = filelist[i]
@@ -112,5 +118,5 @@ for i in range(len(filelist)):
     # -----------------------------------------------------------------------------
 
     # save output
-    outputFile = os.path.dirname(fn) + "/formattedOutput.csv"
+    outputFile = os.path.dirname(fn) + "/glrrmOutputFormatted.csv"
     data.to_csv(outputFile, sep=",", index=False)

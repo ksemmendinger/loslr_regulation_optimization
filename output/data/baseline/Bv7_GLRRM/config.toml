@@ -1,0 +1,114 @@
+[experimentalDesign]
+releaseFunction = "ruleCurve"
+limitType = "Bv7"
+septemberRule = "on"
+forecastLeadTime = "12month"
+forecastSkill = "sqAR"
+trace = "historic"
+
+[decisionVariables]
+dvName = [
+    "C1",
+    "addC1",
+    "C2",
+    "P1",
+    "P2",
+    "rcThreshold",
+    "wetDenominator",
+    "dryDenominator",
+    "adjLevel",
+    "adjFlow",
+    "lf50Conf",
+    "lf99Conf",
+    "lfDryThreshold",
+    "lfWetThreshold",
+]
+baselineValue = [
+    220.0,
+    40.0,
+    60.0,
+    0.9,
+    1.0,
+    7011.0,
+    1541.0,
+    1294.0,
+    74.60,
+    -20.0,
+    50.0,
+    139.0,
+    6859.0,
+    7237.0,
+]
+normalizedValue = [
+    0.22,
+    0.16,
+    0.2,
+    0.26666666666666666,
+    0.3333333333333333,
+    0.4317142857142857,
+    0.7703851925962981,
+    0.6468234117058529,
+    0.1999999999999981,
+    0.3,
+    0.2,
+    0.556,
+    0.3882857142857143,
+    0.4962857142857143,
+]
+normalizedRange = [0, 1]
+
+[performanceIndicators]
+objectiveFormulation = "legacyPIs"
+metricWeighting = "netAnnualAverage"
+objectiveModels = [
+    "upstreamCoastalImpacts", 
+    "downstreamCoastalImpacts", 
+    "commercialNavigation", 
+    "hydropowerProduction", 
+    "meadowMarsh", 
+    "muskratLodgeViability", 
+    "recreationalBoating"
+]
+direction = ["min", "min", "min", "max", "max", "max", "min"]
+piName = [
+    "Coastal Impacts: Upstream Buildings Impacted (#)",
+    "Coastal Impacts: Downstream Buildings Impacted (#)",
+    "Commercial Navigation: Ontario + Seaway + Montreal Transportation Costs ($)",
+    "Hydropower: Moses-Saunders + Niagara Energy Value ($)",
+    "Meadow Marsh: Area (ha)",
+    "Muskrat Lodge Viability (%)",
+    "Recreational Boating: Impact Costs ($)",
+]
+tag = [
+    "upCoast",
+    "downCoast",
+    "comNav",
+    "hydPower",
+    "meaMarsh",
+    "muskPLV",
+    "recBoat",
+]
+abbrv = ["UC", "DC", "CN", "HP", "MM", "MLV", "RB"]
+satisficingCriteria = [0.0, 0.0, 0.0, -0.5, 0.0, 0.0, -20.0]
+
+# # 1900 - 2020
+# baselineValue = [
+#     56376.68861983473,
+#  3596.9173553719006,
+#  196650605.38842976,
+#  -2239249139.862025,
+#  -9844.27863928571,
+#  -0.4154438016528926,
+#  18964567.04322314]
+
+# 1961 - 2020
+baselineValue = [
+67898.17191666666,
+ 3946.483333333333,
+ 197660787.18333334,
+ -2359054590.139787,
+ -10403.06732222222,
+ -0.35739666666666664,
+ 15891210.853333332
+]
+

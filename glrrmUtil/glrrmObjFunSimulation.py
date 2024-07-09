@@ -1,11 +1,14 @@
 # import libraries
 import os
 import sys
+import toml
 import pathlib
 import numpy as np
 import pandas as pd
 from glob import glob
 from datetime import datetime
+from importlib import import_module
+
 
 # from pathlib import Path
 # from os.path import exists
@@ -16,7 +19,11 @@ from datetime import datetime
 
 # set variables from command line input
 args = sys.argv
-# args = ["", "/Users/kylasemmendinger/Library/CloudStorage/GoogleDrive-kylasr@umich.edu/My Drive/loslrRegulation", "baseline/Bv7"]
+# args = [
+#     "",
+#     "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
+#     "baseline/Bv7_GLRRM",
+# ]
 
 # [1]: path to working directory
 os.chdir(args[1])
@@ -24,9 +31,29 @@ os.chdir(args[1])
 # [2]: folder name of experiment
 folderName = args[2]
 
-# import objective functions
+# read config for objective function modules
+configFile = "output/data/" + folderName + "/config.toml"
+with open(configFile, "r") as f:
+    config = toml.load(f)
+
+# load objective function modules
+objectiveFormulation = config["performanceIndicators"]["objectiveFormulation"]
+objectiveModelNames = config["performanceIndicators"]["objectiveModels"]
+
 sys.path.append(".")
-import objectiveFunctions.objectiveFunctions as objectiveFunctions
+# import objective function simulation script
+objectiveFunctions = import_module(
+    "objectiveFunctions." + objectiveFormulation + ".objectiveSimulation"
+)
+
+# import individual objecive function modules
+piModels = []
+for x in range(len(objectiveModelNames)):
+    tmpPI = objectiveModelNames[x]
+    tmp = import_module(
+        "objectiveFunctions." + objectiveFormulation + ".functions." + tmpPI
+    )
+    piModels.append(tmp)
 
 # -----------------------------------------------------------------------------
 # run GLRRM output through PI models
@@ -38,7 +65,11 @@ import objectiveFunctions.objectiveFunctions as objectiveFunctions
 #     f for f in glob(path + "/*/formattedOutput**", recursive=True) if os.path.isfile(f)
 # ]
 path = "output/data/" + folderName
-filelist = [f for f in glob(path + "/**", recursive=True) if "sim.csv" in f]
+filelist = [
+    f
+    for f in glob(path + "/simulation/**", recursive=True)
+    if "glrrmOutputFormatted.csv" in f
+]
 
 for i in range(len(filelist)):
     startTimeObj = datetime.now()
@@ -46,7 +77,7 @@ for i in range(len(filelist)):
 
     # load glrrm output
     fn = filelist[i]
-    data = pd.read_csv(fn, sep=",")
+    dataTS = pd.read_csv(fn, sep=",")
     # data = data.iloc[:, 1:85]
 
     # format output
@@ -55,19 +86,24 @@ for i in range(len(filelist)):
     #     list(range(dataTS.shape[0] - 48, dataTS.shape[0]))
     # ).reset_index(drop=True)
     # dataTS = {x: dataTS[x].values for x in dataTS}
-    dataTS = {x: data[x].values for x in data}
 
+    # convert data frame to dictionary for faster computation
+    data = {x: dataTS[x].values for x in dataTS}
+
+    # run pi models over time series and return full simulation results
     (
-        coastal,
+        upcoast,
+        downcoast,
         commNav,
         hydro,
         mMarsh,
         muskrat,
         recBoat,
-    ) = objectiveFunctions.objectiveSimulation(dataTS, "simulation")
+    ) = objectiveFunctions.objectiveSimulation(data, piModels, "simulation")
 
     output = (
-        data.merge(coastal, on=["Sim", "Year", "Month", "QM"], how="left")
+        dataTS.merge(upcoast, on=["Sim", "Year", "Month", "QM"], how="left")
+        .merge(downcoast, on=["Sim", "Year", "Month", "QM"], how="left")
         .merge(commNav, on=["Sim", "Year", "Month", "QM"], how="left")
         .merge(hydro, on=["Sim", "Year", "Month", "QM"], how="left")
         .merge(mMarsh, on=["Year", "QM"], how="left")

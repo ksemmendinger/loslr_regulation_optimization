@@ -1,3 +1,16 @@
+# hard code traces that can be simulated - FIX LATER
+# tsTraces <- c("historic/1961_2020", "historic/1900_2020", "historic/1900_2008")
+# should this just read the directory of input data?
+tsTraces <- c()
+dirs <- list.dirs("input", recursive = FALSE)
+for (i in 1:length(dirs)) {
+  tsTraces <- c(tsTraces, list.dirs(paste0(dirs[i]), recursive = FALSE))
+}
+tsTraces <- str_remove(tsTraces, "input/")
+tsDefault <- "historic/1961_2020"
+
+defaultPolicy <- "Plan2014_GLRRM"
+
 # -----------------------------------------------------------------------------
 # script setup
 # -----------------------------------------------------------------------------
@@ -64,10 +77,10 @@ print("... loading pareto front data ...")
 
 # baseline data - all results are displayed as improvements over some baseline policy
 baselinePolicies <- list.files("output/data/baseline")
-baselinePolicies <- baselinePolicies[1]
+# baselinePolicies <- baselinePolicies[1]
 baselineExperiment <- list()
 for (i in 1:length(baselinePolicies)) {
-  baselineExperiment[[baselinePolicies[i]]] <- parseTOML(paste0("output/data/baseline/", baselinePolicies, "/config.toml"))
+  baselineExperiment[[baselinePolicies[i]]] <- parseTOML(paste0("output/data/baseline/", baselinePolicies[i], "/config.toml"))
 }
 
 # set up handles to database tables on app start
@@ -152,8 +165,8 @@ ui <- fluidPage(
                    column(1, dropdownButton(
                      linebreaks(1),
                      # plot settings
-                     selectInput(inputId = "basePol", label = "Baseline Policy for Normalization", multiple = FALSE, choices = baselinePolicies, selected = first(baselinePolicies)),
-                     selectInput(inputId = "plotPol", label = "Policies to Display", multiple = TRUE, choices = baselinePolicies, selected = first(baselinePolicies)),
+                     selectInput(inputId = "basePol", label = "Baseline Policy for Normalization", multiple = FALSE, choices = baselinePolicies, selected = defaultPolicy),
+                     selectInput(inputId = "plotPol", label = "Policies to Display", multiple = TRUE, choices = baselinePolicies, selected = defaultPolicy),
                      selectInput(inputId = "labelUnits", label = "Plot Label Units", multiple = FALSE, choices = c("Percent Change from Baseline", "Original PI Units"), selected = "Percent Change from Baseline"),
                      selectInput(inputId = "filterTable", label = "Table Units", multiple = FALSE, choices = c("Percent Change from Baseline", "Original PI Units"), selected = "Percent Change from Baseline"),
                      linebreaks(1),
@@ -206,6 +219,7 @@ ui <- fluidPage(
           selectInput(width = "100%", inputId = "policySelection", label = "Policy Selection", choices = c("Select from Table", "Select by searchID"), multiple = FALSE, selected = "Select from Table"),
           conditionalPanel("input.policySelection == 'Select by searchID'", textInput(inputId = "evalPoliciesManual", label = "Enter policies by searchID (separated with a comma):", placeholder = NULL, width = "100%")),
           conditionalPanel("input.policySelection == 'Select from Table'", pickerInput(inputId = "evalPolicies", label = "Policies to Evaluate", choices = NULL, multiple = TRUE,  width = "100%")), #, options = list(`actions-box` = TRUE))),
+          conditionalPanel("input.policySelection == 'Select from Table'", pickerInput(inputId = "evalTrace", label = "Trace to Evaluate", choices = tsTraces, selected = tsDefault, multiple = FALSE,  width = "100%")), #, options = list(`actions-box` = TRUE))),
           linebreaks(1),
           column(12, align = "center", offset = 0, actionButton("load_data", "Load Data", icon("chart-line"), width = "75%")),
           linebreaks(3),
@@ -901,6 +915,15 @@ server <- function(input, output, session) {
     
   })
   
+  tsTrace <- reactive({
+    if (is.null(input$evalPolicies) & is.null(input$evalPoliciesManual)) return()
+    tsTrace <- input$evalTrace
+    print(tsTrace)
+    assign(x = "tsTrace", value = tsTrace, envir = .GlobalEnv)
+    tsTrace
+    
+  })
+  
   # indicator on whether or not to retreive data
   loadData <- eventReactive(input$load_data, ignoreInit = TRUE, {
     loadData <- TRUE
@@ -914,6 +937,7 @@ server <- function(input, output, session) {
     
     paretoFront <- paretoFront()
     candidatePolicies <- candidatePolicies()
+    tsTrace <- tsTrace()
     
     output <- list()
     for (i in 1:length(candidatePolicies)) {
@@ -922,15 +946,18 @@ server <- function(input, output, session) {
         filter(plotID == candidatePolicies[i]) %>%
         select(Experiment, ID, plotID)
       
-      # output[[i]] <- read.delim(paste0("output/data/", fn$Experiment,"/simulation/historic/id", fn$ID,"/piOutput.csv")) %>%
-      #   mutate(.before = 1, Experiment = fn$Experiment, ID = fn$ID, plotID = fn$plotID)
-      
-      output[[i]] <- read.csv(paste0("output/data/", fn$Experiment,"/simulation/historic/id", fn$ID,"/sim.csv")) %>%
+      output[[i]] <- read.csv(paste0("output/data/", fn$Experiment,"/simulation/", tsTrace, "/id", fn$ID,"/sim.csv")) %>%
         mutate(.before = 1, Experiment = fn$Experiment, ID = fn$ID, plotID = fn$plotID)
       
     }
     
     expData <- bind_rows(output)
+    
+    # filter out year of spinup data
+    # spinup <- min(expData)
+    # expData <- expData %>%
+    #   filter(Year > spinup)
+    
     expData
   })
   
@@ -941,6 +968,7 @@ server <- function(input, output, session) {
     
     paretoFront <- paretoFront()
     plotPol <- plotPol()
+    tsTrace <- tsTrace()
     output <- list()
     for (i in 1:length(plotPol)) {
       
@@ -952,7 +980,7 @@ server <- function(input, output, session) {
       # output[[i]] <- read.delim(paste0("output/data/baseline/", plotPol[i], "/simulation/historic/", plotPol[i],"/piOutput.csv")) %>%
       #   mutate(.before = 1, Experiment = plotPol[i], ID = NA, plotID = plotID)
       
-      output[[i]] <- read.csv(paste0("output/data/baseline/", plotPol[i], "/simulation/historic/", plotPol[i],"/sim.csv")) %>%
+      output[[i]] <- read.csv(paste0("output/data/baseline/", plotPol[i], "/simulation/", tsTrace, "/sim.csv")) %>%
         mutate(.before = 1, Experiment = plotPol[i], ID = NA, plotID = plotID)
       
     }
@@ -987,14 +1015,27 @@ server <- function(input, output, session) {
     baseData <- baseData()
     tsData <- bind_rows(baseData, expData) %>%
       select(Experiment, ID, plotID, varNames$varName) %>%
-      setNames(c("Experiment", "ID", "plotID", varNames$varDescription)) %>%
-      group_by(plotID) %>%
-      filter(Year > 1899) %>% # filter out spinup year to match up timesteps
-      mutate(.before = 5, Month = as.numeric(cut(`Quarter-Month`, breaks = seq(1, 49, by = 4), include.lowest = TRUE, right = FALSE))) %>%
-      group_by(plotID) %>%
-      arrange(Year, Month, `Quarter-Month`) %>%
-      mutate(plotSim = row_number()) %>%
-      ungroup()
+      setNames(c("Experiment", "ID", "plotID", varNames$varDescription)) 
+    
+    # accounts for year of spinup data in new plotting sim column
+    tmp <- tsData %>% 
+      group_by(Year, `Quarter-Month`) %>% 
+      summarize(plotSim = n()) %>% 
+      filter(plotSim > 1) %>% 
+      arrange(Year, `Quarter-Month`) %>% 
+      ungroup() %>% 
+      mutate(plotSim = row_number())
+    
+    tsData <- tsData %>%
+      left_join(., tmp, by = c("Year", "Quarter-Month")) %>%
+      # group_by(plotID) %>%
+      arrange(plotSim) %>%
+      # filter(Year > 1899) %>% # filter out spinup year to match up timesteps
+      mutate(.before = 5, Month = as.numeric(cut(`Quarter-Month`, breaks = seq(1, 49, by = 4), include.lowest = TRUE, right = FALSE))) # %>%
+      # group_by(plotID) %>%
+      # arrange(Year, Month, `Quarter-Month`) %>%
+      # mutate(plotSim = row_number()) %>%
+      # ungroup()
     
     assign(x = "tsData", value = tsData, envir = .GlobalEnv)
     tsData

@@ -1,5 +1,5 @@
 [experimentalDesign]
-releaseFunction = "RC"
+releaseFunction = "ruleCurve"
 limitType = "Bv7"
 septemberRule = "on"
 forecastLeadTime = "12month"
@@ -55,41 +55,20 @@ normalizedValue = [
     0.3882857142857143,
     0.4962857142857143,
 ]
-lowerBounds = [
-    0.0,
-    0.0,
-    0.0,
-    0.5,
-    0.5,
-    5500.0,
-    1.0,
-    1.0,
-    74.0,
-    -50.0,
-    0.0,
-    0.0,
-    5500.0,
-    5500.0,
-]
-upperBounds = [
-    1000.0,
-    250.0,
-    300.0,
-    2.0,
-    2.0,
-    9000.0,
-    2000.0,
-    2000.0,
-    77.0,
-    50.0,
-    250.0,
-    250.0,
-    9000.0,
-    9000.0,
-]
 normalizedRange = [0, 1]
 
 [performanceIndicators]
+objectiveFormulation = "legacyPIs"
+metricWeighting = "netAnnualAverage"
+objectiveModels = [
+    "upstreamCoastalImpacts", 
+    "downstreamCoastalImpacts", 
+    "commercialNavigation", 
+    "hydropowerProduction", 
+    "meadowMarsh", 
+    "muskratLodgeViability", 
+    "recreationalBoating"
+]
 direction = ["min", "min", "min", "max", "max", "max", "min"]
 piName = [
     "Coastal Impacts: Upstream Buildings Impacted (#)",
@@ -111,22 +90,24 @@ tag = [
 ]
 abbrv = ["UC", "DC", "CN", "HP", "MM", "MLV", "RB"]
 satisficingCriteria = [0.0, 0.0, 0.0, -0.5, 0.0, 0.0, -20.0]
-# baselineValue = [
-#     56406.14130578513,
-#     3596.685950413223,
-#     195414877.03305784,
-#     -2239260118.4060163,
-#     -9844.27863928571,
-#     -0.4154438016528926,
-#     18958006.29504132,
-# ]
 
+# # 1900 - 2020
+# baselineValue = [
+# 55570.70512396694,
+#  3606.5123966942147,
+#  196693418.61983472,
+#  -2239266495.3769774,
+#  -9479.50035357143,
+#  -0.42415867768595045,
+#  17571196.00264463]
+
+# 1961 - 2020
 baselineValue = [
-    58916.79401666666,
- 3860.1833333333334,
- 197360648.25,
- -2358982984.3076797,
- -10672.225711111114,
- -0.4544833333333333,
- 16114734.239833334
+65710.41374999999,
+ 3962.5,
+ 197699171.78333333,
+ -2358860377.688935,
+ -10365.336266666665,
+ -0.369345,
+ 15146619.775833331
 ]
