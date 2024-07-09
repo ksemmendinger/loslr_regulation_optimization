@@ -5,43 +5,35 @@ options(scipen = 999)
 
 # load libraries
 library(tidyverse)
+library(RcppTOML)
 
 args <- commandArgs(trailingOnly = TRUE)
-# args <- c("mac_ext", "flowANN_Bv7_12month_sqAR_61dv_7obj_historic_100000nfe", "5", 100000)
+# args <-c(
+#   "/Users/kylasemmendinger/Documents/github/loslr_regulation_optimization",
+#   # "flowANN_onlyPhysicalLimits_offSepRule_netAnnualAverage_12month_sqLM_91dv_7obj_1900_2020_75000nfe",
+#   "adjANN_Bv7_offSepRule_netAnnualAverage_6month_0_91dv_7obj_historic_75000nfe",
+#   "5"
+# )
 
-# [1] location
-# [2] experiment name
-# [3] number of seeds
-# [4] version (historic or stochastic)
-# [5] skill (sq, [0, 1])
-# [6] number of function evaluations
-# [7] number of objectives
-# [8] number of decision variables
+# print(args)
 
+# [1]: path to working directory
 loc <- args[1]
-folderName <- args[2]
-seeds <- as.numeric(args[3])
-# seeds <- as.numeric(args[2])
-# leadtime <- args[3]
-# skill <- args[4]
-nfe <- as.numeric(str_remove(grep("nfe", str_split(folderName, "_")[[1]], value = TRUE), "nfe"))
-# nvars <- as.numeric(args[6])
-# 
-# # experiment name for directory
-# if (last(args) == "RBF") {
-#   folderName <- paste0("RBF_", leadtime, "_", skill, "_", nfe, "nfe_", nvars, "dvs")
-# } else {
-#   folderName <- paste0(leadtime, "_", skill, "_", nfe, "nfe_", nvars, "dvs")
-# }
+setwd(loc)
 
-# set working directory
-if (args[1] == "mac_ext") { 
-  wd <- "/Volumes/ky_backup/dps/output"
-}
-setwd(paste0(wd, "/data/", folderName))
+# [2]: folder name of experiment
+folderName <- args[2]
+
+# [3]: number of seeds
+seeds <- as.numeric(args[3])
+
+# load configuration file
+config <- parseTOML(paste0("output/data/", folderName, "/config.toml"))
+# nfe <- as.numeric(config$optimizationParameters$nfe)
+nfe <- as.numeric(config$optimizationParameters$nfe)
 
 # create new folder for plots
-dir.create("moeaFramework/plots", showWarnings = FALSE)
+dir.create(paste0("output/data/", folderName, "/moeaFramework/plots"), showWarnings = FALSE)
 
 # colors for plotting seeds
 seedPal <- c("#00429d", "#3761ab", "#5681b9", "#73a2c6", "#93c4d2", "#b9e5dd")
@@ -62,21 +54,21 @@ hyp <- list()
 for (i in 1:seeds) {
   
   # load nfe frequency
-  freq <- read.delim(paste0("clean/runtime_S", i, ".txt"),
+  freq <- read.delim(paste0("output/data/", folderName, "/clean/runtime_S", i, ".txt"),
                      sep = ",", check.names = FALSE) %>%
     select(NFE) %>%
     unique() %>%
     deframe()
   
   # load runtime performance
-  rt <- read.delim(paste0("moeaFramework/metrics/runtime_S", i, ".metrics"), sep = " ") %>%
+  rt <- read.delim(paste0("output/data/", folderName, "/moeaFramework/metrics/runtime_S", i, ".metrics"), sep = " ") %>%
     setNames(c("Hypervolume", "Generational Distance", 
                "Inverted Generational Distance", "Spacing", 
                "Epsilon Indicator", "Maximum Pareto Front Error")) %>%
     mutate(NFE = freq, .before = 1)
   
   # load final performance
-  final <- read.delim(paste0("moeaFramework/metrics/final_S", i, ".metrics"), sep = " ") %>%
+  final <- read.delim(paste0("output/data/", folderName, "/moeaFramework/metrics/final_S", i, ".metrics"), sep = " ") %>%
     setNames(c("Hypervolume", "Generational Distance", 
                "Inverted Generational Distance", "Spacing", 
                "Epsilon Indicator", "Maximum Pareto Front Error")) %>%
@@ -108,6 +100,6 @@ plt <- ggplot(data = dyn, aes(x = NFE, y = Value, color = as.factor(Seed))) +
         legend.text = element_text(size = 25)) +
   guides(color = guide_legend(nrow = 1, override.aes = list(size = 1.5)))
 
-png(paste0("moeaFramework/plots/borgPerformance.png"), height = 11, width = 17, units = "in", res = 330)
+png(paste0("output/data/", folderName, "/moeaFramework/plots/borgPerformance.png"), height = 11, width = 17, units = "in", res = 330)
 print(plt)
 dev.off()

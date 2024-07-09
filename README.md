@@ -497,15 +497,24 @@ More detail on running the dashboard is available [here](output/dashboard/README
 
 ### Candidate Policy Selection
 
-Once you launch the dashboard, you can select experiments to load in and visualize.
+Once you launch the dashboard, you can select experiments to load in and visualize. Click the `Export Table` button to save a `satisficingPolicies.csv` file for policy simulation.
 
 ### Policy Re-Simulation
 
-Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script.
+Borg returns the decision variables values of policy that fall on the Pareto Frontier. However, the time series of water levels and objective performance is not returned. To run the simulation model and return the time series of hydrologic attributes and performance indicators, run the `policySimulation.py` script. To run the `policySimulation.py` for a specified hydrologic trace, run the following:
+
+```bash
+python output/postScripts/dataFormat.py ${loc} ${folderName} ${inputTrace} ${inputData} 
+```
+
+1. `${loc}` : the absolute path of the user's home directory (i.e., where the code repository is located)
+1. `${folderName}` : the name name of the folder that contains the raw Borg results (in the `output/` directory)
+1. `${inputTrace}` : the directory name that contains the input data [historic, stochastic, climate change, etc...]
+2. `${inputData}` : input data file name without extension, may be an empty string to simulate all traces in a specified folder
 
 ### Secondary Analyses
 
-This repository contains code to performa a time-varying sensitivity analysis on candidate policies. Users can add additional analysis scripts to the `output/` folder and call them in the postAnalysis.sh script to run.
+This repository contains code to performa a time-varying sensitivity analysis on candidate policies. Users can add additional analysis scripts to the `output/` folder and call them in the `postAnalysis.sh` script to run.
 
 <br>
 

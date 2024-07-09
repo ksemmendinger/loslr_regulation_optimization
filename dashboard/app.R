@@ -7,7 +7,7 @@ for (i in 1:length(dirs)) {
   tsTraces <- c(tsTraces, list.dirs(paste0(dirs[i]), recursive = FALSE))
 }
 tsTraces <- str_remove(tsTraces, "input/")
-tsDefault <- "historic/1961_2020"
+# tsDefault <- "historic/1961_2020"
 
 defaultPolicy <- "Plan2014_GLRRM"
 
@@ -219,7 +219,7 @@ ui <- fluidPage(
           selectInput(width = "100%", inputId = "policySelection", label = "Policy Selection", choices = c("Select from Table", "Select by searchID"), multiple = FALSE, selected = "Select from Table"),
           conditionalPanel("input.policySelection == 'Select by searchID'", textInput(inputId = "evalPoliciesManual", label = "Enter policies by searchID (separated with a comma):", placeholder = NULL, width = "100%")),
           conditionalPanel("input.policySelection == 'Select from Table'", pickerInput(inputId = "evalPolicies", label = "Policies to Evaluate", choices = NULL, multiple = TRUE,  width = "100%")), #, options = list(`actions-box` = TRUE))),
-          conditionalPanel("input.policySelection == 'Select from Table'", pickerInput(inputId = "evalTrace", label = "Trace to Evaluate", choices = tsTraces, selected = tsDefault, multiple = FALSE,  width = "100%")), #, options = list(`actions-box` = TRUE))),
+          pickerInput(inputId = "evalTrace", label = "Trace to Evaluate", choices = tsTraces, selected = NULL, multiple = TRUE, options = pickerOptions(maxOptions = 1), width = "100%"), 
           linebreaks(1),
           column(12, align = "center", offset = 0, actionButton("load_data", "Load Data", icon("chart-line"), width = "75%")),
           linebreaks(3),

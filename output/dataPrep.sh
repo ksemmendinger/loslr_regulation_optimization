@@ -33,5 +33,6 @@ cd "${moeaDir}"
 ./find_metrics.sh "${moeaFileDirName}" "${folderName}" "${nseeds}" "${nobjs}"
 
 echo "... making convergence plots ..."
-cd  ${currentDir}
+cd ${currentDir}
+conda activate rshiny
 Rscript postScripts/convergencePlots.R "${loc}" "${folderName}" "${nseeds}"
