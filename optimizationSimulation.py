@@ -44,50 +44,50 @@ def simulation(
     data["rfRegime"] = str(np.nan)
     data["flowRegime"] = str(np.nan)
 
-    # # create columns for Lake Ontario water levels and flows
-    # data["ontLevelBOQ"] = np.nan
-    # data["ontLevelEOQ"] = np.nan
-    # data["ontLevel"] = np.nan  # used for st. law and objective function calculations
-    # data["ontFlow"] = np.nan
-    # data["flowRegime"] = str(np.nan)
+    # create columns for Lake Ontario water levels and flows
+    data["ontLevelBOQ"] = np.nan
+    data["ontLevelEOQ"] = np.nan
+    data["ontLevel"] = np.nan  # used for st. law and objective function calculations
+    data["ontFlow"] = np.nan
+    data["flowRegime"] = str(np.nan)
 
-    # # create columns for St. Lawrence water levels and flows
-    # data["stlouisFlow"] = np.nan
-    # data["kingstonLevel"] = np.nan
-    # data["alexbayLevel"] = np.nan
-    # data["brockvilleLevel"] = np.nan
-    # data["ogdensburgLevel"] = np.nan
-    # data["cardinalLevel"] = np.nan
-    # data["iroquoishwLevel"] = np.nan
-    # data["iroquoistwLevel"] = np.nan
-    # data["morrisburgLevel"] = np.nan
-    # data["longsaultLevel"] = np.nan
-    # data["saundershwLevel"] = np.nan
-    # data["saunderstwLevel"] = np.nan
-    # data["cornwallLevel"] = np.nan
-    # data["summerstownLevel"] = np.nan
-    # data["lerybeauharnoisLevel"] = np.nan
-    # data["ptclaireLevel"] = np.nan
-    # data["jetty1Level"] = np.nan
-    # data["stlambertLevel"] = np.nan
-    # data["varennesLevel"] = np.nan
-    # data["sorelLevel"] = np.nan
-    # data["lacstpierreLevel"] = np.nan
-    # data["maskinongeLevel"] = np.nan
-    # data["troisrivieresLevel"] = np.nan
-    # data["batiscanLevel"] = np.nan
+    # create columns for St. Lawrence water levels and flows
+    data["stlouisFlow"] = np.nan
+    data["kingstonLevel"] = np.nan
+    data["alexbayLevel"] = np.nan
+    data["brockvilleLevel"] = np.nan
+    data["ogdensburgLevel"] = np.nan
+    data["cardinalLevel"] = np.nan
+    data["iroquoishwLevel"] = np.nan
+    data["iroquoistwLevel"] = np.nan
+    data["morrisburgLevel"] = np.nan
+    data["longsaultLevel"] = np.nan
+    data["saundershwLevel"] = np.nan
+    data["saunderstwLevel"] = np.nan
+    data["cornwallLevel"] = np.nan
+    data["summerstownLevel"] = np.nan
+    data["lerybeauharnoisLevel"] = np.nan
+    data["ptclaireLevel"] = np.nan
+    data["jetty1Level"] = np.nan
+    data["stlambertLevel"] = np.nan
+    data["varennesLevel"] = np.nan
+    data["sorelLevel"] = np.nan
+    data["lacstpierreLevel"] = np.nan
+    data["maskinongeLevel"] = np.nan
+    data["troisrivieresLevel"] = np.nan
+    data["batiscanLevel"] = np.nan
 
-    # # create columns for long forecast confidence and indicator
-    # data["confidence"] = np.nan
-    # data["indicator"] = np.nan
+    # create columns for long forecast confidence and indicator
+    data["confidence"] = np.nan
+    data["indicator"] = np.nan
 
-    # # create column for freshet indicator, needed for commercial navigation PI model
-    # data["freshetIndicator"] = np.nan
+    # create column for freshet indicator, needed for commercial navigation PI model
+    data["freshetIndicator"] = np.nan
 
     # # initialize previous QM's flow, EOQ level, and ice status
     data.loc[48, "ontLevelBOQ"] = 74.55
-    # data.loc[47, "ontFlow"] = 595.0
-    # data.loc[47, "iceInd"] = 2.0
+    data.loc[47, "ontFlow"] = 595.0
+    data.loc[47, "iceInd"] = 2.0
 
     # # initialize columns for slon and other ottsplit flow calculations
     # if str(slonValues) != "True":
