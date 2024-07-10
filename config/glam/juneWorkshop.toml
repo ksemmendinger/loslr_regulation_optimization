@@ -19,13 +19,13 @@ dvName = [                                          # decision variables names
     "wetIndicatorThreshold", 
     "wetConfidenceThreshold", 
     "C1", 
-    "addC1", 
+    "C1*", 
     "P1", 
     "C2", 
     "P2", 
     "dryLevelThreshold", 
     "dryFlowAdjustment",]
-lowerBounds = [ 5500.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 74.0, -50.0,]             # lower bounds of decision variables
+lowerBounds = [ 5500.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 74.0, -50.0,]             # lower bounds of decision variables
 upperBounds = [ 10000.0, 250.0, 1000.0, 250.0, 2.0, 300.0, 2.0, 76.5, 50.0,]    # upper bounds of decision variables
 normalized = "False"                                # optimize normalized ("True") or actual value ranges ("False")
 normalizedRange = []

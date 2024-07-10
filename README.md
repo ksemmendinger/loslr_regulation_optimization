@@ -493,7 +493,7 @@ r                           # launch r
 shiny::runApp()             # launch app
 ```
 
-More detail on running the dashboard is available [here](output/dashboard/README.md).
+More detail on running the dashboard is available [here](dashboard/README.md).
 
 ### Candidate Policy Selection
 

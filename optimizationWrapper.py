@@ -53,9 +53,6 @@ releaseFunctionName = config["experimentalDesign"]["releaseFunction"]
 planLimitsName = config["experimentalDesign"]["limitType"]
 septemberRule = config["experimentalDesign"]["septemberRule"]
 stlawRoutingName = config["experimentalDesign"]["stlawRouting"]
-# slonValues = config["experimentalDesign"]["slonValues"]
-# leadtime = config["experimentalDesign"]["forecastLeadTime"]
-# skill = config["experimentalDesign"]["forecastSkill"]
 version = config["experimentalDesign"]["trace"]
 inputFile = config["experimentalDesign"]["inputFile"]
 
@@ -70,13 +67,6 @@ epsilon = config["performanceIndicators"]["epsilonValue"]
 piWeighting = config["performanceIndicators"]["metricWeighting"]
 objectiveFormulation = config["performanceIndicators"]["objectiveFormulation"]
 objectiveModelNames = config["performanceIndicators"]["objectiveModels"]
-
-# supply trace - set routing version to run with SLON or Ottawa River flows [historic, stochastic]
-# version = "historic"
-# if trace == "stochastic":
-#     version = "stochastic"
-# else:
-#   version = "historic"
 
 # -----------------------------------------------------------------------------
 # load functions for simulation - specified in config file
