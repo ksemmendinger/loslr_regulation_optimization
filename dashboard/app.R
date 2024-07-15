@@ -502,6 +502,7 @@ server <- function(input, output, session) {
     if (runCheck() == TRUE) return(NULL)
     pis <- pis()
     expPol <- expPol()
+    basePol <- basePol()
     paretoBaseline <- paretoBaseline()
     
     pf <- list()
@@ -536,6 +537,7 @@ server <- function(input, output, session) {
     paretoFront <- paretoFront()
     expPol <- expPol()
     normPol <- normPol()
+    basePol <- basePol()
     
     if (any(normPol)) {
       
@@ -645,6 +647,7 @@ server <- function(input, output, session) {
     
     if (runCheck() == TRUE) return(NULL)
     pis <- pis()
+    basePol <- basePol()
     
     if (input$labelUnits == "Original PI Units") {
       
