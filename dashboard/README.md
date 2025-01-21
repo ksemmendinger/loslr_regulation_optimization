@@ -13,7 +13,7 @@ shiny::runApp()             # launch app
 
 The first page of the dashboard displays the parallel axis plot for the user-selected experiment(s).
 
-<!-- ![workflow](resources/1_select_experiment.mov) -->
+![workflow](resources/1_select_experiment.mov)
 
 Users may update the satisficing criteria using the filters on the left side of the page to screen out selected policies. Users may also brush out policies by selecting them directly from the parallel axis plot.
 
