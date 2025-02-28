@@ -63,7 +63,7 @@ def planLimits(
     # slonFlow = x["slonFlow"]
     # sfSlonFlow = x["sfSlonFlow"]
     carillonFlow = x["carillonFlow"]
-    chateauguayFlow = x["carillonFlow"]
+    chateauguayFlow = x["chateauguayFlow"]
 
     ontFlowPrev = x["ontFlowPrev"]
     obsontNTS = x["obsontNTS"]
@@ -493,11 +493,11 @@ def planLimits(
     # flows through lac st louis from slon value
     # calculate pointe claire level
     # estimate flow required to maintain pointe claire below action level
-
-    # IM NOT SURE IF THESE SHOULD BE SLON OR LAC ST LOUIS FLOWS
     if foreInd == 1:
         tmp = slonCalculation(ontFlow, carillonFlow, chateauguayFlow)
         slonFlow = tmp["slonFlow"]
+        stlouisFlow = tmp["lacstlouisFlow"]
+        ptclaireLevel = round_d(16.57 + ((ptclaireR * stlouisFlow / 604.0) ** 0.58), 2)
         fFlow = round((c1 / ptclaireR - slonFlow) / 10.0, 0)
 
     else:
@@ -525,9 +525,14 @@ def planLimits(
         Q_Ontlimit = round(Q_Ontlimit, 0)
         fFlow = Q_Ontlimit
 
+        # get pt. claire level for actionLev
+        tmp = slonCalculation(ontFlow, carillonFlow, chateauguayFlow)
+        stlouisFlow = tmp["lacstlouisFlow"]
+        ptclaireLevel = round_d(16.57 + ((ptclaireR * stlouisFlow / 604.0) ** 0.58), 2)
+
     flimFlow = round(fFlow, 0)
 
-    if flimFlow < ontFlow:
+    if (ptclaireLevel > actionlev) and (flimFlow < ontFlow):
         ontFlow = flimFlow
         ontRegime = "F"
 
